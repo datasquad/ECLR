@@ -3,7 +3,7 @@ navbar:
   title: "HOME"
   left:
     - text: "Writing"
-      href: Writing.html
+      href: writing.html
     - text: "Presenting"
       href: presenting.html
     - text: "Econometric Computing"
