@@ -1,0 +1,25 @@
+---
+title: "Writing"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+Writing resources to come
+
+## Generic tips
+
+Here are some generic resources: to come
+
+## Essay
+
+Here are things to look out of you write an essay
+
+## Policy Brief
+
+Writing a policy brief will present a new set of challenges. To come
+
+## Dissertation
+
+A dissertation is a substantial piece of work and the following tips may be useful: to come

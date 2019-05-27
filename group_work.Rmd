@@ -1,0 +1,18 @@
+---
+title: "Group Work"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+In order to study effectively most of you will form study groups. But some of you will also have to present formal, assessed work which has been produced in a group. 
+
+## Study Groups
+
+Advice to come
+
+## Assessed Group Work
+
+Advice to come
+

@@ -9,10 +9,9 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="author" content="Ralf Becker at UoM, June 2019" />
 
 
-<title>Skills for Studying Economics</title>
+<title>Presenting</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,6 +19,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -261,6 +263,90 @@ $(document).ready(function () {
 
 
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -268,6 +354,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -308,29 +404,30 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Skills for Studying Economics</h1>
-<h4 class="author"><a href="https://github.com/datasquad">Ralf Becker</a> at <a href="http://www.manchester.ac.uk">UoM</a>, June 2019</h4>
+<h1 class="title toc-ignore">Presenting</h1>
 
 </div>
 
 
-<hr />
-<p>This page has been created to support Economics students at the University of Manchester in their studies. In particular we want to help students to develop skills in</p>
-<ul>
-<li>Writing</li>
-<li>Presenting</li>
-<li>Computing</li>
-<li>Working in Groups</li>
-</ul>
-<p>All of these are important skills not only during your studies but also during their worklife.</p>
-<hr />
-<p><strong>Other Resources:</strong></p>
-<ul>
-<li><a href="http://www.studyingeconomics.ac.uk/">The Economics Network</a> has excellent support material for <strong>current students</strong></li>
-</ul>
+<p>During your degree and even more so afterwards in your workplace you will often be asked to verbally present your thoughts or your work. This can happen in very different environments, a tutorial in which you make a contribution, your study group in which you revise a topic, or a formal presentation where your thoughts are supported by a set of slides.</p>
+<div id="in-group-study" class="section level2">
+<h2>In Group Study</h2>
+<p>This is possibly the most common and also the most relaxed environment in which you will be given the oppportunity to verbally express what you have understood and learned. This are invaluable opportunities to practice your verbal skills.</p>
+<p>In case the language of study (here English) is not your mother tongue, working in groups is a great opportunity to practice your language skills. If at all possible you should have discussions on the topic in English. After all you will be asked to use English in your assessments. Even if it is difficult at first, it is a great way to learn and once you leave University any future employer will expect that you have great English skills.</p>
+</div>
+<div id="in-tutorials" class="section level2">
+<h2>In Tutorials</h2>
+<p>Tutorials are small group meetings. In many of these you will be given the opportunity to make contributions. You should ensure that you use as many of these opportunities as you can. The feedback you will receive on your contributions (from fellow students or the tutor) can significantly contribute t your learning.</p>
+</div>
+<div id="presentations" class="section level2">
+<h2>Presentations</h2>
+<p>Giving a formal presentation can be a really daunting experience. Some of our units ask you to make formal presentations such that you can start making relevant experiences for your later worklife.</p>
+</div>
 
 
 
+</div>
+</div>
 
 </div>
 

@@ -1,0 +1,24 @@
+---
+title: "Presenting"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+During your degree and even more so afterwards in your workplace you will often be asked to verbally present your thoughts or your work. This can happen in very different environments, a tutorial in which you make a contribution, your study group in which you revise a topic, or a formal presentation where your thoughts are supported by a set of slides.
+
+## In Group Study
+
+This is possibly the most common and also the most relaxed environment in which you will be given the oppportunity to verbally express what you have understood and learned. This are invaluable opportunities to practice your verbal skills. 
+
+In case the language of study (here English) is not your mother tongue, working in groups is a great opportunity to practice your language skills. If at all possible you should have discussions on the topic in English. After all you will be asked to use English in your assessments. Even if it is difficult at first, it is a great way to learn and once you leave University any future employer will expect that you have great English skills.
+
+## In Tutorials
+
+Tutorials are small group meetings. In many of these you will be given the opportunity to make contributions. You should ensure that you use as many of these opportunities as you can. The feedback you will receive on your contributions (from fellow students or the tutor) can significantly contribute t your learning.
+
+
+## Presentations
+
+Giving a formal presentation can be a really daunting experience. Some of our units ask you to make formal presentations such that you can start making relevant experiences for your later worklife.

@@ -1,15 +1,15 @@
-name: "R Markdown Websites Tutorial"
+name: "Skills for Studying Economics"
 navbar:
   title: "HOME"
   left:
-    - text: "First Observations"
-      href: first_observations.html
-    - text: "Basic Workflow"
-      href: basic_workflow.html
-    - text: "Getting Sophisticated"
-      href: getting_sophisticated.html
-    - text: "Your Turn"
-      href: your_turn.html
+    - text: "Writing"
+      href: Writing.html
+    - text: "Presenting"
+      href: presenting.html
+    - text: "Econometric Computing"
+      href: econometric_computing.html
+    - text: "Group Work"
+      href: group_work.html
 output_dir: "."
 output:
   html_document:
