@@ -1,0 +1,32 @@
+---
+title: "Researching"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+## On planning and structuring
+
+It is good to start with pen and paper to plan the structure of an essay or talk, and take notes
+
+*	Mueller and Oppenheimer (2014) [The Pen is Mightier Than the Keyboard: Advantages of Longhand Over Laptop Note Taking](https://journals-sagepub-com.manchester.idm.oclc.org/doi/abs/10.1177/0956797614524581) Psychological Science  
+*	Chatfield (2015) [Why reading and writing on paper can be better for your brain](https://www.theguardian.com/technology/2015/feb/23/reading-writing-on-paper-better-for-brain-concentration), The Guardian  
+*	James and Engelhardt (2012) [The effects of handwriting experience on functional brain development in pre-literate children](https://ac-els-cdn-com.manchester.idm.oclc.org/S2211949312000038/1-s2.0-S2211949312000038-main.pdf?_tid=51b09555-c005-4d58-8a11-2e3882d207c5&acdnat=1549801482_911df8fdf04ed64451f15c98ff895b67), Trends in Neuroscience and Education; 
+
+
+## On Fact Checking
+
+It is the author's duty to ensure that any facts presented, to the best of the author's knowledge, are correct. This site by the [Economics Network](https://www.economicsnetwork.ac.uk/internet/fact-checking) links to a number of fact checking exercises by news organisations and to resources useful for students having to evaluate the veracity of facts.
+
+## On communicating uncertainty
+
+*	Government Statistical Service, [Communicating uncertainty and change](https://gss.civilservice.gov.uk/wp-content/uploads/2018/03/Communicating-uncertainty-and-change-Guidance-for-Official-Statistics-4.pdf)   
+*	Manski (2018) [Communicating uncertainty in policy analysis](https://www-pnas-org.manchester.idm.oclc.org/content/early/2018/11/21/1722389115), PNAS   
+*	Spiegelhalter, Pearson and Short (2011) [Visualizing Uncertainty About the Future](http://science.sciencemag.org.manchester.idm.oclc.org/content/333/6048/1393), Science, vol 333, issue 6048, 1393-1400;  
+*	[Understanding Uncertainty](https://understandinguncertainty.org/blog), of the Winton programme for the public understanding of risk at the University of Cambridge  
+
+## On designing good visual aids
+
+* [A Non-Designer's Guide to Creating Memorable Visual Slides](https://online.manchester.ac.uk/bbcswebdav/pid-6751652-dt-content-rid-28686073_1/xid-28686073_1), Visme.pdf  
+*	[Design secrets behind the FT’s best charts of the year](https://online.manchester.ac.uk/bbcswebdav/pid-6751652-dt-content-rid-28686074_1/xid-28686074_1), Financial Times 

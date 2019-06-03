@@ -1,0 +1,14 @@
+---
+title: "Teacher Resources"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+
+## Writing Excercises
+
+•	Get students to read and grade these two essays, then give them the comments and grades: Economics Network, [Writing for Economics](https://www.economicsnetwork.ac.uk/archive/lse_writing/page_11.htm)  
+•	Get students to write a storyboard from this policy brief , Wiggins and Levy (2008) [Rising food prices: cause for concern](https://www.odi.org/sites/odi.org.uk/files/odi-assets/publications-opinion-files/2555.pdf)
+

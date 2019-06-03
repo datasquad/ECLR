@@ -11,7 +11,7 @@
 
 
 
-<title>First observations</title>
+<title>Researching</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,6 +19,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -260,6 +263,90 @@ $(document).ready(function () {
 
 
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -267,6 +354,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -313,67 +410,51 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">First observations</h1>
+<h1 class="title toc-ignore">Researching</h1>
 
 </div>
 
 
-<p>With this tutorial, we have a working example website that we will explore together. We’ll learn a few rules and look for patterns to get an understanding of what things do. And you can continue to use this website as a reference after the tutorial, along with <a href="http://rmarkdown.rstudio.com/rmarkdown_websites.html"><strong>RStudio’s instructions for R Markdown websites</strong></a>.</p>
-<p>We’ll start our exploration online looking at the website architecture, then we’ll clone the repo to our local computers. Locally, we will explore further by going back and forth between the R Markdown editor and built webpages, and make modifications. Pushing to Github will make our modifications live!</p>
-<hr />
-<div id="exploring-online" class="section level2">
-<h2>Exploring online</h2>
-<p><br></p>
-<!---this is an html comment that works in Markdown --->
-<!--- I use the <br> html tag to force carriage returns in the text--->
-<div id="the-website-itself" class="section level3">
-<h3>The website itself</h3>
-<p>This website has 5 pages:</p>
+<div id="on-planning-and-structuring" class="section level2">
+<h2>On planning and structuring</h2>
+<p>It is good to start with pen and paper to plan the structure of an essay or talk, and take notes</p>
 <ul>
-<li>Home</li>
-<li>First Observations</li>
-<li>Basic Workflow</li>
-<li>Getting Sophisticated</li>
-<li>Your Turn</li>
+<li>Mueller and Oppenheimer (2014) <a href="https://journals-sagepub-com.manchester.idm.oclc.org/doi/abs/10.1177/0956797614524581">The Pen is Mightier Than the Keyboard: Advantages of Longhand Over Laptop Note Taking</a> Psychological Science<br />
+</li>
+<li>Chatfield (2015) <a href="https://www.theguardian.com/technology/2015/feb/23/reading-writing-on-paper-better-for-brain-concentration">Why reading and writing on paper can be better for your brain</a>, The Guardian<br />
+</li>
+<li>James and Engelhardt (2012) <a href="https://ac-els-cdn-com.manchester.idm.oclc.org/S2211949312000038/1-s2.0-S2211949312000038-main.pdf?_tid=51b09555-c005-4d58-8a11-2e3882d207c5&amp;acdnat=1549801482_911df8fdf04ed64451f15c98ff895b67">The effects of handwriting experience on functional brain development in pre-literate children</a>, Trends in Neuroscience and Education;</li>
 </ul>
-<p><code>github.io</code> means that there is a Github repo behind this website, and we also know the username and repo name:</p>
-<p><strong><a href="http://jules32.github.io/rmarkdown-website-tutorial" class="uri">http://jules32.github.io/rmarkdown-website-tutorial</a></strong> &lt;=&gt; <strong><a href="https://github.com/jules32/rmarkdown-website-tutorial" class="uri">https://github.com/jules32/rmarkdown-website-tutorial</a></strong></p>
-<p>(Note: you can have github websites point to different urls if you don’t want the <code>github.io</code>.)</p>
-<p><br></p>
 </div>
-<div id="the-websites-repo" class="section level3">
-<h3>The website’s repo</h3>
-<p>Let’s go to <strong><a href="https://github.com/jules32/rmarkdown-website-tutorial" class="uri">https://github.com/jules32/rmarkdown-website-tutorial</a></strong>.</p>
-<p><strong>First, note the <code>gh-pages</code> branch</strong> - this is critical for building free webpages. You can usually name branches whatever you want, but the <code>gh-pages</code> name means it can be built as a website. <a href="https://help.github.com/articles/setting-the-default-branch/">I set it as my default branch</a>.</p>
-<div class="figure">
-<img src="images/gh-pages.png" />
-
+<div id="on-fact-checking" class="section level2">
+<h2>On Fact Checking</h2>
+<p>It is the author’s duty to ensure that any facts presented, to the best of the author’s knowledge, are correct. This site by the <a href="https://www.economicsnetwork.ac.uk/internet/fact-checking">Economics Network</a> links to a number of fact checking exercises by news organisations and to resources useful for students having to evaluate the veracity of facts.</p>
 </div>
-<p><br></p>
-<p><strong>Now let’s look at the filenames</strong>. We can recognize the names of the webpages we’ve seen, and there is also a <code>_site.yml</code> file, which is the website’s configuration file. The simplest website possible would have 2 files only: <code>_site.yml</code> and <code>index.Rmd</code></p>
-<div class="figure">
-<img src="https://docs.google.com/drawings/d/1jnXfeJ3i-fwd-t49S5FyeMAX3cJSoCYbyZLLTqFZd7w/pub?w=960&amp;h=720" />
-
+<div id="on-communicating-uncertainty" class="section level2">
+<h2>On communicating uncertainty</h2>
+<ul>
+<li>Government Statistical Service, <a href="https://gss.civilservice.gov.uk/wp-content/uploads/2018/03/Communicating-uncertainty-and-change-Guidance-for-Official-Statistics-4.pdf">Communicating uncertainty and change</a><br />
+</li>
+<li>Manski (2018) <a href="https://www-pnas-org.manchester.idm.oclc.org/content/early/2018/11/21/1722389115">Communicating uncertainty in policy analysis</a>, PNAS<br />
+</li>
+<li>Spiegelhalter, Pearson and Short (2011) <a href="http://science.sciencemag.org.manchester.idm.oclc.org/content/333/6048/1393">Visualizing Uncertainty About the Future</a>, Science, vol 333, issue 6048, 1393-1400;<br />
+</li>
+<li><a href="https://understandinguncertainty.org/blog">Understanding Uncertainty</a>, of the Winton programme for the public understanding of risk at the University of Cambridge</li>
+</ul>
 </div>
-<p><br></p>
-</div>
-</div>
-<div id="fork-to-your-account-clone-to-your-computer" class="section level2">
-<h2>Fork to your account, clone to your computer</h2>
-<p>Let’s start digging deeper and playing with this.</p>
-<ol style="list-style-type: decimal">
-<li><p>Fork the <a href="https://github.com/jules32/rmarkdown-website-tutorial">jules32/rmarkdown-website-tutorial</a> repo into your own account.</p></li>
-<li><p>Edit the URL for the website by replacing <code>jules32</code> with your GitHub username</p></li>
-<li><p>Clone to your local computer using RStudio (preferred) the <a href="https://desktop.github.com/">Desktop App</a>, or the command line.</p></li>
-</ol>
-<div class="figure">
-<img src="https://docs.google.com/drawings/d/1yy2VFQy4QqxfOzt-XtTSNA91qoCI7jPo0ob7Pm89SBg/pub?w=960&amp;h=720" />
-
-</div>
+<div id="on-designing-good-visual-aids" class="section level2">
+<h2>On designing good visual aids</h2>
+<ul>
+<li><a href="https://online.manchester.ac.uk/bbcswebdav/pid-6751652-dt-content-rid-28686073_1/xid-28686073_1">A Non-Designer’s Guide to Creating Memorable Visual Slides</a>, Visme.pdf<br />
+</li>
+<li><a href="https://online.manchester.ac.uk/bbcswebdav/pid-6751652-dt-content-rid-28686074_1/xid-28686074_1">Design secrets behind the FT’s best charts of the year</a>, Financial Times</li>
+</ul>
 </div>
 
 
 
+</div>
+</div>
 
 </div>
 

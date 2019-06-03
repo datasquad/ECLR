@@ -2,6 +2,8 @@ name: "Skills for Studying Economics"
 navbar:
   title: "HOME"
   left:
+    - text: "Researching"
+      href: researching.html
     - text: "Writing"
       href: writing.html
     - text: "Presenting"
@@ -10,6 +12,9 @@ navbar:
       href: econometric_computing.html
     - text: "Group Work"
       href: group_work.html
+    - text: "Teacher Resources"
+      href: teacher_resources.html
+      
 output_dir: "."
 output:
   html_document:
