@@ -13,7 +13,7 @@ In pparticular you should seek out the [super helpful tips](https://www.language
 
 The University of Manchester's Library has also produced the award winning [My Learning Essentials skills programme](https://www.library.manchester.ac.uk/using-the-library/students/training-and-skills-support/my-learning-essentials/). It consists of a combination of short online and in-person workshops which you can access to improve your academic skills. These are designed for all students, not only international students.
 
-## Things to read and listen to for economics students
+## Things to read and listen to for economics students {#reading}
 
 Interesting economics blogs and podcasts:
 
@@ -29,8 +29,8 @@ Interesting blogs:
 * [Diane Coyle](http://www.enlightenmenteconomics.com/blog/), formerly of Manchester, now at The University of Cambridge. She reviews economics books and writes on the digital economy and its measurement.  
 * [John H. Cochrane](https://johnhcochrane.blogspot.com/), "news, views, and commentary, from a humorous free-market point of view"  
 * [Simon Wren-Lewis](https://mainlymacro.blogspot.com/), left of centre macroeconomist 
-* [Microeconomic Insights](https://microeconomicinsights.org/)
-* [Marginal Revolution](https://marginalrevolution.com/), a blog which presents current high quality research for public consumption  
+* [Microeconomic Insights](https://microeconomicinsights.org/), a blog which presents current high quality research for public consumption  
+* [Marginal Revolution](https://marginalrevolution.com/)
 * [Noah Smith](http://noahpinionblog.blogspot.com/), Economist at Bloomberg
 
 

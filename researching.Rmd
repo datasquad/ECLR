@@ -17,6 +17,8 @@ It is good to start with pen and paper to plan the structure of an essay or talk
 
 ## On finding resources
 
+Often you may need some initial inspiration. You can find a list of interesting reading and podcasts [here](https://datasquad.github.io/EconSkills/language_support.html).
+
 If you are trying to find written material on economic topics you may want to use one or several of the following serach tools:
 
 * [Google](https://www.google.com/), [Bing](https://www.bing.com/), [DuckDuckGo](https://duckduckgo.com/) or any other internet search engine in order to get an overview of the type of available information. But try diffferent combnations of search terms and look beyond the first page. Do not expect high-quality information only.   
@@ -24,7 +26,7 @@ If you are trying to find written material on economic topics you may want to us
 * [Google Scholar](https://scholar.google.co.uk/) delivers a subset of results the standard Google search would deliver. It is Google who decides (in a non-public manner) what is scholarly and what isn't. Some journals will not allow its archives to show here. But it is a very useful as it provides much less low quality and irrelevant material compared to a standard Google search.
 * Economics Databases: There are a lot of databases with different coverages and different specilisations. A great [overview with links](https://subjects.library.manchester.ac.uk/economic/databases/) is provided by the The University of Manchester Library team.
 
-This [resource](https://www.escholar.manchester.ac.uk/learning-objects/mle/evaluating-sources/story_content/external_files/cheat-sheet.pdf) gives you some guidance to use the context of a publication to judge whether it is reliablr, objective and relevant. (UoM, MLE, Library)
+This [resource](https://www.escholar.manchester.ac.uk/learning-objects/mle/evaluating-sources/story_content/external_files/cheat-sheet.pdf) gives you some guidance to use the context of a publication to judge whether it is reliable, objective and relevant. (UoM, MLE, Library)
 
 ## On fact checking
 
