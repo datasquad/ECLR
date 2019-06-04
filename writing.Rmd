@@ -18,6 +18,11 @@ output:
 *	Neugeboren and Jacobson (2005) [Writing economics](https://writingproject.fas.harvard.edu/files/hwp/files/writingeconomics.pdf) aimed at sophmore Harvard undergrads  
 *	Dudenhefer (2009) [A guide to writing in economics](http://writing.ku.edu/sites/writing.drupal.ku.edu/files/docs/Guide_Writing_Economics.pdf), Duke University  
 
+## On referencing
+
+This [online resource](https://www.escholar.manchester.ac.uk/learning-objects/mle/introducing-referencing/story_html5.html) explores the principles behind referencing, highlighting why it is good academic practice. It outlines when and how you need to reference, and how to read a reference when following up a source listed on a reading list or bibliography. (UoM, Learning Essentials)
+
+Here we use the Harvard referencing style and all your referencing should adhere to this [guidance](http://subjects.library.manchester.ac.uk/referencing/referencing-harvard). (UoM)
 
 ## Essay
 

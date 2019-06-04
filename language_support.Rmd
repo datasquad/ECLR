@@ -41,4 +41,4 @@ YouTube Channels and Videos:
 
 Twitter:
 
-Under the #EconTwitter you can find topical discussions on economic topics in the twittersphere. 
+Under the [#EconTwitter](https://twitter.com/search?q=%23EconTwitter&src=typd) you can find topical discussions on economic topics in the twittersphere. 
