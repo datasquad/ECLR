@@ -12,11 +12,11 @@ We propose that, whenever students have to submit a substantial piece of written
 
 To copy this into your VLE, open [this](docs/BB_text.txt){target="_blank"} and copy (CTRL+C) the text contained therein. Then go to your VLE and create a new item wherever you want to add this information (you could call it "Writing Your Coursework"). In Blackboard you will have to switch to HTML mode
 
-![](images/HTML_button.jpg)
+![](images/HTML_button.JPG)
 
 you will then see the box below into which you should copy (CTRL+C) the text.
 
-![](images/HTML_box.jpg)
+![](images/HTML_box.JPG)
 
 Then click "Update". Now you can edit the text as usual and finally press "Submit" to create the item.
 
