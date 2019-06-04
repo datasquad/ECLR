@@ -19,6 +19,23 @@ It is good to start with pen and paper to plan the structure of an essay or talk
 
 It is the author's duty to ensure that any facts presented, to the best of the author's knowledge, are correct. This site by the [Economics Network](https://www.economicsnetwork.ac.uk/internet/fact-checking) links to a number of fact checking exercises by news organisations and to resources useful for students having to evaluate the veracity of facts.
 
+## On plagiarism
+
+This is the overarching definition of plagiarism used in [The University of Manchester's Guidance to students on plagiarism](http://documents.manchester.ac.uk/display.aspx?DocID=2870):
+
+> Academic malpractice is any activity – intentional or otherwise – that is likely to undermine the integrity essential to scholarship or research. It includes plagiarism, collusion, fabrication or falsification of results, and anything else that could result in unearned or undeserved credit for those committing it. Academic malpractice can result from a deliberate act of cheating or may be committed unintentionally. 
+
+Plagiarism is a serious issue. We understand that, as students come from a variety of backgrounds, you are unlikely to have a clear understanding of what constitutes plagiarism and what does not. It is therefore extremely important that you read and understand the documentation linked above. The University will assume that you have done so! Ignorance is no excuse as you have all been given programme handbooks which asks you to make yourself familiar with this. If you are in any dout talk to your Academic Advisor.
+
+As a short introduction you may want to look at this YouTube clip produced by the [Hong Kong Baptist University] Library(https://youtu.be/Cha331v_vhY).
+
+## On notetaking
+
+Careful notetaking is important, if only to avoid plagiarism. Always make sure that, when you take notes, you
+
+* Note down the source from which your notes come (lectures, textbook, blog, newspaper article, etc)  
+* Make sure you know whether your notes are a direct quote or your own paraphrasing.
+
 ## On communicating uncertainty
 
 *	Government Statistical Service, [Communicating uncertainty and change](https://gss.civilservice.gov.uk/wp-content/uploads/2018/03/Communicating-uncertainty-and-change-Guidance-for-Official-Statistics-4.pdf)   

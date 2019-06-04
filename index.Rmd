@@ -1,6 +1,6 @@
 ---
 title: "Skills for Studying Economics"
-author:  "[Ralf Becker](https://github.com/datasquad) at [UoM](http://www.manchester.ac.uk), June 2019"
+author:  "[Ralf Becker](https://github.com/datasquad) at [The University of Manchester](http://www.manchester.ac.uk), June 2019"
 output:
   html_document:
     fig_width: 1
@@ -10,12 +10,13 @@ output:
 
 This page has been created to support Economics students at the University of Manchester in their studies. In particular we want to help students to develop skills in
 
+- Researching
 - Writing
 - Presenting
-- Computing
+- Econometric Computing
 - Working in Groups
 
-All of these are important skills not only during your studies but also during their worklife.
+All of these are important skills not only during your studies but also during their worklife. Most of the resources linked here are openly available. Some are, however, either behind the University of Manchester's login (indicated by UoM) or behind a paywall (say Journal articles without oprn access or articles by news groups which publish behind a paywall, indicated by paywall). We attempt to keep these to a minimum.
 
 ----
 

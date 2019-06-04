@@ -12,6 +12,8 @@ navbar:
       href: econometric_computing.html
     - text: "Group Work"
       href: group_work.html
+    - text: "Language Support"
+      href: language_support.html      
     - text: "Teacher Resources"
       href: teacher_resources.html
       
