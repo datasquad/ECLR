@@ -10,7 +10,7 @@ output:
 
 We propose that, whenever students have to submit a substantial piece of written work, the following minimum provision of support material is provided via the VLE. These are selected resources from the wider range given on this website. Please supplement with additional resources as you see fit for your course unit.
 
-To copy this into your VLE, open [this](docs/BB_text.txt) and copy (CTRL+C) the text contained therein. Then go to your VLE and create a new item wherever you want to add this information. In Blackboard you will have to switch to HTML mode
+To copy this into your VLE, open [this](docs/BB_text.txt){target="_blank"} and copy (CTRL+C) the text contained therein. Then go to your VLE and create a new item wherever you want to add this information (you could call it "Writing Your Coursework"). In Blackboard you will have to switch to HTML mode
 
 ![](images/HTML_button.jpg)
 
@@ -48,7 +48,7 @@ Plagiarism can happen intentionally and unintentionally. Make sure you know what
 
 *Essenial elements for your coursework*
 
-THIS IS WHERE YOU AS LECTURER HAVE TO GIVE SOME DETAILS
+<span style="color:red">THIS IS WHERE YOU AS LECTURER HAVE TO GIVE SOME DETAILS</span>
 
 *Use paragraphs*
 

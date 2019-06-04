@@ -6,12 +6,12 @@ navbar:
       href: researching.html
     - text: "Writing"
       href: writing.html
+    - text: "Group Work"
+      href: group_work.html
     - text: "Presenting"
       href: presenting.html
     - text: "Econometric Computing"
       href: econometric_computing.html
-    - text: "Group Work"
-      href: group_work.html
     - text: "Language Support"
       href: language_support.html      
     - text: "Teacher Resources"
