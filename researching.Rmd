@@ -15,7 +15,18 @@ It is good to start with pen and paper to plan the structure of an essay or talk
 *	James and Engelhardt (2012) [The effects of handwriting experience on functional brain development in pre-literate children](https://ac-els-cdn-com.manchester.idm.oclc.org/S2211949312000038/1-s2.0-S2211949312000038-main.pdf?_tid=51b09555-c005-4d58-8a11-2e3882d207c5&acdnat=1549801482_911df8fdf04ed64451f15c98ff895b67), Trends in Neuroscience and Education; 
 
 
-## On Fact Checking
+## On finding resources
+
+If you are trying to find written material on economic topics you may want to use one or several of the following serach tools:
+
+* [Google](https://www.google.com/), [Bing](https://www.bing.com/), [DuckDuckGo](https://duckduckgo.com/) or any other internet search engine in order to get an overview of the type of available information. But try diffferent combnations of search terms and look beyond the first page. Do not expect high-quality information only.   
+* [The University of Manchester Library Search tool](https://www.library.manchester.ac.uk/search-resources/) which will identify catalogued online, journal and book resources. Results will usually have scholarly quality but you may not be able to find extremely recent information.  
+* [Google Scholar](https://scholar.google.co.uk/) delivers a subset of results the standard Google search would deliver. It is Google who decides (in a non-public manner) what is scholarly and what isn't. Some journals will not allow its archives to show here. But it is a very useful as it provides much less low quality and irrelevant material compared to a standard Google search.
+* Economics Databases: There are a lot of databases with different coverages and different specilisations. A great [overview with links](https://subjects.library.manchester.ac.uk/economic/databases/) is provided by the The University of Manchester Library team.
+
+This [resource](https://www.escholar.manchester.ac.uk/learning-objects/mle/evaluating-sources/story_content/external_files/cheat-sheet.pdf) gives you some guidance to use the context of a publication to judge whether it is reliablr, objective and relevant. (UoM, MLE, Library)
+
+## On fact checking
 
 It is the author's duty to ensure that any facts presented, to the best of the author's knowledge, are correct. This site by the [Economics Network](https://www.economicsnetwork.ac.uk/internet/fact-checking) links to a number of fact checking exercises by news organisations and to resources useful for students having to evaluate the veracity of facts.
 

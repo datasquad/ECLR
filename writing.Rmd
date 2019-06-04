@@ -24,6 +24,8 @@ This [online resource](https://www.escholar.manchester.ac.uk/learning-objects/ml
 
 Here we use the Harvard referencing style and all your referencing should adhere to this [guidance](http://subjects.library.manchester.ac.uk/referencing/referencing-harvard). (UoM)
 
+The University of Manchester provides a range of [resources for referencing](http://subjects.library.manchester.ac.uk/referencing).
+
 ## Essay
 
 Here are things to look out of you write an essay
@@ -46,3 +48,6 @@ Here are things to look out of you write an essay
 
 A dissertation is a substantial piece of work and the following tips may be useful: to come
 
+## How will your work be assessed?
+
+Here at The University of Manchester's Economics Department we have bespoke assessment criteria ([for undergraduate students](docs/EconomicsUndergraduateAssessmentCriteria.pdf) and for [Masters students](docs/EconomicsPostgraduateAssessmentCriteria.pdf)). These may sound rather generic at the writing stage, but when you read through your or someone else's work you should practice finding elements of the respective grade categories in the work.

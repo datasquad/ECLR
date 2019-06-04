@@ -6,9 +6,59 @@ output:
     toc_float: true
 ---
 
+## The base provision for your VLE
+
+We propose that, whenever students have to submit a substantial piece of written work, the following minimum provision of support material is provided via the VLE. These are selected resources from the wider range given on this website. Please supplement with additional resources as you see fit for your course unit.
+
+**Researching**
+
+*Finding resources*
+
+If you are trying to find written material on economic topics you may want to use one or several of the following serach tools:
+
+* [Google](https://www.google.com/), [Bing](https://www.bing.com/), [DuckDuckGo](https://duckduckgo.com/) or any other internet search engine in order to get an overview of the type of available information. But try diffferent combnations of search terms and look beyond the first page. Do not expect high-quality information only.   
+* [The University of Manchester Library Search tool](https://www.library.manchester.ac.uk/search-resources/) which will identify catalogued online, journal and book resources. Results will usually have scholarly quality but you may not be able to find extremely recent information.  
+* [Google Scholar](https://scholar.google.co.uk/) delivers a subset of results the standard Google search would deliver. It is Google who decides (in a non-public manner) what is scholarly and what isn't. Some journals will not allow its archives to show here. But it is a very useful as it provides much less low quality and irrelevant material compared to a standard Google search.
+* Economics Databases: There are a lot of databases with different coverages and different specilisations. A great [overview with links](https://subjects.library.manchester.ac.uk/economic/databases/) is provided by the The University of Manchester Library team.
+
+*Notetaking*
+
+Careful notetaking is important, if only to avoid plagiarism. Always make sure that, when you take notes, you
+
+* Note down the source from which your notes come (lectures, textbook, blog, newspaper article, etc)  
+* Make sure you know whether your notes are a direct quote or your own paraphrasing.
+
+*Plagiarism*
+
+Plagiarism can happen intentionally and unintentionally. Make sure you know what to do and what not to do by reading through [The University of Manchester's Guidance to students on plagiarism](http://documents.manchester.ac.uk/display.aspx?DocID=2870).
+
+**Writing**
+
+*Essenial elements for your coursework*
+
+THIS IS WHERE YOU AS LECTURER HAVE TO GIVE SOME DETAILS
+
+*Use paragraphs*
+
+It is important that you structure your writing in [paragraphs](https://learn.lexiconic.net/para2.htm). In many ways a paragraph can be seen as representing one thought/idea. This thought will be stated and discussed in one paragraph. Writing and well structured paragraphs will greatly facilitate reading your work.
+
+*Referencing*
+
+Here we use the Harvard referencing style and all your referencing should adhere to this [guidance](http://subjects.library.manchester.ac.uk/referencing/referencing-harvard). (UoM)
+
+The University of Manchester provides a range of [resources for referencing](http://subjects.library.manchester.ac.uk/referencing).
+
+*Spell and grammar check*
+
+There is no excuse for submitting work which isn't spell- and grammar checked. All word processing softwares have build-in spell and grammar checkers. Should you submit a piece with significant spell and grammar mistakes this will make reading your work tidious and it will result in a reduced grade.
+
+**Assessment**
+
+Here at The University of Manchester's Economics Department we have bespoke assessment criteria ([for undergraduate students](docs/EconomicsUndergraduateAssessmentCriteria.pdf) and for [Masters students](docs/EconomicsPostgraduateAssessmentCriteria.pdf)). These may sound rather generic at the writing stage. But when you read through your or someone else's draft you should practice finding elements of the respective grade categories in the work. This will help you judge the quality of the work.
+
 
 ## Writing Excercises
 
-•	Get students to read and grade these two essays, then give them the comments and grades: Economics Network, [Writing for Economics](https://www.economicsnetwork.ac.uk/archive/lse_writing/page_11.htm)  
+•	Get students to read and grade two answers to either an essay question or a short question, then give them the comments and grades: Economics Network, [Essay Writing](https://www.economicsnetwork.ac.uk/archive/lse_writing/page_11.htm) or [Short Answer Questions](https://www.economicsnetwork.ac.uk/archive/lse_writing/page_02.htm) 
 •	Get students to write a storyboard from this policy brief , Wiggins and Levy (2008) [Rising food prices: cause for concern](https://www.odi.org/sites/odi.org.uk/files/odi-assets/publications-opinion-files/2555.pdf)
 
