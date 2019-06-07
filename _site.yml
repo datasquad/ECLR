@@ -15,7 +15,7 @@ navbar:
     - text: "Language Support"
       href: language_support.html    
     - text: "Read, Listen & Watch"
-      href: Read_Listen_Watch.html    
+      href: read_listen_watch.html    
     - text: "Teacher Resources"
       href: teacher_resources.html
       
