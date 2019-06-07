@@ -13,7 +13,9 @@ navbar:
     - text: "Econometric Computing"
       href: econometric_computing.html
     - text: "Language Support"
-      href: language_support.html      
+      href: language_support.html    
+    - text: "Read, Listen & Watch"
+      href: Read_Listen_Watch.html    
     - text: "Teacher Resources"
       href: teacher_resources.html
       

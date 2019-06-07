@@ -1,6 +1,6 @@
 ---
 title: "Studying and Employability Skills for Economists"
-author:  "[Ralf Becker](https://github.com/datasquad) at [The University of Manchester](http://www.manchester.ac.uk), June 2019"
+author:  "[Economics Department](https://www.socialsciences.manchester.ac.uk/economics/) at [The University of Manchester](http://www.manchester.ac.uk), June 2019"
 output:
   html_document:
     fig_width: 1
