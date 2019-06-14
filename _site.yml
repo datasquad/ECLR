@@ -10,8 +10,8 @@ navbar:
       href: group_work.html
     - text: "Presenting"
       href: presenting.html
-    - text: "Econometric Computing"
-      href: econometric_computing.html
+    - text: "Data Skills"
+      href: data_skills.html
     - text: "Language Support"
       href: language_support.html    
     - text: "Read, Listen & Watch"
