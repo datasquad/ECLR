@@ -24,7 +24,7 @@ However, a very large number of data are available publicably. These are often g
 
 You could also browse a range of websites which link to a variety of datasets:
 
-* [19 Free Public Data Sets for Your First Data Science Project](https://www.springboard.com/blog/free-public-data-sets-data-science-project/}{target="_blank"}  
+* [19 Free Public Data Sets for Your First Data Science Project](https://www.springboard.com/blog/free-public-data-sets-data-science-project/){target="_blank"}  
 *	Economic Data Sources collated by [UC Davies](http://cameron.econ.ucdavis.edu/e102/data.html){target="_blank"}  
 * Economic Data Sources collated by the [Economics Network](https://www.economicsnetwork.ac.uk/data_sets){target="_blank"}  
 \end{itemize}
