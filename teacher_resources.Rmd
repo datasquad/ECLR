@@ -71,6 +71,7 @@ Here at The University of Manchester's Economics Department we have bespoke asse
 
 --------- END OF VLE TEMPLATE ---------
 
+
 ## Writing Excercises
 
 * This document contains a short written coursework (max 400 words) assessment criteria and then a marked up version of the coursework. This is so that students can [practice applying assessment criteria](docs/CourseworkMarkingPractice1.pdf){target="_blank"} and gain an insight into how their work will be assessed.
