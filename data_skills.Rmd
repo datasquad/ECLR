@@ -47,9 +47,9 @@ You should be able to do the following things in a spreadsheet:
 * Optimise functions using the solver function
 * Building a pivot table
 
-There is no need to go as far as [Tatsuo Horiuchi] (https://www.thisiscolossal.com/2017/12/tatsuo-horiuchi-excel-artist/){target="_blank"}.
+There is no need to go as far as [Tatsuo Horiuchi](https://www.thisiscolossal.com/2017/12/tatsuo-horiuchi-excel-artist/){target="_blank"}.
 
-There are numerous resources available online and for free to help you learn or refresh these skills. Use an internet serach engine or search in YouTube to find help on whatever it is you want to learn. If you want more structured and complete advice you may want to follow an [online course in Excel](https://digitaldefynd.com/best-excel-tutorial-training-course-classes){target="_blank""}. They are typically free or very cheap.
+There are numerous resources available online and for free to help you learn or refresh these skills. Use an internet serach engine or search in YouTube to find help on whatever it is you want to learn. If you want more structured and complete advice you may want to follow an [online course in Excel](https://digitaldefynd.com/best-excel-tutorial-training-course-classes){target="_blank}. They are typically free or very cheap.
 
 ## Econometrics{#Econometrics}
 

@@ -28,7 +28,7 @@ If you are trying to find written material on economic topics you may want to us
 
 As you search any of these databases you may have to use complex search strategies to find useful resources. The Uom Library produced this short interactive resource which will introduce you to the [use of search operators in subject databases](https://www.escholar.manchester.ac.uk/learning-objects/mle/search-operators/story_html5.html){target="_blank"}. You will gain a greater understanding of how each operator refines and manipulates your search; enabling you to retrieve more accurate and relevant results.
 
-This [resource](https://www.escholar.manchester.ac.uk/learning-objects/mle/evaluating-sources/story_content/external_files/cheat-sheet.pdf) gives you some guidance to use the context of a publication to judge whether it is reliable, objective and relevant. (UoM, MLE, Library)
+This [resource](https://www.escholar.manchester.ac.uk/learning-objects/mle/evaluating-sources/story_html5.html){target="_blank"} gives you some guidance to use the context of a publication to judge whether it is reliable, objective and relevant. (UoM, MLE, Library)
 
 ## On fact checking and critical reading
 
