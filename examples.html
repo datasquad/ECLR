@@ -9,10 +9,9 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="author" content="Ralf Becker at The University of Manchester, December 2019" />
 
 
-<title>Econom(etr)ic Computing Learning Resource</title>
+<title>List of Examples</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,6 +19,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -261,6 +263,90 @@ $(document).ready(function () {
 
 
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -268,6 +354,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -302,35 +398,35 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Econom(etr)ic Computing Learning Resource</h1>
-<h4 class="author"><a href="https://www.socialsciences.manchester.ac.uk/economics/">Ralf Becker</a> at <a href="http://www.manchester.ac.uk">The University of Manchester</a>, December 2019</h4>
+<h1 class="title toc-ignore">List of Examples</h1>
 
 </div>
 
 
-<hr />
-<p>This is a sisterpage of this <a href="http://eclr.humanities.manchester.ac.uk/index.php/Main_Page">Wiki</a> which describes how to implement basic econometric techniques in R and Matlab.</p>
-<p>Here we focus on the use of R.</p>
-<div id="purpose" class="section level1">
-<h1>Purpose</h1>
-<p>On this webpage we collate empirical examples which can be used to help students understand a range of statistical and econometric techniques. This page benefits from a range of empirical examples which have been implemented in a range of books.</p>
-<ul>
-<li><a href="https://dspiegel29.github.io/ArtofStatistics/">The Art of Statistics</a> by David Speigelhalter</li>
-<li><a href="https://www.masteringmetrics.com/">Mastering Metrics</a> by Joshua Angrist and Jörn-Steffen Pischke</li>
-<li><a href="https://economics.mit.edu/faculty/angrist/data1/mhe">Mostly Harmless Econometrics</a> by Joshua Angrist and Jörn-Steffen Pischke</li>
-</ul>
-<p>The examples from these books and others have been amended or re-written such that students can either use them directly or to facilitate adoption by leacturers.</p>
+<p>The following examples are implemented on this page</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Topic</th>
+<th align="left">Authors</th>
+<th align="left">Concepts</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Minimum Wage</td>
+<td align="left">Card and Krueger</td>
+<td align="left">Summary Statistics. Diff-in-Diff</td>
+<td><a href="Ex/CardKrueger.Rmd">test link</a></td>
+</tr>
+</tbody>
+</table>
+
+
+
 </div>
-<div id="how-to-learn-r" class="section level1">
-<h1>How to learn R</h1>
-<p>Learning any programming language, and yes, that is what R essentially is, can only be done by doing. Here we are not exposing you to a bottom-up introduction of R, but we are immediately exposing you to the exciting possibilities of R and the beauty and excitement of working with real-life data. As we do so we expose you to the basic tools of working with data in R and help you to learn these.</p>
-<p>However, you have to accept from the outset that this is going to be a bumby raod! The most crucial skill you will have to embrace and develop is that of finding solutions to prolems. You will, as any programmer, yes, even the most experienced ones, search the internet for solutions to your problem. Don’t think that you can remember all the important commands from the top of your mind.</p>
-<p>Whenever we introduce a new R functionality we will briefly explain it, but importantly we will also give you links to further resources where you can find more usage examples and details. Also do not forget to use the build-in help function in R (type <code>?FUNCTIONNAME</code> into the Console and press Enter). This is important as it is the help that will be available offline as well.</p>
-<p>For links to additional resources to learn R check the <a href="https://datasquad.github.io/ECLR/resources.html">resources</a> page.</p>
 </div>
-
-
-
 
 </div>
 

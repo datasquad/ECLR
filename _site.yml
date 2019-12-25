@@ -2,6 +2,8 @@ name: "Econom(etr)ic Computing Learning Resources"
 navbar:
   title: "HOME"
   left:
+    - text: "Examples"
+      href: examples.html
     - text: "Resources"
       href: resources.html
 

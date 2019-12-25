@@ -1,0 +1,15 @@
+---
+title: "List of Examples"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+
+
+The following examples are implemented on this page
+
+| Topic | Authors |Concepts | Link |
+|:------|:-----|:-----|---------|
+| Minimum Wage | Card and Krueger | Summary Statistics. Diff-in-Diff | [test link](https://datasquad.github.io/ECLR/Ex/CardKrueger.html) | 
