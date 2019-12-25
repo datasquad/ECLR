@@ -1,4 +1,3 @@
-# rmarkdown-website-tutorial
-[A tutorial for creating websites using R Markdown](https://jules32.github.io/rmarkdown-website-tutorial/).
+# Econom(etr)ic Computing Learning Resource (ECLR)
 
-To build the website, run [`rmarkdown::render_site()`](http://rmarkdown.rstudio.com/rmarkdown_websites.html), which knits each Rmarkdown (*.Rmd) based on parameters in `_site.yml` before pushing the files back to Github. 
+This is a sisterpage of this [Wiki](http://eclr.humanities.manchester.ac.uk/index.php/Main_Page) which describes how to implement basic econometric techniques in R and Matlab.

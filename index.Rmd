@@ -1,6 +1,6 @@
 ---
-title: "Studying and Employability Skills for Economists"
-author:  "[Economics Department](https://www.socialsciences.manchester.ac.uk/economics/) at [The University of Manchester](http://www.manchester.ac.uk), June 2019"
+title: "Econom(etr)ic Computing Learning Resource"
+author:  "[Ralf Becker](https://www.socialsciences.manchester.ac.uk/economics/) at [The University of Manchester](http://www.manchester.ac.uk), December 2019"
 output:
   html_document:
     fig_width: 1
@@ -8,20 +8,13 @@ output:
 
 ----
 
-This page has been created to support Economics students at the University of Manchester in their studies. In particular we want to help students to develop skills in
+This is a sisterpage of this [Wiki](http://eclr.humanities.manchester.ac.uk/index.php/Main_Page) which describes how to implement basic econometric techniques in R and Matlab.
 
-- Researching
-- Writing
-- Presenting
-- Econometric Computing
-- Working in Groups
+On this webpage we collate empirical examples which can be used to help students understand a range of statistical and econometric techniques. This page benefits from a range of empirical examples which have been implemented in a range of books.
 
-All of these are important skills not only during your studies but also during their worklife. Most of the resources linked here are openly available. Some are, however, either behind the University of Manchester's login (indicated by UoM) or behind a paywall (say Journal articles without oprn access or articles by news groups which publish behind a paywall, indicated by paywall). We attempt to keep these to a minimum.
+- [The Art of Statistics](https://dspiegel29.github.io/ArtofStatistics/) by David Speigelhalter
+- [Mastering Metrics](https://www.masteringmetrics.com/) by Joshua Angrist and J&ouml;rn-Steffen Pischke
+- [Mostly Harmless Econometrics](https://economics.mit.edu/faculty/angrist/data1/mhe) by Joshua Angrist and J&ouml;rn-Steffen Pischke
 
-----
-
-
-**Other Resources:**
-
-- [The Economics Network](http://www.studyingeconomics.ac.uk/) has excellent support material for **current students**
+The examples from these books and others have been amended or re-written such that students can either use them directly or to facilitate adoption by leacturers.
 
