@@ -309,6 +309,7 @@ library(stargazer)    # to produce nice results tables</code></pre>
 <ul>
 <li>Summary statistics (means)</li>
 <li>Weighted summary statistics</li>
+<li>Hypothesis testing</li>
 </ul>
 </div>
 <div id="r-programming-concepts-used" class="section level1">
@@ -476,7 +477,7 @@ RRData %&gt;% group_by(dgcat) %&gt;%
 <div id="hypothesis-testing---means-and-differences-in-mean" class="section level1">
 <h1>Hypothesis Testing - means and differences in mean</h1>
 <p>Hypothesis testing is at the core of much empirical analysis. Here we will show how to perform hyothesis tests. We are using the <code>t.test</code> function. Often hypothesis tests will be testing hypotheses about the mean of a random variable. We also learn how to perform hypothesis on regression coefficients (often these are nothing else but ways to estimate means!).</p>
-<p>Let’s start by testing a hypothesis on the sample mean of the GDP growth rate (<code>dRGDP</code>) Let’s say we want to test the hypothesis that the mean growth rate is 3.3% (note that 3.3% in the dat aiis represented as 3.3). Let’s get one calculated and then diiscuss what we really did:</p>
+<p>Let’s start by testing a hypothesis on the sample mean of the GDP growth rate (<code>dRGDP</code>) Let’s say we want to test the hypothesis that the mean growth rate is 3.3% (note that 3.3% in the data is represented as 3.3). Let’s get one calculated and then diiscuss what we really did:</p>
 <pre class="r"><code>t.test(RRData$dRGDP, mu=3.3)</code></pre>
 <pre><code>## 
 ##  One Sample t-test

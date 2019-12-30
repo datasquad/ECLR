@@ -35,6 +35,8 @@ The following statistical concepts are used in this project
 
 * Summary statistics (means)
 * Weighted summary statistics
+* Hypothesis testing
+* Regression Analysis
 
 
 # R programming concepts used
@@ -55,7 +57,8 @@ The following R programming concepts were used in this document. The links lead 
 This is a simplified spreadsheet (based on the work of Herndon et al.)
 
 ```{r}
-RRData <- read_excel("C:/Rcode/ECLR/data/RRdata.xlsx")
+# RRData <- read_excel("C:/Rcode/ECLR/data/RRdata.xlsx")
+RRData <- read_excel("data/RRdata.xlsx")
 RRData <- as.data.frame(RRData)
 str(RRData)  # prints some basic info on variables
 ```
@@ -174,7 +177,7 @@ RRData %>% group_by(dgcat) %>%
 
 Hypothesis testing is at the core of much empirical analysis. Here we will show how to perform hyothesis tests. We are using the `t.test` function. Often hypothesis tests will be testing hypotheses about the mean of a random variable. We also learn how to perform hypothesis on regression coefficients (often these are nothing else but ways to estimate means!).
 
-Let's start by testing a hypothesis on the sample mean of the GDP growth rate (`dRGDP`) Let's say we want to test the hypothesis that the mean growth rate is 3.3% (note that 3.3% in the dat aiis represented as 3.3). Let's get one calculated and then diiscuss what we really did:
+Let's start by testing a hypothesis on the sample mean of the GDP growth rate (`dRGDP`) Let's say we want to test the hypothesis that the mean growth rate is 3.3% (note that 3.3% in the data is represented as 3.3). Let's get one calculated and then diiscuss what we really did:
 
 ```{r}
 t.test(RRData$dRGDP, mu=3.3)
