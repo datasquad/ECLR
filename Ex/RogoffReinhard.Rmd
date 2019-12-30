@@ -1,19 +1,19 @@
 ---
 title: "Introduction to Data Handling and Statistics"
+output:
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 
 # Preparing your workfile
 
-R is a powerful software for statistical analysis. It is open source and hence FREE software. It is constantly developped and functionality is being improved. The "price" we pay for this is that we have to do a little more set-up work to make it work.
-
-In particular we need packages which are provided for free by researchers/programmers that provide useful functionality.
-
-But we add libraries which enhance its capabilities. 
+We need the following packages for working on this example.
 
 ```{r}
 library(tidyverse)    # for almost all data handling tasks
@@ -29,13 +29,13 @@ Here we use an example which, at the time, made a lot of waves.  Carmen Reinhart
 
 The empirical work of Reinhard and Rogoff was critised on three aspects by Thomas Herndon, Michael Ash and Robert Pollin. This work was published in the [Cambridge Journal of Economics in 2014](https://academic.oup.com/cje/article-abstract/38/2/257/1714018?redirectedFrom=fulltext) and previous to that as a working paper. The [working paper's website](https://www.peri.umass.edu/publication/item/526-does-high-public-debt-consistently-stifle-economic-growth-a-critique-of-reinhart-and-rogoff) also contains all the relevant data and code.
 
-# How to learn R
+# Statistical concepts used
 
-Learning any programming language, and yes, that is what R essentially is, can only be done by doing. Here we are not exposing you to a bottom-up introduction of R, but we are immediately exposing you to the exciting possibilities of R and the beauty and excitement of working with real-life data. As we do so we expose you to the basic tools of working with data in R and help you to learn these.
+The following statistical concepts are used in this project
 
-However, you have to accept from the outset that this is going to be a bumby raod! The most crucial skill you will have to embrace and develop is that of finding solutions to prolems. You will, as any programmer, yes, even the most experienced ones, search the internet for solutions to your problem. Don't think that you can remember all the important commands from the top of your mind.
+* Summary statistics (means)
+* Weighted summary statistics
 
-Whenever we introduce a new R functionality we will briefly explain it, but importantly we will also give you links to further resources where you can find more usage examples and details. Also do not frget to use the build-in help function in R (type `?FUNCTIONNAME` into the Console and press Enter). This is important as it is the help that will be available offline as well.
 
 # R programming concepts used
 
@@ -55,7 +55,7 @@ The following R programming concepts were used in this document. The links lead 
 This is a simplified spreadsheet (based on the work of Herndon et al.)
 
 ```{r}
-RRData <- read_excel("RRdata.xlsx")
+RRData <- read_excel("C:/Rcode/ECLR/data/RRdata.xlsx")
 RRData <- as.data.frame(RRData)
 str(RRData)  # prints some basic info on variables
 ```
