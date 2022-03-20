@@ -1,0 +1,181 @@
+---
+title: "HAR_Clements_etal"
+author: "Ralf Becker"
+date: '2022-03-19'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Introduction
+
+Heterogenous Autoregressive (HAR) models for realized volatility have become a very popular tool for volatility modelling and forecasting. In this project we will replicate some of the work presented in [Clements and Preve (2021)](https://www.sciencedirect.com/science/article/pii/S0378426621002417?casa_token=s0Le6RTk2JIAAAAA:HQ66VfimmKFnCWtexTBG9yREevl3IZqaZfsvmTRyWYaiV5YvwBeHpeG-AqAUSsRN3eVFP0YG), in order to illustrate how to model and forecast such models in R.
+
+The seminal paper is that of [Corsi (2009)](https://academic.oup.com/jfec/article-abstract/7/2/174/856522) which introduced the general methodology. At the core of this methodology is the availability of realized volatilities, volatility proxies based on high frequency data. This implies that volatility can be modeled on the basis of observed data as opposed to treating folatility as a latent (unobserved) variable which is filtered from observed asset return data (the idea underlying GARCH and Stochastic volatility type models).
+
+One reason for the popularity is the increasing availability of high-frequency data which can then be used to construct realized volatility measures. While such intra-day (high-frequency) data are now widely available, they usually require payment from providers such as:
+
+* [Center for Research in Security Prices (CRSP)](https://www.crsp.org/) at the University of Chicago who provide stock prices
+* [Wharton Research Data Service (WRDS)](https://wrds-www.wharton.upenn.edu/) at the Wharton Business School, University of Pennsylvania.
+
+Luckily, realized volatility data (without access to the underlying high-frequency data) for some indices and assets can be obtained, free of charge, from the [Oxford Realized Library](https://realized.oxford-man.ox.ac.uk/).
+
+# Preparing your workfile and data download
+
+As usual you should prepare your workscript by setting the correct working directory.
+
+```{r eval=FALSE}
+setwd("YOUR/WORKING/DIRECTORY")
+```
+
+Further we shall add a few packages such that we can use their functionality
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(xts)
+library(ggplot2)
+library(ggpubr)  # to combine ggplots
+```
+
+The particular data used here are the same as those used in the Clements and Preve (2021) paper. They in turn use data which have been used in [Bollerslev et al. (2016)](https://www.sciencedirect.com/science/article/pii/S0304407615002584?casa_token=68yAJkZ7cSQAAAAA:pHEBLbshRMPoUSs-r6w3qd8j-6dwADwucJjA-AYaIrzOI5KRGZ2CBQk1ManWky06YRzCHVy6).
+These data are available from [James Patton's website](http://public.econ.duke.edu/~ap172/code.html) (search for "Bollerslev, Patton and Quaedvlieg (2015, Journal of Econometrics)" download the zip files with MATLAB codes and data, the particular file used here is the `SP500_RV_5min.xlsx` file from the "Market" folder.) Download that data file into your working directory.
+
+We shall now upload the data into from the working directory:
+
+```{r echo=FALSE}
+rv_data <- read_xlsx("../data/SP500_RV_5min.xlsx")
+```
+
+```{r eval=FALSE}
+rv_data <- read_xlsx("SP500_RV_5min.xlsx") # ensure this file is in your WD
+```
+
+Let us check out the structure of this file.
+
+```{r}
+str(rv_data)
+```
+
+As you can see we have 4096 observations for realized volatility (`RV`) and related variables. Before we look at the details of the series, we shall look at the `Date` variable.
+
+```{r}
+min(rv_data$Date)
+max(rv_data$Date)
+```
+The `date` information is currently saved as a numeric variable in the format "YYYYMMDD". As the months and dates have leading 0 when referring to single digit months and days (e.g. "19990408" for the 8th of April 1999) the data actually sort correctly according to teh underlying dates. However, it will be useful to let R know that we are dealing with dated data. At this stage R just thinks that it has a bunch of numbers.
+
+We shall use the `xts` date format and turn `rv_data` into a dated format.
+
+```{r}
+rv_data <- xts(rv_data, order.by=as.Date(as.character(rv_data$Date),"%Y%m%d"))
+```
+
+The `xts` function takes the `rv_data` object and transforms it. You need to supply (`order.by=`) the date information. that date information is currently contained in `rv_data$Date` as a numerical variable. This needs transforming into a date variable which is done by the `as.Date` function. The `as.Date` function takes a character variable (and hence we need to transform the `num` to a `chr` variable, `as.character(rv_data$Date)`) and [format information](https://www.r-bloggers.com/2013/08/date-formats-in-r/) and translates that into a date variable.
+
+Checking our data structure we can confirm the success of this operation.
+
+```{r}
+str(rv_data)
+```
+
+If you look at a subset of data you will see that they are now dated.
+
+```{r}
+head(rv_data$RV)
+```
+
+# Explore data
+
+Let's look at the data and identify the data series we will be using. We start by printing the variable names
+
+```{r}
+names(rv_data)
+```
+Apart from the date, this dataset contains daily observations of realized volatility estimates (e.g. `RV`, `RJ`, `BPV`) but also daily estimates of realized quarticity (e.g. `RQ`, `TrRQ`).
+
+This is not the place to discuss details of these estimators. They are discussed in detail in Bollerslev et al. (2016). But importantly, realized volatility estimates are estimates of the intergrated one-day variance of the underlying asset return process. They will be used as the observed estimates on the basis of which we will estimate the volatility process.
+
+It is important to realise that these are estimates and hence to recognise that the underlying volatility is only estimated with error. The realized quarticity is an estimate of the variance of this estimation error. It can be used in variations of the HAR model to take account of this setup. For the work here we will utilise `RV` as the estimates for the realized volatility and `RQ` as the variable for the realized quarticity.
+
+Let's visualise the data.
+
+```{r}
+p1 <- ggplot(rv_data,aes(y=RV, x=Index)) + 
+  geom_line() + 
+  labs(x = "Time",title="S&P500, Realized Volatility") +
+  theme_light()
+
+p2 <- ggplot(rv_data,aes(y=RQ, x=Index)) + 
+  geom_line() + 
+  labs(x = "Time",title="S&P500, Realized Volatility") +
+  theme_light()
+ggarrange(p1,p2,nrow = 2, ncol = 1)
+
+```
+
+A feature of these realized volatility and realized quarticity estimates is that they are strongly positively correlated. This is somewhat difficult to see as variables are very strongly skewed as can be seen from the following density plots.
+
+```{r}
+p3 <- ggplot(rv_data,aes(x=RV)) +
+  geom_density() + 
+  labs(x = "RV",title="S&P500, Density of Realized Volatility") +
+  theme_light()
+p4 <- ggplot(rv_data,aes(x=RQ)) +
+  geom_density() + 
+  labs(x = "RQ",title="S&P500, Density of Realized Quarticity") +
+  theme_light()
+ggarrange(p3,p4,nrow = 2, ncol = 1)
+```
+
+In order to be able to deal with data with lesser skew the following transformations are often used:
+
+$logRV = \log{RV}$ and $srRV = \frac{\sqrt(RV)-1}{1/2}$. 
+
+We shall add these series to `rv_data` and then look at their densities to evaluate whether there distributions are more symmetrical.
+
+```{r}
+rv_data$logRV <- log(rv_data$RV)
+rv_data$srRV <- 2*(sqrt(rv_data$RV)-1)
+```
+
+```{r}
+
+p5 <- ggplot(rv_data) +
+  geom_density(aes(x=logRV), color="blue", size = 1.5) + 
+  geom_density(aes(x=srRV), color="red", size = 1.5) + 
+  labs(x = "logRV (blue), srRV (red)",title="S&P500, Density of log and square root Realized Volatility") +
+  theme_light()
+p5
+```
+
+These are clearly more symmetric than `RV` itself.
+
+
+
+# Load the highfrequency package
+
+Estimating the HAR models will be done using the `HARmodel` function which is part of the `highfrequency` package. So this is a good time to install the `highfrequency` package if you have not yet done so and then to load it.
+
+```{r}
+library(highfrequency)
+```
+
+```{r}
+data_temp <- rv_data[,"RV"]
+mod_HAR <- HARmodel(data = data_temp , periods = c(1,5,22), 
+              type = "HAR", h = 1, transform = NULL, inputType = "RM")
+```
+
+
+## References
+
+[Bollerslev, T., A. J. Patton, and R. Quaedvlieg (2016) Exploiting the Errors: A Simple Approach for Improved Volatility Forecasting, Journal of Econometrics, 192, 1-18.](https://www.sciencedirect.com/science/article/pii/S0304407615002584?casa_token=68yAJkZ7cSQAAAAA:pHEBLbshRMPoUSs-r6w3qd8j-6dwADwucJjA-AYaIrzOI5KRGZ2CBQk1ManWky06YRzCHVy6)
+
+[Clements A. and Preve, D.P.A. (2021) A Practical Guide to harnessing the HAR volatility model, Journal of Banking & Finance, Vol. 133, 106285.](https://www.sciencedirect.com/science/article/pii/S0378426621002417?casa_token=s0Le6RTk2JIAAAAA:HQ66VfimmKFnCWtexTBG9yREevl3IZqaZfsvmTRyWYaiV5YvwBeHpeG-AqAUSsRN3eVFP0YG#bib0018)
+
+[Corsi, F. (2009) A simple approximate long-memory model of realized volatility
+Journal of Financial Econometrics, Vol. 7 (2), pp. 174-196.](https://academic.oup.com/jfec/article-abstract/7/2/174/856522)
+
