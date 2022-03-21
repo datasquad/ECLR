@@ -38,6 +38,7 @@ library(readxl)
 library(xts)
 library(ggplot2)
 library(ggpubr)  # to combine ggplots
+library(AER)
 ```
 
 The particular data used here are the same as those used in the Clements and Preve (2021) paper. They in turn use data which have been used in [Bollerslev et al. (2016)](https://www.sciencedirect.com/science/article/pii/S0304407615002584?casa_token=68yAJkZ7cSQAAAAA:pHEBLbshRMPoUSs-r6w3qd8j-6dwADwucJjA-AYaIrzOI5KRGZ2CBQk1ManWky06YRzCHVy6).
@@ -65,7 +66,10 @@ As you can see we have 4096 observations for realized volatility (`RV`) and rela
 min(rv_data$Date)
 max(rv_data$Date)
 ```
-The `date` information is currently saved as a numeric variable in the format "YYYYMMDD". As the months and dates have leading 0 when referring to single digit months and days (e.g. "19990408" for the 8th of April 1999) the data actually sort correctly according to teh underlying dates. However, it will be useful to let R know that we are dealing with dated data. At this stage R just thinks that it has a bunch of numbers.
+
+You can see that the first day in the sample is the 8th of April 1997 and the last is 30th August 2013. Have a look at the data itself to confirm that we typically observe 5 days of data interupted by two days (weekend) without data. Altogether this gives us 4,096 observations.
+
+The `date` information is currently saved as a numeric variable in the format "YYYYMMDD". As the months and dates have leading 0 when referring to single digit months and days (e.g. "19990408" for the 8th of April 1999) the data actually sort correctly according to the underlying dates. However, it will be useful to let R know that we are dealing with dated data. At this stage R just thinks that it has a bunch of numbers.
 
 We shall use the `xts` date format and turn `rv_data` into a dated format.
 
@@ -86,6 +90,8 @@ If you look at a subset of data you will see that they are now dated.
 ```{r}
 head(rv_data$RV)
 ```
+
+Here you can see again that there are no observations for the 12th and 13th of April 1997, which were a Saturday and Sunday respectively. On weekends there is no trading and hence there are no intra-day return data on the basis of which we could calculate a realized volatility.
 
 # Explore data
 
@@ -153,9 +159,21 @@ p5
 
 These are clearly more symmetric than `RV` itself.
 
+# The HAR model
 
+Here we willl introduce the basic HAR model. For details of HAR-type models and its variations you should refer to the work listed in the references.
 
-# Load the highfrequency package
+The `RV` variable in our dataset contains observed realized volatilities. Let's call this variable $RV_t$. This is an observed proxy for the volatility of a returns process (here the returns of the S&P 500  share index).
+
+The following model is used to model the dynamics of, and eventually forecast, realized volatility:
+
+\begin{equation}
+RV_t = \beta_0 + \beta_1 RV_{t-1} + \beta_2 RV_{t-1}^5 + \beta_3 RV_{t-1}^{22} + u_t
+\end{equation}
+
+Here $RV_{t-1}^5$ stands for the 5-day realizes volatility $RV_{t-1}^5=\frac{1}{5}\sum_{i=1}^5 RV_{t-i}$ and $RV_{t-1}^{22}=\frac{1}{22}\sum_{i=1}^{22} RV_{t-i}$ for the 22-day realized volatility.
+
+# Estimating the HAR model
 
 Estimating the HAR models will be done using the `HARmodel` function which is part of the `highfrequency` package. So this is a good time to install the `highfrequency` package if you have not yet done so and then to load it.
 
@@ -163,14 +181,179 @@ Estimating the HAR models will be done using the `HARmodel` function which is pa
 library(highfrequency)
 ```
 
+The `HARmodel` function takes a realized volatility series as input and estimates a HAR model. You need to specify what realized volatility terms you want included as explanatory variables. Here we specify that we want 1, 5 and 22 day averages (`periods = c(1,5,22)`). The input `inputType = "RM"` indicates that we are feeding in a realized variance measure (as opposed to intra-day returns) and `type = "HAR"` indicates that we want a HAR model. The `h = 1` input to the function indicates that we estimate a model for daily realized volatility as the dependent variable. This choice will become important when we use the estimated models to forecast.  
+
 ```{r}
 data_temp <- rv_data[,"RV"]
 mod_HAR <- HARmodel(data = data_temp , periods = c(1,5,22), 
-              type = "HAR", h = 1, transform = NULL, inputType = "RM")
+              type = "HAR", h = 1, inputType = "RM")
+summary(mod_HAR)
+```
+The estimated parameters are basically identical to those reported in Table 1 of Clements and Perve (2021). The standard errors are slightly different but very similar.
+
+![Replication of Table 1 from Clements and Perve (2021)](CP_Tab1.png)
+
+## Replicate the basic result with the `lm` function
+
+We will later explore some other HAR-type model estimates available from the `HARmodel` function. But before we do so we shall replicate these results by manually replicating the calculation of the explanatory variables and re-estimate the model using the `lm` function. This is to gain a better understanding of the inner workings of the `HARmodel` function.
+
+We begin by calculating the $RV_{t-1}$, $RV_{t-1}^5$ and $RV_{t-1}^22$ and saving them in the dataset. Here we use the `lag.xts` function which allows us to calculate lags of `xts` formatted variables. `lag.xts(rv_data$RV,4)` for instance gives us $RV_{t-4}$.
+
+```{r}
+rv_data$RV1 <- lag.xts(rv_data$RV,1)
+
+rv_data$RV5 <- (lag.xts(rv_data$RV,1)+lag.xts(rv_data$RV,2)+lag.xts(rv_data$RV,3)+
+                  lag.xts(rv_data$RV,4)+lag.xts(rv_data$RV,5))/5
+
+rv_data$RV22 <- (lag.xts(rv_data$RV,1)+lag.xts(rv_data$RV,2)+
+                  lag.xts(rv_data$RV,3)+lag.xts(rv_data$RV,4)+lag.xts(rv_data$RV,5)+
+                  lag.xts(rv_data$RV,6)+lag.xts(rv_data$RV,7)+lag.xts(rv_data$RV,8)+
+                  lag.xts(rv_data$RV,9)+lag.xts(rv_data$RV,10)+lag.xts(rv_data$RV,11)+
+                  lag.xts(rv_data$RV,12)+lag.xts(rv_data$RV,13)+lag.xts(rv_data$RV,14)+
+                  lag.xts(rv_data$RV,15)+lag.xts(rv_data$RV,16)+lag.xts(rv_data$RV,17)+
+                  lag.xts(rv_data$RV,18)+lag.xts(rv_data$RV,19)+lag.xts(rv_data$RV,20)+
+                  lag.xts(rv_data$RV,21)+lag.xts(rv_data$RV,22))/22
 ```
 
+Now we have created the three explanatory variables for use in the standard HAR model and now we can use these to estimate the standard HAR model with the `lm` function.
 
-## References
+```{r}
+mod_HAR_vlm <- lm(RV~RV1+RV5+RV22,data=rv_data)
+summary(mod_HAR_vlm)
+```
+
+When comparing these results to the results produced earlier by the `HARmodel` function and indeed the results from Clements and Preve (Table 1) you can see that the coefficient estimates are essentially identical, although the standard errors from the `lm` estimation are significantly smaller.
+
+The standard errors from the `HARmodel` are, [as per package documentation, p.34](https://cran.r-project.org/web/packages/highfrequency/highfrequency.pdf), Newey-West standard errors. These are heteroskedasticity and autocorrelation consistent (robust) standard errors. The notes to Clements and Perve's Table 1 also state that they use robust standard errors, presumably also of the Newey-West type, explaining why these are very similar to those coming from the `HARmodel` function.
+
+The standard errors coming from the `lm` function are non-robust standard errors. We can calculate robust standard errors and see whether we can replicate the standard errors obtained earlier. To do so we report the coefficients from the `mod_HAR_vlm` model using the `coeftest` function, but making sure that we use a different method to calculate the coefficient estimates' standard errors (`vcov = vcovHAC(mod_HAR_vlm)`). You can consult the details of the `vcovHAC` function to confirm that this calculates a Newey-West type standard errors.
+
+```{r}
+coeftest(mod_HAR_vlm, vcov = vcovHAC(mod_HAR_vlm))
+```
+These standard errors are not identical but very similar to those from both the Clements and Perve paper as well as the `HARmodel` estimation. When calculating heteroskedasticity and autocorrelation robust standard errors there are many small choices to be made. Without knowing precisely which choices are implemented by the `HARmodel` function and in Clements and Perve, it is understandable that we cannot replicate the exact standard errors. 
+
+# Forecasting from HAR models
+
+Above we demonstrated how we estimate HAR models. Once we have estimated parameters we can use this model to forecast realized volatility. Let's look at the last observation in our dataset:
+
+```{r}
+tail(rv_data[,c("RV", "RV1", "RV5", "RV22")])
+```
+
+Look at the last day, 30 Aug 2013 (day 4096). The realized volatility for this day is 0.5404. But what would we have predicted the realized volatility to be at the end of 29 Aug 2013 (day 4095), $E(RV_{4096}|I_{4095})$, where $I_{4095}$ contains all information available at the end of the 29 Aug 2013. This information includes
+
+* $RV_{4096-1}=RV_{4095}=$ `r round(rv_data[4096,"RV1"],4)`
+* $RV_{4096-1}^5=RV_{4095}^5=$ `r round(rv_data[4096,"RV5"],4)`
+* $RV_{4096-1}^{22}=RV_{4095}^{22}=$ `r round(rv_data[4096,"RV22"],4)`
+
+Plugging these values into the estimated model we get
+
+\begin{eqnarray}
+  F_{4096}=E(RV_{4096}|I_{4095}) &=& \hat{\beta}_0 + \hat{\beta}_1 RV_{4095} + \hat{\beta}_2 RV_{4095}^5 + \hat{\beta}_3 RV_{4095}^{22}\\
+  &=& 0.112314 + 0.227344 \cdot 0.3483 + 0.490349 \cdot 0.2828+ 0.186377 \cdot 0.2493\\
+  &=&0.3766
+\end{eqnarray}
+
+This implies that at the end of 29 Aug 2013 we would have predicted the realized volatility on 30 Aug 2013 to be 0.3766. In reality it turned out to be `r round(rv_data[4096,"RV"],4)`. We would have therefore underestimated the realized volatility. The forecast error would have been $RV_{4096}-F_{4096}=0.5404-0.3766=0.1638$.
+
+There is just a little snag in this example. To estimate the coefficients used above we did actually use the data from 30 Aug 2013 ($t=4096$). In reality that would be impossible if we wanted to make a forecast at the end of day 4095 and we would use coefficients estimated on the basis of data up to $t=4095$. In our later (pseudo) forecasting exercise we will take that into account.
+
+If you wanted to produce this forecast, $F_{4096}$, wothout using the step-by-step algebra above you could simply use the the `predict` function.
+
+
+```{r}
+predict(mod_HAR)
+```
+
+Clearly this produces exactly the same forecast as the one calculated above.
+
+## Forecasting multiple periods ahead
+
+Warning, this section will be messy! But there is no way aroud this!
+
+When models like the HAR models are used to forecast multiple periods ahead we would usually apply a method called direct forecasts. Say we are interested in forecasting the average 5-day volatility. When doing so we would actually first estimate a slightly different model. 
+
+\begin{equation}
+RV_t^5 = \beta_0 + \beta_1 RV_{t-5} + \beta_2 RV_{t-5}^5 + \beta_3 RV_{t-5}^{22} + u_t
+\end{equation}
+
+The dependent variable has been transformed into the term we wish to forecast and the explanatory variables have been lagged such that they precede all information going into the calculation of the dependent variable.
+
+Before we re-estimate this model we shall also control the estimation sample (as this will soon become important). The date information in `xts` formatted `rv_data` can be called from `index(rv_data)`. Let's look at the last 6 observations.
+
+```{r}
+tail(index(rv_data),6)
+```
+
+We now want to pretend that we are at the end of day "2013-08-23" and want to use all available data to forecast "RV_{2013-08-30}^5" which averages the RV from days "2013-08-26" to "2013-08-30". 
+
+```{r}
+data_temp <- rv_data[index(rv_data)<="2013-08-23","RV"]
+```
+
+You can check `data_temp` to confirm that it's last observation is from "2013-08-23". As we estimate the model on the basis of this reduced estimation sample we also need to let `HARmodel` know that the definition of the dependent variable is now $RV_t^5$. This change is reflected by the `h=5` input in the `HARmodel` function which indicates over how many days the dependent variable should be averaged.
+
+```{r}
+mod_HAR5 <- HARmodel(data = data_temp , periods = c(1,5,22), 
+              type = "HAR", h = 5, inputType = "RM")
+summary(mod_HAR5)
+```
+
+When comparing the degrees of freedom of this model with `mod_HAR` you will note that we lost 4 more observations through the additional lagging. You will also note that the parameter estimates changed, although not overly much. The in-sample fit has improved as the dependent variable has now smoothed out some of the daily random variation which is unforecastable.
+
+If you know wanted to predict the last observation we can again use the predict function. If we just applied `predict(mod_HAR5)` we would merely obtain the in-sample fit of the last observation used in the parameter estimation. We can use the predict function to predict beyond the in-sample period. Before we can do so we need to understand how to feed in the data correctly. And to understand we need to understand how the `HARmodel` function treats data. 
+
+When we applied the `HARmodel` function and saved the output into `mod_HAR5` we did not only save the estimated parameters and regression diagnostics (like $R^2$) but you will find a lot more information in this object. For instance look at the following, the last 6 observations from `mod_HAR5$model`
+
+```{r}
+tail(mod_HAR5$model,6)
+```
+
+This displays the data which have been used to estimate the regression model. The explanatory variables `RV1`, `RV5` and `RV22` were internally calculated by the `HARmodel` function as the only variable we fed into the function was the `RV` variable from `rv_data`. 
+
+Let's first understand the information in the above table and let's lok at the last row ("2013-08-23"). The dependent variable in this row is "RV_{2013-08-23}^5". Let's confirm this. Recall how we previously "hand"-calculated the $RV_t^5$ variable and saved it into the `rv_data` dataset. In fact we calculated $RV_{t-1}^5$, which means that we should find the value for "RV_{2013-08-23}^5" in the row for "2013-08-26" (the next available day). Let us just confirm that:
+
+```{r}
+rv_data[index(rv_data)=="2013-08-26","RV5"]
+```
+
+Yes, indeed that is exactly the right value. Where does the value in the `RV1` column for day "2013-08-23" come from? From the model we know that we need $RV_{2013-08-16}$ which is 5 days before the dependent variable. We will find that in two places in our dataset:
+
+```{r}
+rv_data[index(rv_data)=="2013-08-16","RV"]
+rv_data[index(rv_data)=="2013-08-19","RV1"]
+```
+
+So. let's return to the task at hand. We want to forecast $RV_{2013-08-30}^5$ only using information available at the end of "2013-08-23", $E[RV_{2013-08-30}^5|I_{2013-08-23}]$ or, better, using observation numbers $E[RV_{4096}^5|I_{4091}]$.
+
+\begin{equation}
+E[RV_{4096}^5|I_{4091}] = \hat{\beta}_0 + \hat{\beta}_1 RV_{4091} + \hat{\beta}_2 RV_{4091}^5 + \hat{\beta}_3 RV_{4091}^{22}
+\end{equation}
+
+The parameter estimates are saved in `mod_HAR5`, remembering that we restricted the estimation sample to only use information from the first 4091 days (`index(rv_data)<="2013-08-23"`). What we now need to feed into the `predict` function is the values $RV_{4091}, RV_{4091}^5, RV_{4091}^{22}$. We need to do so with the names `RV1`, `RV5` and `RV22` as these are the variable names used by `mod_HAR5` (as seen when we looked at `mod_HAR5$model`). In fact we have already calculated these and they are stored in row 4092 (day "2013-08-26"), remembering that we calculated these values as $t-1$ values in `rv_data`.
+
+```{r}
+rv_data[index(rv_data)=="2013-08-26",c("RV1","RV5","RV22")]
+```
+
+The crucial information from here is that if we want to use the predict function to produce forecasts we will need to feed in the correct explanatory variables. In this particular case we need to feed in a value for `RV1`, `RV5` and `RV22`.
+
+```{r}
+predict(mod_HAR5,newdata = rv_data[index(rv_data)=="2013-08-26",c("RV1","RV5","RV22")])
+```
+
+So, this is the predicted value for $RV_{4096}^5$ only using information five days earlier, $E[RV_{4096}^5|I_{4091}]$.
+
+I promised it would be messy! Keeping track of the dates is really tricky!
+
+# Pseudo-Out of sample forecasting
+
+When we investigate the forecasting ability of different forecasting models we would usually want 
+
+# Forecast evaluation
+
+# References
 
 [Bollerslev, T., A. J. Patton, and R. Quaedvlieg (2016) Exploiting the Errors: A Simple Approach for Improved Volatility Forecasting, Journal of Econometrics, 192, 1-18.](https://www.sciencedirect.com/science/article/pii/S0304407615002584?casa_token=68yAJkZ7cSQAAAAA:pHEBLbshRMPoUSs-r6w3qd8j-6dwADwucJjA-AYaIrzOI5KRGZ2CBQk1ManWky06YRzCHVy6)
 
