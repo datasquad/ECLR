@@ -140,7 +140,7 @@ In order to be able to deal with data with lesser skew the following transformat
 
 $logRV = \log{RV}$ and $srRV = \frac{\sqrt(RV)-1}{1/2}$. 
 
-We shall add these series to `rv_data` and then look at their densities to evaluate whether there distributions are more symmetrical.
+These are special cases of the so-called Box-Cox transform. We shall add these series to `rv_data` and then look at their densities to evaluate whether there distributions are more symmetrical.
 
 ```{r}
 rv_data$logRV <- log(rv_data$RV)
@@ -157,7 +157,7 @@ p5 <- ggplot(rv_data) +
 p5
 ```
 
-These are clearly more symmetric than `RV` itself.
+These are clearly more symmetric than `RV` itself. In a later section we will apply HAR  type models to such transformations.
 
 # The HAR model
 
@@ -192,6 +192,7 @@ summary(mod_HAR)
 The estimated parameters are basically identical to those reported in Table 1 of Clements and Perve (2021). The standard errors are slightly different but very similar.
 
 ![Replication of Table 1 from Clements and Perve (2021)](CP_Tab1.png)
+
 
 ## Replicate the basic result with the `lm` function
 
@@ -259,7 +260,7 @@ This implies that at the end of 29 Aug 2013 we would have predicted the realized
 
 There is just a little snag in this example. To estimate the coefficients used above we did actually use the data from 30 Aug 2013 ($t=4096$). In reality that would be impossible if we wanted to make a forecast at the end of day 4095 and we would use coefficients estimated on the basis of data up to $t=4095$. In our later (pseudo) forecasting exercise we will take that into account.
 
-If you wanted to produce this forecast, $F_{4096}$, wothout using the step-by-step algebra above you could simply use the the `predict` function.
+If you wanted to produce this forecast, $F_{4096}$, without using the step-by-step algebra above you could simply use the the `predict` function.
 
 
 ```{r}
@@ -302,7 +303,7 @@ summary(mod_HAR5)
 
 When comparing the degrees of freedom of this model with `mod_HAR` you will note that we lost 4 more observations through the additional lagging. You will also note that the parameter estimates changed, although not overly much. The in-sample fit has improved as the dependent variable has now smoothed out some of the daily random variation which is unforecastable.
 
-If you know wanted to predict the last observation we can again use the predict function. If we just applied `predict(mod_HAR5)` we would merely obtain the in-sample fit of the last observation used in the parameter estimation. We can use the predict function to predict beyond the in-sample period. Before we can do so we need to understand how to feed in the data correctly. And to understand we need to understand how the `HARmodel` function treats data. 
+If you now wanted to predict the last observation we can again use the predict function. If we just applied `predict(mod_HAR5)` we would merely obtain the in-sample fit of the last observation used in the parameter estimation. We can use the predict function to predict beyond the in-sample period. Before we can do so we need to understand how to feed in the data correctly. And to understand we need to understand how the `HARmodel` function treats data. 
 
 When we applied the `HARmodel` function and saved the output into `mod_HAR5` we did not only save the estimated parameters and regression diagnostics (like $R^2$) but you will find a lot more information in this object. For instance look at the following, the last 6 observations from `mod_HAR5$model`
 
@@ -347,11 +348,305 @@ So, this is the predicted value for $RV_{4096}^5$ only using information five da
 
 I promised it would be messy! Keeping track of the dates is really tricky!
 
+## A trick
+
+As you have seen above, assembling the new information required to apply the `predict` function, in order to make out of sample forecasts is a little messy. And in fact we used information which we previously hand calculated, the variables `RV1`, `RV5` and `RV22`. But at the same time we saw above that the `HARmodel` function does internally calculate these values. Let's see whether we can use the `HARmodel` function to do some of that dirty work for us. Recall that the aim was to get $E[RV_{4096}^5|I_{4091}]$. For that reason for first calculated coefficients using information $I_{4091}$. They are stored in `mod_HAR5`. In the creation of that we used `data_temp <- rv_data[index(rv_data)<="2013-08-23","RV"]` or `data_temp <- rv_data[1:4091,"RV"]` acknowledging that "2013-08-23" is day 4091.
+
+Let's call `HARmodel` with the dataset that includes the period we want to forecast. But we will only do so as it nicely presents the data. For that reason we only use a small number of observations which will take less time.
+
+```{r}
+data_fore <- rv_data[(4096-40):4096,"RV"]
+fore_HAR5 <- HARmodel(data = data_fore , periods = c(1,5,22), 
+              type = "HAR", h = 5, inputType = "RM")
+tail(fore_HAR5$model,6)
+```
+
+You can see that the last line contains exactly the values for `RV1`, `RV5` and `RV22` we need to forecast $RV_{4096}^5$. We can now use that to send to the predict function.
+
+```{r}
+data_fore<- fore_HAR5$model[nrow(fore_HAR5$model),c("RV1","RV5","RV22")]
+data_fore <- as.xts(data_fore)  # when extracting $model the data loose their
+                                # xts formatting, we need to add that back
+predict(mod_HAR5,newdata = data_fore)
+```
+
+This is of course the same result as the one we got above, the difference being that we let `HARmodel` do the hard work of picking out the correct right hand side variable for our forecast.
+
 # Pseudo-Out of sample forecasting
 
-When we investigate the forecasting ability of different forecasting models we would usually want 
+When we investigate the forecasting ability of different forecasting models we would usually want to do so for repeated forecasts over a period of time. Here we are attempting to replicate results of such an exercise published in Clements and Preve (2021, Figure 2 and Table 4).
+
+Here is how the exercise is set-up. We set the length of an estimation window, 1000 observations, and we then estimate the model using the first 1000 observations. Let's say we concentrate on the model for the 1-day forecasts
+
+\begin{equation}
+RV_t = \beta_0 + \beta_1 RV_{t-1} + \beta_2 RV_{t-1}^5 + \beta_3 RV_{t-1}^{22} + u_t
+\end{equation}
+
+Given the structure of the model, we actually require 1022 days of RV data to have 1000 observations in our model, as we need to calculate lagged $RV_{t-1}^{22}$ observations. So lets set some parameters.
+
+```{r}
+l <- 22   # max lag in explanatory variables
+h <- 1    # forecast horizon
+n <- 1000 # estimation sample
+```
+
+With this information we can extract the first set of RV data to estimate a model
+
+```{r}
+data_temp <- rv_data[1:1022,"RV"] 
+```
+
+We could send this to the `HARmodel` function, but what we really want to do estimate, forecast, then re-estimate with the next sample and forecast, then re-estimate with the next sample etc. We will do this in a loop.
+
+So let's first think about the beginning and ends of the estimation sample. We already know the one for the first sample, they are 1 and 1022. The second one will be 2 and 1023, then 3 and 1024 etc. What will the last one be? We are having, altogether 4096 observations. If we want to make one-step ahead forecasts, then the last day for which we will make a forecast is day 4096. That means that the last estimation window will end (`h=1`) periods before that, i.e. at 4095. This dictates that the last sample begins 1021 observations earlier, i.e. 3074 (=4095-1021).
+
+So let us define all the estimation sample start days, end days and end dates. (These would change if you were looking at the forecasting, say, the 5 day realized volatility.)
+
+```{r}
+est_start <- 1:3074
+est_end <- 1022:4095
+est_end_dates <- index(rv_data)[est_end]
+
+est_info <- tibble(est_end_dates,est_start,est_end)
+est_samples <- nrow(est_info)  # number of estimation samples
+```
+
+Now we have the information we need to run through `r est_samples` estimations and forecasts. But before we do so we should also think about the things we want to save from each estimation and forecast. We will add that information to the `est_info` tibble.
+
+We will want to save the estimated parameters, the forecast and the actual realisation. The latter two will then allow us to calculate measures of forecast accuracy.
+
+```{r}
+est_info$beta0_1 <- NA   # four HAR coefficients ot be saved
+est_info$beta1_1 <- NA
+est_info$beta2_1 <- NA
+est_info$beta3_1 <- NA
+est_info$f1 <- NA
+est_info$r1 <- NA
+```
+
+Now we can think of doing the hard work 
+
+```{r}
+for(j in 1:est_samples) {
+  st <- unlist(est_info[j,"est_start"])   # the unlist argument strips the number
+  en <- unlist(est_info[j,"est_end"])     # out of the tibble structure
+  
+  # Estimate the HAR model
+  data_temp <- rv_data[st:en,"RV"] 
+  mod_HAR_loop <- HARmodel(data = data_temp , periods = c(1,5,22), 
+              type = "HAR", h = 1, inputType = "RM")
+  est_info$beta0_1[j] <- mod_HAR_loop$coefficients[1]  # saves the estimated coefficients 
+  est_info$beta1_1[j] <- mod_HAR_loop$coefficients[2]  # into est_info
+  est_info$beta2_1[j] <- mod_HAR_loop$coefficients[3]
+  est_info$beta3_1[j] <- mod_HAR_loop$coefficients[4]
+  
+  # now forecast one step ahead
+  # as demonstrated above we, need the explanatory variable from en+1
+  est_info$f1[j] <- predict(mod_HAR_loop,newdata = rv_data[en+1,c("RV1","RV5","RV22")])
+  # and we need the realisation from en+h
+  est_info$r1[j] <- rv_data[en+1,"RV"]
+  
+  # Estimate the HAR for logRV
+  
+}
+```
+
+The following code is to replicate elements of Figure 2 in Clements and Perve (2021) in which the variation of the estimated coefficients through time is illustrated.
+
+```{r}
+p5 <- ggplot(est_info, aes(y=beta0_1,x=est_end_dates)) +
+  geom_line() +
+  labs(x = "Time",title="HAR1, beta_0") +
+  theme_light()
+p6 <- ggplot(est_info, aes(y=beta1_1,x=est_end_dates)) +
+  geom_line() +
+  labs(x = "Time",title="HAR1, beta_1") +
+  theme_light()
+p7 <- ggplot(est_info, aes(y=beta2_1,x=est_end_dates)) +
+  geom_line() +
+  labs(x = "Time",title="HAR1, beta_2") +
+  theme_light()
+p8 <- ggplot(est_info, aes(y=beta3_1,x=est_end_dates)) +
+  geom_line() +
+  labs(x = "Time",title="HAR1, beta_3") +
+  theme_light()
+
+ggarrange(p5,p6,p7,p8,nrow = 2, ncol = 2)
+```
+
+This basically replicates the OLS part of Figure 2 in Clements and Perve (2021).
+
+
 
 # Forecast evaluation
+
+Let us also visualise the actual one step ahead forecasts against the realisations. We saved them in the variables `f1` and `r1`.
+
+```{r}
+p9 <- ggplot(est_info, aes(y=r1,x=est_end_dates)) +
+  geom_line() +
+  geom_line(aes(y = f1), color = "blue") +
+  labs(x = "Time",title="HAR1, forecast and realisation") +
+  theme_light()
+p9
+```
+
+So we have a lot of forecasts and realisations. What we want is to calculate a summary statistics which describes the difference between. Here we will calculate two common loss functions, the mean square error (MSE) and the QLIKE loss function.
+
+```{r}
+MSE = mean((est_info$r1-est_info$f1)^2)
+QLIKE = mean(est_info$r1/est_info$f1 - log(est_info$r1/est_info$f1) - 1)
+
+print(paste("MSE = ", MSE))
+print(paste("QLIKE = ", QLIKE))
+
+```
+This measure could now be compared to forecast loss functions of other forecast models.
+
+# Variations to the basic model
+
+HAR models come in a lot of different flavours, many of which are discussed and compared with the standard HAR model in Clements and Perve (2021).
+
+In particular we could think of estimating standard HAR models on transformations of $RV_t$, of extensions to the standard HAR model and combinations thereof.
+
+## Variable transformations
+
+In the Exploring Data section we introduced transformations to the realized volatility measure, in particular a square root and a log transformation. 
+
+```{r}
+rv_data$logRV <- log(rv_data$RV)
+rv_data$srRV <- 2*(sqrt(rv_data$RV)-1)
+```
+
+Here we will feed the square root transformation into the standard `HARmodel` function (`type = HAR`).
+
+```{r}
+data_temp <- rv_data[,c("srRV")]
+mod_HARsq <- HARmodel(data = data_temp , periods = c(1,5,22),
+              type = "HAR", h = 1, inputType = "RM")
+summary(mod_HARsq)
+```
+
+When comparing these parameters to those in column "sqr-HAR" of Table 2 in Clements and Perve (2021) we get basically identical parameter values. 
+
+The `HARmodel` function also has a `transform` option which allows you to apply the square root transformation inside the function; so we feed in the untransformed `RV` variable. What you get is the following:
+
+```{r}
+data_temp <- rv_data[,c("RV")]
+mod_HARsq2 <- HARmodel(data = data_temp , periods = c(1,5,22),
+              type = "HAR", h = 1, inputType = "RM", transform = "sqrt")
+summary(mod_HARsq2)
+```
+
+Turns out that the results are actually different. To understand the difference we look at the last line of the `$model` data for the standard model and the two transformed models:
+
+```{r}
+mod_HAR$model[nrow(mod_HAR$model),]
+mod_HARsq$model[nrow(mod_HARsq$model),]
+mod_HARsq2$model[nrow(mod_HARsq2$model),]
+```
+
+First looking at the dependent variable `y` we can see that the dependent variable for `mod_HARsq` is $-0.5298 = 2*(sqrt(0.3483)-1)$, i.e. exactly as we should expect given the way we calculated `srRV`. But for `mod_HARsq2` the dependent variable is $0.7351 = sqrt(0.3483)$. Hence the square root transformation used inside the `HARmodel` function is slightly different to the square root transform used in Clements and Perve (2021). 
+
+There is an additional difference when it comes to the aggregation of the multi-day RV measures. For `mod_HARsq` we fed in the transformed variable and we let the function do the aggregation on this transformed variable. So for instance the `RV5` value for the last day ("2013-08-30") is -0.9536. This is the result of aggregating the transformed variable (remembering that explanatory variables are lagged by one period):
+
+\begin{equation}
+RVsq_{4095}^5 = -0.9536=\frac{1}{5} \sum_{j=0}^4 RVsq_{4095-j} = \frac{1}{5} \sum_{j=0}^4 2(\sqrt{RV_{4095-j}} -1)
+\end{equation}
+
+How does the `HARmodel` function handle the aggregation? In fact what the function does is as follows:
+
+\begin{equation}
+RVsq_{4095}^5 = 0.5318=\sqrt{\frac{1}{5} \sum_{j=0}^4 RV_{4095-j}} = \sqrt{0.2827714} \ne \frac{1}{5} \sum_{j=0}^4 \sqrt{RV_{4095-j}}
+\end{equation}
+
+The difference in definitions discussed explain why the two models `mod_HARsq` and `mod_HARsq2` have different parameter estimates. In terms of forecasting their differences may not be so large though.
+
+When it comes to forecasting from a transformed model, we will need to look out for one extra aspect. Even if we are modelling $\sqrt{RV_t}$ or $2(\sqrt{RV_t}-1)$, in the end we will be interested in predicting $RV_t$. This means that after obtaining a prediction for either of the two transformed variables we have to transform them back. Such a transformation also involves a bias correction involving the estimation's standard error. The details of this go beyond this piece, but are available from Clements and Perve (2021) and Taylor (2017).
+
+## Alternative HAR models
+
+In the discussion above we restricted our attention to the standard HAR model. There are a range of variations of this model. Such variations can account for either some additional covariates; or may allow for additional realized jump measures; or allow for the inclusion of realized quarticity measures. One of the alternative models estimated is the HARQ model. This model uses the realized quarticity which is a measure of the variance of the the realized volatility estimate. For model details refer to the papers by Bollerslev et al. (2016) or Clements and Perve (2021). The way in which such a model is estimated is shown here:
+
+```{r}
+data_temp <- rv_data[,c("RV","RQ")]
+mod_HARQ <- HARmodel(data = data_temp , periods = c(1,5,22), periodsQ = c(1),
+              type = "HARQ", h = 1, inputType = "RM")
+summary(mod_HARQ)
+```
+
+You can see that this basically replicates the results for HARQ in the Clements and Perve (2021, Table 1).
+
+Let us briefly demonstrate how we would forecast from this model, using the trick introduced earlier. Say we want to predicted the realized volatility on 30 Aug 2013 (day 4096) at the end of 29 Aug 2013 (day 4095), $E(RV_{4096}|I_{4095})$, where $I_{4095}$ contains all information available at the end of the 29 Aug 2013. Further we want to use 1,000 observations to estimate the model parameters
+
+
+```{r}
+data_temp <- rv_data[3074:4095,c("RV","RQ")]
+mod_HARQ <- HARmodel(data = data_temp , periods = c(1,5,22), periodsQ = c(1),
+              type = "HARQ", h = 1, inputType = "RM")
+```
+This model now contains the parameter information to use in the forecast. Before we use the `predict` function to forecast we will use the `HARmodel` function again just to get the correct data for the right hand side variables in our model. Importantly, as we call the `HARmodel` function we now need to include the observation for which we want to forecast.
+
+```{r}
+data_temp <- rv_data[4056:4096,c("RV","RQ")]
+fore_HARQ <- HARmodel(data = data_temp , periods = c(1,5,22), periodsQ = c(1),
+              type = "HARQ", h = 1, inputType = "RM")
+```
+
+Really we re-estimated the model here, but we are not interested in the new coefficient estimates (which is why we only included a very short sample) we are just interested in the last line of `mod_HAR_fore$model`
+
+```{r}
+fore_HARQ$model[nrow(fore_HARQ$model),]
+```
+
+This has all the explanatory variables we require for our forecast
+
+```{r}
+data_fore<- fore_HARQ$model[nrow(fore_HARQ$model),c("RV1","RV5","RV22","RQ1")]
+data_fore <- as.xts(data_fore)  # when extracting $model the data loose their
+                                # xts formatting, we need to add that back
+predict(mod_HARQ,newdata = data_fore)
+```
+
+This is $E(RV_{4096}|I_{4095})=$ `r predict(mod_HARQ,newdata = data_fore)` and can be compared to the realized volatility at time 4096, $RV_{4096}=0.540351$. So on this occasion we are underestimating the one day ahead realized volatility. 
+
+### Calculating pseudo out of sample forecasts using the HARQ model.
+
+In order to produce all the out of sample forecats we will, again, have to run through the loop (or if you did the work you would expand the loop we wrote earlier). We will save the results in the `est_info` dataframe, in variables `fQ1` (for the forecast) and `rQ1` for the realisation. 
+
+```{r}
+est_info$fQ1 <- NA
+est_info$rQ1 <- NA
+```
+
+Now the loop. Inside the loop we will have to 1) select the estimation sample, 2) Estimate the model, 3) get the explanatory variables for the forecast and 4) produce the forecast.
+
+```{r}
+for(j in 1:est_samples) {
+  
+  # 1) get the estimation sample
+  st <- unlist(est_info[j,"est_start"])   # the unlist argument strips the number
+  en <- unlist(est_info[j,"est_end"])     # out of the tibble structure
+  data_temp <- rv_data[st:en,c("RV","RQ")] 
+  
+  # 2) Estimate the model
+  mod_HARQ_loop <- HARmodel(data = data_temp , periods = c(1,5,22), periodsQ = c(1),
+              type = "HARQ", h = 1, inputType = "RM")
+
+  # 3) get the explanatory variables for the forecast
+  data_temp <- rv_data[en-40:en+1,c("RV","RQ")]
+  fore_HARQ_loop <- HARmodel(data = data_temp , periods = c(1,5,22), periodsQ = c(1),
+              type = "HARQ", h = 1, inputType = "RM")
+  data_fore <- fore_HARQ_loop$model[nrow(fore_HARQ_loop$model),c("RV1","RV5","RV22","RQ1")]
+  data_fore <- as.xts(data_fore)  
+                               
+  # 4) forecast and save results
+  est_info$fQ1[j] <- predict(mod_HARQ_loop,newdata = data_fore)
+  est_info$rQ1[j] <- rv_data[en+1,"RV"]
+
+}
+```
+
 
 # References
 
@@ -361,4 +656,6 @@ When we investigate the forecasting ability of different forecasting models we w
 
 [Corsi, F. (2009) A simple approximate long-memory model of realized volatility
 Journal of Financial Econometrics, Vol. 7 (2), pp. 174-196.](https://academic.oup.com/jfec/article-abstract/7/2/174/856522)
+
+[Taylor N. (2017) realised variance forecasting under Box-Cox transformations. International Journal of Forecasting, Vol. 33 (4), 770-785](https://www.sciencedirect.com/science/article/pii/S0169207017300365)
 
