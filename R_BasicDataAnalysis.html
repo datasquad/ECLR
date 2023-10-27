@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ralf Becker" />
+
+<meta name="date" content="2023-10-27" />
+
+<title>Basic Data Analysis</title>
+
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Basic Data Analysis</h1>
+<h4 class="author">Ralf Becker</h4>
+<h4 class="date">2023-10-27</h4>
+
+</div>
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Let’s start by loading a datafile. We are using the datafile with 752
+women’s wages and working hours as well as other variables. These are
+the data in the <code>mroz.csv</code> file (see the dataset links). Make
+sure that this file is loaded into a data subfolder of your working
+directory.</p>
+<pre class="r"><code>mydata &lt;- read.csv(&quot;data/mroz.csv&quot;,na.strings = &quot;.&quot;)  # Opens mroz.csv from working directory</code></pre>
+<p>You may wonder what the option <code>na.strings = "."</code> does. It
+tells R that any <code>.</code> entry in the spreadsheet is actually a
+misisng observation. It is then labelled as such by R.</p>
+<p>Let’s check out what variables we have in this data-file</p>
+<pre class="r"><code>names(mydata)</code></pre>
+<pre><code>##  [1] &quot;inlf&quot;     &quot;hours&quot;    &quot;kidslt6&quot;  &quot;kidsge6&quot;  &quot;age&quot;      &quot;educ&quot;    
+##  [7] &quot;wage&quot;     &quot;repwage&quot;  &quot;hushrs&quot;   &quot;husage&quot;   &quot;huseduc&quot;  &quot;huswage&quot; 
+## [13] &quot;faminc&quot;   &quot;mtr&quot;      &quot;motheduc&quot; &quot;fatheduc&quot; &quot;unem&quot;     &quot;city&quot;    
+## [19] &quot;exper&quot;    &quot;nwifeinc&quot; &quot;lwage&quot;    &quot;expersq&quot;</code></pre>
+<p>The variable <code>hours</code> indicates the number of hours worked
+by an individual and the variable <code>wage</code> represents the
+estimated hourly wage earned (in 1975). You can find short variable
+descriptions from a link in the Datasets page (see above). You need to
+understand what data types the variables represent (check
+<code>str(mydata)</code> to confirm the R datatypes.) Common variable
+types are <code>int</code> for nteger numbers, <code>num</code> for any
+numerical variables, <code>chr</code> for text variables and
+<code>factor</code> for categorical variables.</p>
+<pre class="r"><code>str(mydata)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    753 obs. of  22 variables:
+##  $ inlf    : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ hours   : int  1610 1656 1980 456 1568 2032 1440 1020 1458 1600 ...
+##  $ kidslt6 : int  1 0 1 0 1 0 0 0 0 0 ...
+##  $ kidsge6 : int  0 2 3 3 2 0 2 0 2 2 ...
+##  $ age     : int  32 30 35 34 31 54 37 54 48 39 ...
+##  $ educ    : int  12 12 12 12 14 12 16 12 12 12 ...
+##  $ wage    : num  3.35 1.39 4.55 1.1 4.59 ...
+##  $ repwage : num  2.65 2.65 4.04 3.25 3.6 4.7 5.95 9.98 0 4.15 ...
+##  $ hushrs  : int  2708 2310 3072 1920 2000 1040 2670 4120 1995 2100 ...
+##  $ husage  : int  34 30 40 53 32 57 37 53 52 43 ...
+##  $ huseduc : int  12 9 12 10 12 11 12 8 4 12 ...
+##  $ huswage : num  4.03 8.44 3.58 3.54 10 ...
+##  $ faminc  : int  16310 21800 21040 7300 27300 19495 21152 18900 20405 20425 ...
+##  $ mtr     : num  0.722 0.661 0.692 0.781 0.622 ...
+##  $ motheduc: int  12 7 12 7 12 14 14 3 7 7 ...
+##  $ fatheduc: int  7 7 7 7 14 7 7 3 7 7 ...
+##  $ unem    : num  5 11 5 5 9.5 7.5 5 5 3 5 ...
+##  $ city    : int  0 1 0 0 1 1 0 0 0 0 ...
+##  $ exper   : int  14 5 15 6 7 33 11 35 24 21 ...
+##  $ nwifeinc: num  10.9 19.5 12 6.8 20.1 ...
+##  $ lwage   : num  1.2102 0.3285 1.5141 0.0921 1.5243 ...
+##  $ expersq : int  196 25 225 36 49 1089 121 1225 576 441 ...</code></pre>
+<p>You can see that all data are coded as numerical or integer
+variables. Which datatype a variable has is important. For instance, if
+you want ot make any calculations with a variable (e.g. add it to
+something, calculate a logarithm, etc.), then this will only work if R
+has recognised a variable as a number (<code>num</code> or
+<code>int</code>). If a variable was a text (<code>chr</code>) variable,
+you would be nable to use it in calculations.</p>
+<blockquote>
+<p>When you import data, R automatically recognise the datatypes. We
+will see below how you can change data-types. Go back to where you
+importaed the data (the <code>read.csv</code> command line). Re-run this
+command without the option that told R what missing data are
+(<code>na.strings = "."</code>). Check what datatype the
+<code>wage</code> variable has. Can you calculate with that
+variable?</p>
+</blockquote>
+</div>
+<div id="data-summaries" class="section level2">
+<h2>Data Summaries</h2>
+<p>One of the things you would usually like to do at the beginning of
+your work is to get some summary statistics for all variables in the
+dataset.</p>
+<pre class="r"><code>summary(mydata)</code></pre>
+<pre><code>##       inlf            hours           kidslt6          kidsge6     
+##  Min.   :0.0000   Min.   :   0.0   Min.   :0.0000   Min.   :0.000  
+##  1st Qu.:0.0000   1st Qu.:   0.0   1st Qu.:0.0000   1st Qu.:0.000  
+##  Median :1.0000   Median : 288.0   Median :0.0000   Median :1.000  
+##  Mean   :0.5684   Mean   : 740.6   Mean   :0.2377   Mean   :1.353  
+##  3rd Qu.:1.0000   3rd Qu.:1516.0   3rd Qu.:0.0000   3rd Qu.:2.000  
+##  Max.   :1.0000   Max.   :4950.0   Max.   :3.0000   Max.   :8.000  
+##                                                                    
+##       age             educ            wage            repwage    
+##  Min.   :30.00   Min.   : 5.00   Min.   : 0.1282   Min.   :0.00  
+##  1st Qu.:36.00   1st Qu.:12.00   1st Qu.: 2.2626   1st Qu.:0.00  
+##  Median :43.00   Median :12.00   Median : 3.4819   Median :0.00  
+##  Mean   :42.54   Mean   :12.29   Mean   : 4.1777   Mean   :1.85  
+##  3rd Qu.:49.00   3rd Qu.:13.00   3rd Qu.: 4.9708   3rd Qu.:3.58  
+##  Max.   :60.00   Max.   :17.00   Max.   :25.0000   Max.   :9.98  
+##                                  NA&#39;s   :325                     
+##      hushrs         husage         huseduc         huswage       
+##  Min.   : 175   Min.   :30.00   Min.   : 3.00   Min.   : 0.4121  
+##  1st Qu.:1928   1st Qu.:38.00   1st Qu.:11.00   1st Qu.: 4.7883  
+##  Median :2164   Median :46.00   Median :12.00   Median : 6.9758  
+##  Mean   :2267   Mean   :45.12   Mean   :12.49   Mean   : 7.4822  
+##  3rd Qu.:2553   3rd Qu.:52.00   3rd Qu.:15.00   3rd Qu.: 9.1667  
+##  Max.   :5010   Max.   :60.00   Max.   :17.00   Max.   :40.5090  
+##                                                                  
+##      faminc           mtr            motheduc         fatheduc     
+##  Min.   : 1500   Min.   :0.4415   Min.   : 0.000   Min.   : 0.000  
+##  1st Qu.:15428   1st Qu.:0.6215   1st Qu.: 7.000   1st Qu.: 7.000  
+##  Median :20880   Median :0.6915   Median :10.000   Median : 7.000  
+##  Mean   :23081   Mean   :0.6789   Mean   : 9.251   Mean   : 8.809  
+##  3rd Qu.:28200   3rd Qu.:0.7215   3rd Qu.:12.000   3rd Qu.:12.000  
+##  Max.   :96000   Max.   :0.9415   Max.   :17.000   Max.   :17.000  
+##                                                                    
+##       unem             city            exper          nwifeinc       
+##  Min.   : 3.000   Min.   :0.0000   Min.   : 0.00   Min.   :-0.02906  
+##  1st Qu.: 7.500   1st Qu.:0.0000   1st Qu.: 4.00   1st Qu.:13.02504  
+##  Median : 7.500   Median :1.0000   Median : 9.00   Median :17.70000  
+##  Mean   : 8.624   Mean   :0.6428   Mean   :10.63   Mean   :20.12896  
+##  3rd Qu.:11.000   3rd Qu.:1.0000   3rd Qu.:15.00   3rd Qu.:24.46600  
+##  Max.   :14.000   Max.   :1.0000   Max.   :45.00   Max.   :96.00000  
+##                                                                      
+##      lwage            expersq    
+##  Min.   :-2.0542   Min.   :   0  
+##  1st Qu.: 0.8165   1st Qu.:  16  
+##  Median : 1.2476   Median :  81  
+##  Mean   : 1.1902   Mean   : 178  
+##  3rd Qu.: 1.6036   3rd Qu.: 225  
+##  Max.   : 3.2189   Max.   :2025  
+##  NA&#39;s   :325</code></pre>
+<blockquote>
+<p>Look at the summary statistics. How many missing values are there in
+the <code>wage</code> variable?</p>
+</blockquote>
+</div>
+<div id="dealing-with-missing-observations" class="section level2">
+<h2>Dealing with missing observations</h2>
+<p>When you have missing observations in a variable, this can complicate
+some of the operations. Let’s demonstrate this by calculating the mean
+<code>wage</code> value. You can do this in R by using the
+<code>mean</code> function.</p>
+<pre class="r"><code>mean(mydata$wage)</code></pre>
+<pre><code>## [1] NA</code></pre>
+<p>As you can see, you get the value <code>NA</code>. The reason for
+this is that R has detected missing values in the <code>wage</code>
+variable. You may ask why R is not just ignoring missing observations.
+There is a good reason for this. If there are missing values, you as the
+data analyst should carefully think why there are missing values.</p>
+<p>We could create a temporary subset of the data with only those
+observations which have missing data in the <code>wage</code>
+variable</p>
+<pre class="r"><code>temp &lt;- mydata[is.na(mydata$wage),]</code></pre>
+<blockquote>
+<p>What do all the observations in <code>temp</code> have in common?
+Look at the <code>hours</code> variable.</p>
+</blockquote>
+<p>If you decided that it was ok to ignore the missing observations in
+your calculation, then you could tell R to ignore the missing
+observations by adding the <code>na.rm = TRUE</code> option to the mean
+function.</p>
+<pre class="r"><code>mean(mydata$wage,na.rm = TRUE)</code></pre>
+<pre><code>## [1] 4.177682</code></pre>
+<blockquote>
+<p>Try a few other summary statistics like the standard deviation
+(<code>sd()</code>), the variance (<code>var()</code>), the median
+(<code>median()</code>), the inter-quartile range (<code>IQR()</code>),
+the minimum (<code>min()</code>) or the maximum (<code>max()</code>).
+Also try to figure out how to calculate a percentile (say the 15th
+percentile) in R. You may have to internet search (“How to calculate a
+percentile in R”) to find out. Searching the internet is one of the most
+important programming techniques!</p>
+</blockquote>
+<p>A similar issue arises when you are calculating a summary statistics
+which involves more than one variable. Say you wanted to calculate
+correlations between the <code>educ</code>, <code>wage</code> and the
+<code>huswage</code> variables. Look at the difference in results for
+the following two commands.</p>
+<pre class="r"><code>cor(mydata[c(&quot;educ&quot;,&quot;wage&quot;,&quot;huswage&quot;)])</code></pre>
+<pre><code>##              educ wage   huswage
+## educ    1.0000000   NA 0.2849361
+## wage           NA    1        NA
+## huswage 0.2849361   NA 1.0000000</code></pre>
+<pre class="r"><code>cor(mydata[c(&quot;educ&quot;,&quot;wage&quot;,&quot;huswage&quot;)],use = &quot;complete&quot;)</code></pre>
+<pre><code>##              educ      wage   huswage
+## educ    1.0000000 0.3419544 0.3030052
+## wage    0.3419544 1.0000000 0.2158857
+## huswage 0.3030052 0.2158857 1.0000000</code></pre>
+<pre class="r"><code>cor(mydata[c(&quot;educ&quot;,&quot;wage&quot;,&quot;huswage&quot;)],use = &quot;pairwise&quot;)</code></pre>
+<pre><code>##              educ      wage   huswage
+## educ    1.0000000 0.3419544 0.2849361
+## wage    0.3419544 1.0000000 0.2158857
+## huswage 0.2849361 0.2158857 1.0000000</code></pre>
+<p>Use the information in the help function (type <code>?cor</code> in
+the Console) to figure out why the results are different.</p>
+</div>
+<div id="summary-stats-for-selected-variables" class="section level2">
+<h2>Summary stats for selected variables</h2>
+<p>You already learned how to get summary statistics for all variables
+in the dataset above. Especially when you have many variables, the
+output of <code>summary(mydata)</code> will be quite cumbersome. You
+therefore often want to calculate certain summary statistics for some
+variables only.</p>
+<div id="option-1" class="section level3">
+<h3>Option 1</h3>
+<pre class="r"><code>summary(mydata[c(&quot;hours&quot;,&quot;husage&quot;)])</code></pre>
+<pre><code>##      hours            husage     
+##  Min.   :   0.0   Min.   :30.00  
+##  1st Qu.:   0.0   1st Qu.:38.00  
+##  Median : 288.0   Median :46.00  
+##  Mean   : 740.6   Mean   :45.12  
+##  3rd Qu.:1516.0   3rd Qu.:52.00  
+##  Max.   :4950.0   Max.   :60.00</code></pre>
+<pre class="r"><code>cor(mydata[c(&quot;hours&quot;,&quot;husage&quot;)])</code></pre>
+<pre><code>##              hours      husage
+## hours   1.00000000 -0.03108875
+## husage -0.03108875  1.00000000</code></pre>
+</div>
+<div id="option-2" class="section level3">
+<h3>Option 2</h3>
+<pre class="r"><code>mydata.sub0 &lt;- subset(mydata,select=c(&quot;hours&quot;,&quot;husage&quot;))
+summary(mydata.sub0)</code></pre>
+<pre><code>##      hours            husage     
+##  Min.   :   0.0   Min.   :30.00  
+##  1st Qu.:   0.0   1st Qu.:38.00  
+##  Median : 288.0   Median :46.00  
+##  Mean   : 740.6   Mean   :45.12  
+##  3rd Qu.:1516.0   3rd Qu.:52.00  
+##  Max.   :4950.0   Max.   :60.00</code></pre>
+<pre class="r"><code>cor(mydata.sub0)</code></pre>
+<pre><code>##              hours      husage
+## hours   1.00000000 -0.03108875
+## husage -0.03108875  1.00000000</code></pre>
+<p>It is important to understand that there is not one correct way to do
+things, but rather there are many correct ways of doing things.</p>
+</div>
+</div>
+<div id="using-subsets-of-data-by-filtering-observations"
+class="section level2">
+<h2>Using subsets of data, by filtering observations</h2>
+<p>An issue you will often encounter is that you want to do some
+analysis but not on all the observations you have in your dataset. Let’s
+say you wish to calculate the correlation between the hours a women
+works (<code>hours</code>) and the hours her husband works
+(<code>hushrs</code>). But you want to do that only for those women who
+actually work more than 100 hours a year.</p>
+<p>There are multiple ways of doing this (and also check out the <a
+href="https://datasquad.github.io/ECLR/Rwork/SummaryStatsTidyverse.html">Data
+Summary using Tidyverse</a> page for an elegant alternative way of doing
+so).</p>
+<pre class="r"><code>mydata.sub1 &lt;- subset(mydata, hours &gt; 100, select = c(&quot;hours&quot;,&quot;hushrs&quot;))
+cor(mydata.sub1)</code></pre>
+<pre><code>##              hours      hushrs
+## hours   1.00000000 -0.02351165
+## hushrs -0.02351165  1.00000000</code></pre>
+</div>
+<div id="more-summary-stats" class="section level2">
+<h2>More summary stats</h2>
+<p>Above we learned how to calculate summary statistics for numeric
+variables. If you have categorical variables, like years of education
+(<code>educ</code>) or number of kids younger than 6 years old
+(<code>kidslt6</code>) you actually want to see the number of
+observations in the categories. You can do this with the
+<code>table</code> function.</p>
+<pre class="r"><code>table(mydata$educ)</code></pre>
+<pre><code>## 
+##   5   6   7   8   9  10  11  12  13  14  15  16  17 
+##   4   6   8  30  25  44  43 381  44  51  14  57  46</code></pre>
+<p>As you can see the largest group is the women with 12 years of
+education which is equivalent to high school education.</p>
+<p>If you wanted to see this information not in terms of percentages you
+could so this as follows:</p>
+<pre class="r"><code>prop.table(table(mydata$educ))</code></pre>
+<pre><code>## 
+##           5           6           7           8           9          10 
+## 0.005312085 0.007968127 0.010624170 0.039840637 0.033200531 0.058432935 
+##          11          12          13          14          15          16 
+## 0.057104914 0.505976096 0.058432935 0.067729084 0.018592297 0.075697211 
+##          17 
+## 0.061088977</code></pre>
+<p>Now you can see that just over 50% have a high school education as
+their highest qualification.</p>
+<blockquote>
+<p>Create the same type of table to figure out what percentage of women
+in the sample have no children younger than 6 years. You should find
+that it is just over 80%</p>
+</blockquote>
+<pre><code>## 
+##           0           1           2           3 
+## 0.804780876 0.156706507 0.034528552 0.003984064</code></pre>
+<p>There are a lot of digits in this output. You can tell R to show
+fewer digits. Run the following line and re-run the table with
+proportions to see the difference</p>
+<pre class="r"><code>options(digits = 2)</code></pre>
+<p>Often you may want to create such tables for two rather than only one
+variable, say both for <code>educ</code> and for <code>kidslt6</code>.
+We call tables like this contingency tables or sometime cross tabs.</p>
+<pre class="r"><code>table(mydata[c(&quot;educ&quot;,&quot;kidslt6&quot;)])  # counts</code></pre>
+<pre><code>##     kidslt6
+## educ   0   1   2   3
+##   5    4   0   0   0
+##   6    6   0   0   0
+##   7    5   2   1   0
+##   8   28   2   0   0
+##   9   20   5   0   0
+##   10  37   5   2   0
+##   11  36   6   1   0
+##   12 308  65   8   0
+##   13  36   4   2   2
+##   14  40   8   3   0
+##   15   9   2   2   1
+##   16  43  12   2   0
+##   17  34   7   5   0</code></pre>
+<p>Now, presenting thisin terms of percentages is even more
+important.</p>
+<pre class="r"><code>prop.table(table(mydata[c(&quot;educ&quot;,&quot;kidslt6&quot;)]) ) # percentages</code></pre>
+<pre><code>##     kidslt6
+## educ      0      1      2      3
+##   5  0.0053 0.0000 0.0000 0.0000
+##   6  0.0080 0.0000 0.0000 0.0000
+##   7  0.0066 0.0027 0.0013 0.0000
+##   8  0.0372 0.0027 0.0000 0.0000
+##   9  0.0266 0.0066 0.0000 0.0000
+##   10 0.0491 0.0066 0.0027 0.0000
+##   11 0.0478 0.0080 0.0013 0.0000
+##   12 0.4090 0.0863 0.0106 0.0000
+##   13 0.0478 0.0053 0.0027 0.0027
+##   14 0.0531 0.0106 0.0040 0.0000
+##   15 0.0120 0.0027 0.0027 0.0013
+##   16 0.0571 0.0159 0.0027 0.0000
+##   17 0.0452 0.0093 0.0066 0.0000</code></pre>
+<p>You can see that almost 41% of women in the sample had 12 years of
+education and no children younger than 6 (<code>educ==12</code> and
+<code>kidslt6 == 0</code>).</p>
+<p>When you show percentages/proportions with multiple variables then
+you will often want to see conditional probabilities. Say, given a women
+has high school education (<code>educ==12</code>), what is the
+probability of that women having no children younger than 6
+(<code>kidslt6 == 0</code>).</p>
+<p>The following line of code does give you that result, but what should
+you replace the “XXXX” with? With “1” or with “2”? Use the help function
+to understand (<code>?prop.table</code>).</p>
+<pre class="r"><code>prop.table(table(mydata[c(&quot;educ&quot;,&quot;kidslt6&quot;)]), margin = XXXX ) # conditional percentages</code></pre>
+<p>When you get it right you should get the following table:</p>
+<pre><code>##     kidslt6
+## educ     0     1     2     3
+##   5  1.000 0.000 0.000 0.000
+##   6  1.000 0.000 0.000 0.000
+##   7  0.625 0.250 0.125 0.000
+##   8  0.933 0.067 0.000 0.000
+##   9  0.800 0.200 0.000 0.000
+##   10 0.841 0.114 0.045 0.000
+##   11 0.837 0.140 0.023 0.000
+##   12 0.808 0.171 0.021 0.000
+##   13 0.818 0.091 0.045 0.045
+##   14 0.784 0.157 0.059 0.000
+##   15 0.643 0.143 0.143 0.071
+##   16 0.754 0.211 0.035 0.000
+##   17 0.739 0.152 0.109 0.000</code></pre>
+<p>The probability that a women with 12 years of education has no
+children younger than 6 years old is 80.8%.</p>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>Here you have learned how to calculate summary statistics to
+particular variables in a dataset. How to restrict your calculation to
+particular rows n the dataset and importantly how to produce contingency
+tables.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

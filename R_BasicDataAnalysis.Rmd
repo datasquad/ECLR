@@ -1,0 +1,182 @@
+---
+title: "Basic Data Analysis"
+author: "Ralf Becker"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Let's start by loading a datafile. We are using the datafile with 752 women's wages and working hours as well as other variables. These are the data in the `mroz.csv` file (see the dataset links). Make sure that this file is loaded into a data subfolder of your working directory. 
+
+```{r cars}
+mydata <- read.csv("data/mroz.csv",na.strings = ".")  # Opens mroz.csv from working directory
+```
+
+You may wonder what the option `na.strings = "."` does. It tells R that any `.` entry in the spreadsheet is actually a misisng observation. It is then labelled as such by R. 
+
+Let's check out what variables we have in this data-file
+
+```{r}
+names(mydata)
+```
+
+The variable `hours` indicates the number of hours worked by an individual and the variable `wage` represents the estimated hourly wage earned (in 1975). You can find short variable descriptions from a link in the Datasets page (see above). You need to understand what data types the variables represent (check `str(mydata)` to confirm the R datatypes.) Common variable types are `int` for nteger numbers, `num` for any numerical variables, `chr` for text variables and `factor` for categorical variables.
+
+```{r}
+str(mydata)
+```
+
+You can see that all data are coded as numerical or integer variables. Which datatype a variable has is important. For instance, if you want ot make any calculations with a variable (e.g. add it to something, calculate a logarithm, etc.), then this will only work if R has recognised a variable as a number (`num` or `int`). If a variable was a text (`chr`) variable, you would be nable to use it in calculations.
+
+> When you import data, R automatically recognise the datatypes. We will see below how you can change data-types. Go back to where you importaed the data (the `read.csv` command line). Re-run this command without the option that told R what missing data are (`na.strings = "."`). Check what datatype the `wage` variable has. Can you calculate with that variable? 
+
+## Data Summaries
+
+One of the things you would usually like to do at the beginning of your work is to get some summary statistics for all variables in the dataset.
+
+```{r}
+summary(mydata)
+```
+
+> Look at the summary statistics. How many missing values are there in the `wage` variable?
+
+## Dealing with missing observations
+
+When you have missing observations in a variable, this can complicate some of the operations. Let's demonstrate this by calculating the mean `wage` value. You can do this in R by using the `mean` function.
+
+```{r}
+mean(mydata$wage)
+```
+
+As you can see, you get the value `NA`. The reason for this is that R has detected missing values in the `wage` variable. You may ask why R is not just ignoring missing observations. There is a good reason for this. If there are missing values, you as the data analyst should carefully think why there are missing values. 
+
+We could create a temporary subset of the data with only those observations which have missing data in the `wage` variable
+
+```{r}
+temp <- mydata[is.na(mydata$wage),]
+```
+
+> What do all the observations in `temp` have in common? Look at the `hours` variable.
+
+If you decided that it was ok to ignore the missing observations in your calculation, then you could tell R to ignore the missing observations by adding the `na.rm = TRUE` option to the mean function.
+
+```{r}
+mean(mydata$wage,na.rm = TRUE)
+```
+
+> Try a few other summary statistics like the standard deviation (`sd()`), the variance (`var()`), the median (`median()`), the inter-quartile range (`IQR()`), the minimum (`min()`) or the maximum (`max()`). Also try to figure out how to calculate a percentile (say the 15th percentile) in R. You may have to internet search ("How to calculate a percentile in R") to find out. Searching the internet is one of the most important programming techniques!
+
+A similar issue arises when you are calculating a summary statistics which involves more than one variable. Say you wanted to calculate correlations between the `educ`, `wage` and the `huswage` variables. Look at the difference in results for the following two commands.
+
+```{r}
+cor(mydata[c("educ","wage","huswage")])
+cor(mydata[c("educ","wage","huswage")],use = "complete")
+cor(mydata[c("educ","wage","huswage")],use = "pairwise")
+```
+
+Use the information in the help function (type `?cor` in the Console) to figure out why the results are different.
+
+## Summary stats for selected variables
+
+You already learned how to get summary statistics for all variables in the dataset above. Especially when you have many variables, the output of `summary(mydata)` will be quite cumbersome. You therefore often want to calculate certain summary statistics for some variables only. 
+
+### Option 1
+```{r}
+summary(mydata[c("hours","husage")])
+cor(mydata[c("hours","husage")])
+```
+
+### Option 2
+```{r}
+mydata.sub0 <- subset(mydata,select=c("hours","husage"))
+summary(mydata.sub0)
+cor(mydata.sub0)
+```
+
+It is important to understand that there is not one correct way to do things, but rather there are many correct ways of doing things.
+
+## Using subsets of data, by filtering observations
+
+An issue you will often encounter is that you want to do some analysis but not on all the observations you have in your dataset. Let's say you wish to calculate the correlation between the hours a women works (`hours`) and the hours her husband works (`hushrs`). But you want to do that only for those women who actually work more than 100 hours a year.
+
+There are multiple ways of doing this (and also check out the [Data Summary using Tidyverse](https://datasquad.github.io/ECLR/Rwork/SummaryStatsTidyverse.html) page for an elegant alternative way of doing so).
+
+```{r}
+mydata.sub1 <- subset(mydata, hours > 100, select = c("hours","hushrs"))
+cor(mydata.sub1)
+```
+
+
+## More summary stats
+
+Above we learned how to calculate summary statistics for numeric variables. If you have categorical variables, like years of education (`educ`) or number of kids younger than 6 years old (`kidslt6`) you actually want to see the number of observations in the categories. You can do this with the `table` function. 
+
+```{r}
+table(mydata$educ)
+```
+
+As you can see the largest group is the women with 12 years of education which is equivalent to high school education. 
+
+If you wanted to see this information not in terms of percentages you could so this as follows:
+
+```{r}
+prop.table(table(mydata$educ))
+```
+
+Now you can see that just over 50% have a high school education as their highest qualification.
+
+> Create the same type of table to figure out what percentage of women in the sample have no children younger than 6 years. You should find that it is just over 80%
+
+
+
+```{r, echo = FALSE, output = FALSE}
+prop.table(table(mydata$kidslt6))
+```
+
+There are a lot of digits in this output. You can tell R to show fewer digits. Run the following line and re-run the table with proportions to see the difference
+
+```{r}
+options(digits = 2)
+```
+
+
+Often you may want to create such tables for two rather than only one variable, say both for `educ` and for `kidslt6`. We call tables like this contingency tables or sometime cross tabs.
+
+```{r}
+table(mydata[c("educ","kidslt6")])  # counts
+```
+
+Now, presenting thisin terms of percentages is even more important.
+
+```{r}
+prop.table(table(mydata[c("educ","kidslt6")]) ) # percentages
+```
+
+You can see that almost 41% of women in the sample had 12 years of education and no children younger than 6 (`educ==12` and `kidslt6 == 0`).
+
+When you show percentages/proportions with multiple variables then you will often want to see conditional probabilities. Say, given a women has high school education (`educ==12`), what is the probability of that women having no children younger than 6 (`kidslt6 == 0`).
+
+The following line of code does give you that result, but what should you replace the "XXXX" with? With "1" or with "2"? Use the help function to understand (`?prop.table`).
+
+```{r, eval = FALSE}
+prop.table(table(mydata[c("educ","kidslt6")]), margin = XXXX ) # conditional percentages
+```
+
+When you get it right you should get the following table:
+
+```{r, echo = FALSE}
+prop.table(table(mydata[c("educ","kidslt6")]), margin = 1 ) # conditional percentages
+```
+
+The probability that a women with 12 years of education has no children younger than 6 years old is 80.8%.
+
+
+
+## Summary
+
+Here you have learned how to calculate summary statistics to particular variables in a dataset. How to restrict your calculation to particular rows n the dataset and importantly how to produce contingency tables.
