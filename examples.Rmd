@@ -11,6 +11,6 @@ output:
 The following examples are implemented on this page
 
 | Topic | Authors |Concepts | Link |
-|:------|:-----|:-----|---------|
-| Minimum Wage | Card and Krueger | Summary Statistics, Diff-in-Diff | [Rmd](https://datasquad.github.io/ECLR/Ex/CardKrueger.html) | 
-| Debt Levels and GDP Growth | Reinhard and Rogoff; Herndon, Ash and Pollin | Summary Statistics, Weighting, Hypothesis testing, Regression | [Rmd](https://datasquad.github.io/ECLR/Ex/RogoffReinhard.html) | 
+|:------|:-----|:-----|:--------|
+| Minimum Wage | Card and Krueger | Summary Statistics, Diff-in-Diff | R-Workthrough: [Rmd](https://datasquad.github.io/ECLR/Ex/CardKrueger.html) | 
+| Debt Levels and GDP Growth | Reinhard and Rogoff; Herndon, Ash and Pollin | Summary Statistics, Weighting, Hypothesis testing, Regression | R-Workthrough: [Rmd](https://datasquad.github.io/ECLR/Ex/RogoffReinhard.html) | 

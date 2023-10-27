@@ -4,9 +4,10 @@ navbar:
   left:
     - text: "Examples"
       href: examples.html
+    - text: "Datasets"
+      href: datasets.html
     - text: "Resources"
       href: resources.html
-
       
 output_dir: "."
 output:

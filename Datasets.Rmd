@@ -1,0 +1,25 @@
+---
+title: "Datasets used on ECLR"
+author: "Ralf Becker"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here we provide links to the datasets used on the ECLR page
+
+
+## mroz dataset (mroz.csv)
+
+This is a dataset often used in standard econometrics textbooks (such as Wooldridges's Introductory Econometrics). It provides 753 observations for female wages with a range of other variables. You can find details on the variables [here](http://fmwww.bc.edu/ec-p/data/wooldridge/mroz.des). You can get all the datafiles for Wooldridge's book from its publisher [Cengage])https://www.cengage.com/aise/economics/wooldridge_3e_datasets/).
+
+
+## Major League Baseball (mlb1.csv)
+
+This is another dataset used in Wooldridges's Introductory Econometrics textbook. It has 353 observations for Major League Baseball players in 1993 including their wages and a range of other variables. You can find details on the variables [here](http://fmwww.bc.edu/ec-p/data/wooldridge/mlb1.des). You can get all the datafiles for Wooldridge's book from its publisher [Cengage])https://www.cengage.com/aise/economics/wooldridge_3e_datasets/).
+
+
+

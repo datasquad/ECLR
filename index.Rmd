@@ -26,8 +26,16 @@ The examples from these books and others have been amended or re-written such th
 
 Learning any programming language, and yes, that is what R essentially is, can only be done by doing. Here we are not exposing you to a bottom-up introduction of R, but we are immediately exposing you to the exciting possibilities of R and the beauty and excitement of working with real-life data. As we do so we expose you to the basic tools of working with data in R and help you to learn these.
 
-However, you have to accept from the outset that this is going to be a bumby raod! The most crucial skill you will have to embrace and develop is that of finding solutions to prolems. You will, as any programmer, yes, even the most experienced ones, search the internet for solutions to your problem. Don't think that you can remember all the important commands from the top of your mind.
+However, you have to accept from the outset that this is going to be a bumby raod! The most crucial skill you will have to embrace and develop is that of finding solutions to proplems. You will, as any programmer, yes, even the most experienced ones, search the internet for solutions to your problem. Don't think that you can remember all the important commands from the top of your mind.
 
 Whenever we introduce a new R functionality we will briefly explain it, but importantly we will also give you links to further resources where you can find more usage examples and details. Also do not forget to use the build-in help function in R (type `?FUNCTIONNAME` into the Console and press Enter). This is important as it is the help that will be available offline as well.
 
-For links to additional resources to learn R check the [resources](https://datasquad.github.io/ECLR/resources.html) page.
+# Basic techniques
+
+In the following a few basic techniques needed for working in R are introduced
+
+| Topic | R- Workthrough | Data |
+|:------|:-----|:-----|
+| Basic Data Analysis (Tidyverse) | Workthrough: [R](https://datasquad.github.io/ECLR/Rwork/SummaryStatsTidyverse.html) | [mlb1.csv](https://datasquad.github.io/ECLR/Data/mlb1.csv) 
+
+You can find [further resources here](https://datasquad.github.io/ECLR/resources.html).

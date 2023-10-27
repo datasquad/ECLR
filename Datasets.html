@@ -9,9 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Ralf Becker" />
 
+<meta name="date" content="2023-10-27" />
 
-<title>Resources</title>
+<title>Datasets used on ECLR</title>
 
 <script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -29,9 +31,6 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -222,69 +221,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -292,16 +228,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -339,43 +265,41 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Resources</h1>
+<h1 class="title toc-ignore">Datasets used on ECLR</h1>
+<h4 class="author">Ralf Becker</h4>
+<h4 class="date">2023-10-27</h4>
 
 </div>
 
 
-<p>There is a plethora of resources if you want to learn R (which is one
-reason why this resource does not go into too much detail). Here are a
-few places to start.</p>
-<ul>
-<li>A dedicated tweet channel for <a
-href="https://twitter.com/Rstats4Econ">Econometrics with R</a></li>
-<li><a href="http://robjhyndman.com/publications/software/">Rob
-Hyndman</a> has great material, some of which will be referred to
-here.</li>
-<li>My colleague <a
-href="http://jjmedinaariza.github.io/R-for-Criminologists/">Junanjo
-Medina</a> has material for criminologists that includes good intros to
-graphing and some basic statistics</li>
-<li><a
-href="http://www.computerworld.com/article/2497143/business-intelligence-beginner-s-guide-to-r-introduction.html?null">A
-Beginner’s Guide to R</a></li>
-<li>Florian Heiss has written an R <a
-href="http://www.urfie.net/read/mobile/index.html#p=1">companion book to
-Wooldridge’s Introductory Econometrics</a>. It is available for free
-online but you can also get a <a
-href="http://www.urfie.net/index.html">hardcopy</a></li>
-<li>Some R resources provided by<a
-href="http://www.ats.ucla.edu/stat/r/">UCLA</a></li>
-<li><a href="http://www.statmethods.net">Quick-R</a> web-site.</li>
-<li><a href="http://tryr.codeschool.com/levels/1/challenges/1">Just TryR
-it!</a></li>
-</ul>
-
-
-
+<p>Here we provide links to the datasets used on the ECLR page</p>
+<div id="mroz-dataset-mroz.csv" class="section level2">
+<h2>mroz dataset (mroz.csv)</h2>
+<p>This is a dataset often used in standard econometrics textbooks (such
+as Wooldridges’s Introductory Econometrics). It provides 753
+observations for female wages with a range of other variables. You can
+find details on the variables <a
+href="http://fmwww.bc.edu/ec-p/data/wooldridge/mroz.des">here</a>. You
+can get all the datafiles for Wooldridge’s book from its publisher
+[Cengage])<a
+href="https://www.cengage.com/aise/economics/wooldridge_3e_datasets/"
+class="uri">https://www.cengage.com/aise/economics/wooldridge_3e_datasets/</a>).</p>
 </div>
+<div id="major-league-baseball-mlb1.csv" class="section level2">
+<h2>Major League Baseball (mlb1.csv)</h2>
+<p>This is another dataset used in Wooldridges’s Introductory
+Econometrics textbook. It has 353 observations for Major League Baseball
+players in 1993 including their wages and a range of other variables.
+You can find details on the variables <a
+href="http://fmwww.bc.edu/ec-p/data/wooldridge/mlb1.des">here</a>. You
+can get all the datafiles for Wooldridge’s book from its publisher
+[Cengage])<a
+href="https://www.cengage.com/aise/economics/wooldridge_3e_datasets/"
+class="uri">https://www.cengage.com/aise/economics/wooldridge_3e_datasets/</a>).</p>
 </div>
+
+
+
 
 </div>
 
@@ -408,35 +332,6 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
-<script>
-$(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
