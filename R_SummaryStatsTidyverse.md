@@ -1,7 +1,7 @@
 ---
 tidytitle: "Summary Statistics with Tidyverse"
 author: "RalfBecker"
-date: "2023-10-27"
+date: "2023-10-31"
 output: 
   html_document: 
     keep_md: yes

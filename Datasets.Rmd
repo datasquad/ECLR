@@ -9,17 +9,21 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Here we provide links to the datasets used on the ECLR page
+Here we provide information on the datasets used on the ECLR page
 
 
-## mroz dataset (mroz.csv)
+## mroz dataset ([mroz.csv](https://datasquad.github.io/ECLR/Data/mroz.csv) )
 
 This is a dataset often used in standard econometrics textbooks (such as Wooldridges's Introductory Econometrics). It provides 753 observations for female wages with a range of other variables. You can find details on the variables [here](http://fmwww.bc.edu/ec-p/data/wooldridge/mroz.des). You can get all the datafiles for Wooldridge's book from its publisher [Cengage])https://www.cengage.com/aise/economics/wooldridge_3e_datasets/).
 
 
-## Major League Baseball (mlb1.csv)
+## Major League Baseball ([mlb1.csv](https://datasquad.github.io/ECLR/Data/mlb1.csv))
 
 This is another dataset used in Wooldridges's Introductory Econometrics textbook. It has 353 observations for Major League Baseball players in 1993 including their wages and a range of other variables. You can find details on the variables [here](http://fmwww.bc.edu/ec-p/data/wooldridge/mlb1.des). You can get all the datafiles for Wooldridge's book from its publisher [Cengage])https://www.cengage.com/aise/economics/wooldridge_3e_datasets/).
 
 
+## Greater Manchester accident data ([STATS19_GM_AccData.csv](https://datasquad.github.io/ECLR/Data/STATS19_GM_AccData.csv))
 
+In this dataset you can find data on each police-registered road traffic accident in Greater Manchester (UK) between 2010 and 2020. The government provides detailed data on these. The datafile comes from the [Government Data website](https://www.data.gov.uk/dataset/25170a92-0736-4090-baea-bf6add82d118/gm-road-casualty-accidents-full-stats19-data). From this link you can download the latest dataset. The file linked above contains data from 2010 to 2020.
+
+The dataset contains information on more than 40,000 accidents. On each accident there are 25 pieces of information (variables). The data are the coded up information drawn from accident reports. In order to understand how the variables are coded you should have the [Data Dictionary](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/995422/stats19.pdf) at hand.

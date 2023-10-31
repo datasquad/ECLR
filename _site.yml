@@ -5,7 +5,7 @@ navbar:
     - text: "Examples"
       href: examples.html
     - text: "Datasets"
-      href: datasets.html
+      href: Datasets.html
     - text: "Resources"
       href: resources.html
       

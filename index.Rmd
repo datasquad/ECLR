@@ -36,6 +36,7 @@ In the following a few basic techniques needed for working in R are introduced
 
 | Topic | R- Workthrough | Data |
 |:------|:-----|:-----|
+| First Steps | Workthrough: [R](https://datasquad.github.io/ECLR/R_FirstSteps.html) | [STATS19_GM_AccData.csv](https://datasquad.github.io/ECLR/Data/STATS19_GM_AccData.csv) 
 | Basic Data Analysis | Workthrough: [R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [mroz.csv](https://datasquad.github.io/ECLR/Data/mroz.csv) 
 | Basic Data Analysis (Tidyverse) | Workthrough: [R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [mlb1.csv](https://datasquad.github.io/ECLR/Data/mlb1.csv) 
 
