@@ -9,10 +9,6 @@ output:
 
 ----
 
-This is a sisterpage of this [Wiki](http://eclr.humanities.manchester.ac.uk/index.php/Main_Page) which describes how to implement basic econometric techniques in R and Matlab.
-
-Here we focus on the use of R.
-
 # Purpose 
 
 On this webpage we collate empirical examples which can be used to help students understand a range of statistical and econometric techniques. This page benefits from a range of empirical examples which have been implemented in a range of books.
@@ -21,7 +17,7 @@ On this webpage we collate empirical examples which can be used to help students
 - [Mastering Metrics](https://www.masteringmetrics.com/) by Joshua Angrist and J&ouml;rn-Steffen Pischke
 - [Mostly Harmless Econometrics](https://economics.mit.edu/faculty/angrist/data1/mhe) by Joshua Angrist and J&ouml;rn-Steffen Pischke
 
-The examples from these books and others have been amended or re-written such that students can either use them directly or to facilitate adoption by leacturers.
+The examples from these books and others have been amended or re-written such that students can either use them directly or to facilitate adoption by lecturers.
 
 # How to learn R
 
