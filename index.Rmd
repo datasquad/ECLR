@@ -1,6 +1,7 @@
 ---
 title: "Econom(etr)ic Computing Learning Resource"
-author:  "[Ralf Becker](https://www.socialsciences.manchester.ac.uk/economics/) at [The University of Manchester](http://www.manchester.ac.uk), December 2019"
+author:  "[Ralf Becker](https://www.socialsciences.manchester.ac.uk/economics/) at [The University of Manchester](http://www.manchester.ac.uk)"
+date: "`r Sys.Date()`"
 output:
   html_document:
     fig_width: 1
