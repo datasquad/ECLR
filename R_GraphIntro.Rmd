@@ -1,0 +1,175 @@
+---
+tidytitle: "Data Loading"
+author: "Ralf Becker"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+# Introduction and Setup
+
+Here we will introduce one of the most powerful tools R has to offer, graphical representation of data. Adrian Pagan, an excellent Australian econometrician once said "A simple plot tells a lot!". So let's see how to create simple plots.
+
+Wit R being on open source software you will find quite a few different ways to produce graphics. Some are build, by default, into the R software, like the plot function. But as a regular user of R you will want to develop a wider range of graphics and then you will want to use a graphics package. The package we will introduce here is the **lattice graphics** package. But rather than directly installing the lattice package we propose to download and install a different package, the **mosaic** package, which includes the lattice package but has other useful features.
+
+```{r eval=FALSE}
+#install.packages("mosaic")
+```
+
+As you know, the above package installation you will only have to do once on your computer.
+
+```{r warning=FALSE, message=FALSE}
+library(mosaic)
+```
+
+When you load a package with the `library()` command you will often get some warning messages. On most occasions you can just ignore them. If you want more extensive documentation you could use the following links ([Lattice Graphs](http://lattice.r-forge.r-project.org/Vignettes/src/lattice-intro/lattice-intro.pdf] and Mosaic) and [Mosaic](http://mosaic-web.org/go/Master-Starting.pdf))
+
+If you want to go all out in terms of graphis you will possibly want to get aquainted to the `ggplot2` package. Just google for it.
+
+# Loading a dataset
+
+Let's get a dataset to look at. We shall use the Baseball wages dataset 
+
+```{r}
+mydata <- read.csv("T:/ECLR/R/GraphIntro/mlb1.csv")
+```
+
+Let's check out what variables we have in this data-file
+
+```{r}
+names(mydata)
+```
+
+You can find short variable descriptions [here](http://eclr.humanities.manchester.ac.uk/index.php/MLB1_Variable_Description) and of course you need to understand what data types the variables represent (check `str(mydata)` to confirm the R datatypes.) 
+
+# General structure of graphic commands
+
+There are a range of different graphs that are available from the lattice package, but the way in which we call them is very similar
+
+```{r eval=FALSE}
+plotname(y ~ x | z, data = dataframe, groups = variablename, ...)
+```
+
+Often we want to graphically relate two variables, say `y` and `x`. In a regression context `y` would be the dependent variable and `x` the explanatory. In terms of graphics we do not necessarily make such a distinction, so here `y`, the variable to the left of the `~` is the variable that will be represented on the vertical axis and 'x' would be represented on the horizontal axis. Here we also have a third variable `z` behind the vertical line `|` a conditioning variable. We will soon see how this will be used.
+
+# One variable graphs
+
+Sometimes you will have the need to graph a single variable. For this need the general graphing command will reduce to 
+
+```{r eval=FALSE}
+plotname(~ x, data = dataframe, groups = variablename, ...)
+```
+
+hence we merely drop the `y` and `z` variable. Let's get some actual graphs going.
+
+## Histograms
+
+Let's assume you want a histogram of the `games` variable, which indicates how many career games a player has played.
+
+```{r warning=FALSE}
+histogram(~ games, data = mydata)
+```
+
+We can clearly see that this distribution is positively skewed, i.e. there are some players with many more games than others. Before we look at other graphs, we will investigate a number of things you can change about this graph.
+
+### Graph customisation I
+
+Every different graph has different customisation options. For instance we will soon see how to change the number of bins in the histogram, but not all graphs have bins like a histogram. So if you want to change specific things about a graph you will have to check what can be changed. The way to find out is to use our friend Dr. Google and/or the help function (type `?histogram` into the command window).
+
+
+```{r warning=FALSE}
+histogram(~ games, data = mydata, nint=50, main="Histogram of Games")
+```
+
+The additional elements in this call are `nint=20, main="Histogram of Salary"`. We call these options which you handed over to the `histogram` function. `nint` controls how many bins the histogram should have and `main` gives your graph a title.
+
+### Using a conditioning variable
+
+What happens if we use a conditioning variable (the `| z` part of the generic graphics call). We may be interested in figuring out whether players of different background have different length careers.
+
+The dataset contains two dummy variables, `hispan` and `black` which will be one if the player is either hispanic or black respectively. To answer the question we just posed graphically it is actually best to have a factor variable that takes one of the three values: White, Hispanic or Black. The following command creates just such a new variable in our dataframe.
+
+```{r}
+mydata$race <- ifelse(mydata$black == 1, c("Black"), ifelse(mydata$hispan==1,c("Hispanic"),c("White")))
+```
+
+Here I will not explain what exactly this command does. Try and understand yourself (check `?ifelse`).
+
+Now we can use this variable to create histograms conditional the value of the factor/conditional variable `race`.
+
+```{r warning=FALSE}
+histogram(~ games | race, data = mydata, nint=10, main="Histogram of Games")
+```
+
+
+## Kernel density
+
+If you don't know what a kernel density estimate is, then this is not the right place to learn it. Suffice to say that it is something like a smooth histogram.
+
+```{r warning=FALSE}
+densityplot(~ games, data = mydata, main="Density of Games")
+```
+
+An important aspect of density plots is the degree of smoothing and you can control it via an option called `adjust` as in the following command
+
+```{r warning=FALSE}
+densityplot(~ games, data = mydata, main="Density of Salary", adjust = 1/3)
+```
+
+The default of adjust is 1. If you use a smaller number you will find that the degree of smoothing decreases.
+
+# Two variable graphs
+
+More often than not we are interested in relationships between variables and to this purpose we need graphs that relate two variables.
+
+## Scatterplots
+
+The most common graph for two variables are scatterplots. Here is how we call them
+
+```{r warning=FALSE}
+xyplot(salary~ games, data = mydata, main="Relation between games and salary")
+```
+
+### using data groupings
+
+Sometimes it is useful to identify observations of different groups in a scatterplot. This is what the `groups` option is for (it can be used for many different plots).
+
+```{r warning=FALSE}
+xyplot(salary~ games, data = mydata, groups = race, auto.key=list(space="right"),main="Relation between games and salary")
+```
+
+You can see that the option `auto.key=list(space="right")` placed the legend on the right hand side of the graph.
+
+### Graph customisation II
+
+This is a good point to introduce some more customisations. The graph aboth is quite nice, but as the dots are not fillwd it is somewhat difficult to tell the difference. Let's say we want to fill the symbols. In the end you can control almost everything in a graph you just need to find out how. I recommend that Dr Google may be the quickest way. So here I searched for "R lattice plots fill sympols". You will most likely find someone who had a similar problem and found a solution. and here it is
+
+```{r warning=FALSE}
+xyplot(salary~ games, data = mydata, groups = race, auto.key=list(space="right"), main="Relation between games and salary", pch = 16, par.settings = list(superpose.symbol = list(col=c("red","blue","green"))))
+```
+
+Again, we will not explain everything in detail, just a few notes. `pch` controls the type of symbol used. `pch=16` represents solid round symbols. Check [here](http://www.endmemo.com/program/R/pchsymbols.php) for a list of all choices you have, just play around abit. The color control comes through the `par.settings` option. These are the things you will have to play around with a bit. Sometimes it is also useful to just look at a few examples to see what is possible. A good place is [this](https://fas-web.sunderland.ac.uk/~cs0her/Statistics/UsingLatticeGraphicsInR.htm).
+
+# Combining Multiple Plots
+
+Sometimes you want to combine multiple graphs in one picture. We best explain what we need by using an example.
+Let's say we want to arrange 4 plots in a (2,2) matrix, then we use the `par(mfrow=c(2,2))` command. The next four plots are then used to fill the four slots:
+
+```{r}
+par(mfrow=c(2,2))
+plot(mydata$games)
+hist(mydata$lsalary)
+boxplot(mydata$games)
+plot(mydata$years)
+```
+
+You can also arrange mutiple plots in a more irregular fashion. You should then use the `layout` command. While we will not provide any details here, we do provide an example. In practice you will have to read `?layout` and experiment a little. 
+
+```{r}
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE), 
+    widths=c(2,1), heights=c(1,2))
+hist(mydata$lsalary)
+boxplot(mydata$games)
+plot(mydata$years)
+```
