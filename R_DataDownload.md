@@ -15,7 +15,7 @@ Here we will demonstrate how to load data into R. There are two ways to do this.
 
 # File upload
 
-When you are working with an existing datafile on your computer, then you should first ensure that you have set your working directory such that it points to the folder from which you are working and where you can find your datafile. Let's assume that you have saved [mroz.csv](https://datasquad.github.io/ECLR/Data/mroz.csv) to your working directory: `C:\Rwork`. Then the command below should read `setwd("C:/Rwork")`. Note that all backward slashes (`\`) have to be replaced by forward slashes (`/`). 
+When you are working with an existing datafile on your computer, then you should first ensure that you have set your working directory such that it points to the folder from which you are working and where you can find your datafile. Let's assume that you have saved [mroz.csv](Data/mroz.csv){target="_blank"} to your working directory: `C:\Rwork`. Then the command below should read `setwd("C:/Rwork")`. Note that all backward slashes (`\`) have to be replaced by forward slashes (`/`). 
 
 
 ```r
@@ -98,9 +98,6 @@ library(readxl)
 mydata <- read_excel("Mroz.xlsx", na = ".")
 ```
 
-```
-## Warning: package 'readxl' was built under R version 4.2.3
-```
 
 # Direct link to data databases
 
@@ -123,23 +120,11 @@ library(quantmod)
 ```
 
 ```
-## Warning: package 'quantmod' was built under R version 4.2.3
-```
-
-```
 ## Loading required package: xts
 ```
 
 ```
-## Warning: package 'xts' was built under R version 4.2.3
-```
-
-```
 ## Loading required package: zoo
-```
-
-```
-## Warning: package 'zoo' was built under R version 4.2.3
 ```
 
 ```
@@ -229,13 +214,6 @@ Another very useful package that can be used to access a host of online database
 
 ```r
 library(pdfetch)
-```
-
-```
-## Warning: package 'pdfetch' was built under R version 4.2.3
-```
-
-```r
 library(xts)
 ```
 

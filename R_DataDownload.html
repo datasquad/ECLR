@@ -282,10 +282,10 @@ from R. We will discuss both these techniques here.</p>
 you should first ensure that you have set your working directory such
 that it points to the folder from which you are working and where you
 can find your datafile. Let’s assume that you have saved <a
-href="https://datasquad.github.io/ECLR/Data/mroz.csv">mroz.csv</a> to
-your working directory: <code>C:\Rwork</code>. Then the command below
-should read <code>setwd("C:/Rwork")</code>. Note that all backward
-slashes (<code>\</code>) have to be replaced by forward slashes
+href="Data/mroz.csv" target="_blank">mroz.csv</a> to your working
+directory: <code>C:\Rwork</code>. Then the command below should read
+<code>setwd("C:/Rwork")</code>. Note that all backward slashes
+(<code>\</code>) have to be replaced by forward slashes
 (<code>/</code>).</p>
 <pre class="r"><code>setwd(&quot;XXXX:/XXXX&quot;)   # replace the XXXX with your drive and path</code></pre>
 <p>The datafile we practice with here is a comma separated values file
@@ -368,7 +368,6 @@ different functions which do the same job. We recommend
 are coded is here called <code>na</code>.</p>
 <pre class="r"><code>library(readxl)
 mydata &lt;- read_excel(&quot;Mroz.xlsx&quot;, na = &quot;.&quot;)</code></pre>
-<pre><code>## Warning: package &#39;readxl&#39; was built under R version 4.2.3</code></pre>
 </div>
 <div id="direct-link-to-data-databases" class="section level1">
 <h1>Direct link to data databases</h1>
@@ -387,11 +386,8 @@ internet access when you work.</p>
 <p>A package that works well for downloading financial data is the
 <code>quantmod</code> package.</p>
 <pre class="r"><code>library(quantmod)</code></pre>
-<pre><code>## Warning: package &#39;quantmod&#39; was built under R version 4.2.3</code></pre>
 <pre><code>## Loading required package: xts</code></pre>
-<pre><code>## Warning: package &#39;xts&#39; was built under R version 4.2.3</code></pre>
 <pre><code>## Loading required package: zoo</code></pre>
-<pre><code>## Warning: package &#39;zoo&#39; was built under R version 4.2.3</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;zoo&#39;</code></pre>
 <pre><code>## The following objects are masked from &#39;package:base&#39;:
@@ -448,9 +444,8 @@ into the <code>xts</code> format which is a time-series format and
 therefore, before using this, you should load (and install if you havn’t
 done so yet) the <code>pdfetch</code> and the <code>xls</code>
 package.</p>
-<pre class="r"><code>library(pdfetch)</code></pre>
-<pre><code>## Warning: package &#39;pdfetch&#39; was built under R version 4.2.3</code></pre>
-<pre class="r"><code>library(xts)</code></pre>
+<pre class="r"><code>library(pdfetch)
+library(xts)</code></pre>
 <p>This package has data download functions specific to the database you
 are using. Say you wish to get data from the Office for National
 Statistics (ONS) in the UK, then you need to use the
