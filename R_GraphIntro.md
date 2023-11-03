@@ -4,6 +4,7 @@ author: "Ralf Becker"
 date: "2023-11-03"
 output: 
   html_document: 
+    toc: true
     keep_md: yes
 ---
 

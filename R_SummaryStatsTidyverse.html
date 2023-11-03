@@ -268,6 +268,40 @@ $(document).ready(function () {
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#loading-a-dataset" id="toc-loading-a-dataset">Loading a
+dataset</a></li>
+<li><a href="#what-variables-are-you-interested-in"
+id="toc-what-variables-are-you-interested-in">What variables are you
+interested in?</a>
+<ul>
+<li><a href="#a-flashback" id="toc-a-flashback">A flashback</a></li>
+<li><a href="#first-pipe" id="toc-first-pipe">First pipe!</a></li>
+</ul></li>
+<li><a href="#simple-pivot-tables" id="toc-simple-pivot-tables">Simple
+pivot tables</a>
+<ul>
+<li><a href="#the-core-tools" id="toc-the-core-tools">The core tools</a>
+<ul>
+<li><a href="#group_by" id="toc-group_by">group_by</a></li>
+<li><a href="#filter" id="toc-filter">filter()</a></li>
+<li><a href="#arrange" id="toc-arrange">arrange()</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#double-pivot-tables" id="toc-double-pivot-tables">Double
+pivot tables</a>
+<ul>
+<li><a href="#group_by-for-more-than-one-group"
+id="toc-group_by-for-more-than-one-group">group_by() for more than one
+group</a></li>
+<li><a href="#spread-and-arrange" id="toc-spread-and-arrange">spread()
+and arrange()</a></li>
+</ul></li>
+<li><a href="#summary" id="toc-summary">Summary</a></li>
+</ul>
+</div>
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
@@ -292,8 +326,8 @@ for it.</p>
 <h1>Loading a dataset</h1>
 <p>Let’s get a dataset to look at. We shall use the Baseball wages
 dataset, including 353 Baseball Players in 1993 (get the datafile from
-the <a
-href="ECLR%20page">http://eclr.humanities.manchester.ac.uk/index.php/R#Data_Sets</a>).</p>
+here: <a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv">mlb1.csv</a>).</p>
 <pre class="r"><code>mydata &lt;- read.csv(&quot;data/mlb1.csv&quot;)</code></pre>
 <p>Let’s check out what variables we have in this data-file</p>
 <pre class="r"><code>names(mydata)</code></pre>

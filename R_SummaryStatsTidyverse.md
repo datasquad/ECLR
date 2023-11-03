@@ -4,6 +4,7 @@ author: "RalfBecker"
 date: "2023-11-03"
 output: 
   html_document: 
+    toc: true
     keep_md: yes
 ---
 
@@ -25,7 +26,7 @@ By the way, at this stage you should take five minuted to learn about [https://p
 
 # Loading a dataset
 
-Let's get a dataset to look at. We shall use the Baseball wages dataset, including 353 Baseball Players in 1993 (get the datafile from the [http://eclr.humanities.manchester.ac.uk/index.php/R#Data_Sets](ECLR page)).
+Let's get a dataset to look at. We shall use the Baseball wages dataset, including 353 Baseball Players in 1993 (get the datafile from here:  [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv)).
 
 
 ```r

@@ -4,6 +4,7 @@ author: "Ralf Becker"
 date: "2023-11-03"
 output: 
   html_document: 
+    toc: true
     keep_md: yes
 ---
 
@@ -15,7 +16,7 @@ Here we will demonstrate how to load data into R. There are two ways to do this.
 
 # File upload
 
-When you are working with an existing datafile on your computer, then you should first ensure that you have set your working directory such that it points to the folder from which you are working and where you can find your datafile. Let's assume that you have saved [mroz.csv](https://github.com/datasquad/ECLR/raw/gh-pages/data/Mroz.csv){target="_blank"} to your working directory: `C:\Rwork`. Then the command below should read `setwd("C:/Rwork")`. Note that all backward slashes (`\`) have to be replaced by forward slashes (`/`). 
+When you are working with an existing datafile on your computer, then you should first ensure that you have set your working directory such that it points to the folder from which you are working and where you can find your datafile. Let's assume that you have saved [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv){target="_blank"} to your working directory: `C:\Rwork`. Then the command below should read `setwd("C:/Rwork")`. Note that all backward slashes (`\`) have to be replaced by forward slashes (`/`). 
 
 
 ```r

@@ -271,13 +271,37 @@ $(document).ready(function () {
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#data-summaries" id="toc-data-summaries">Data
+Summaries</a></li>
+<li><a href="#dealing-with-missing-observations"
+id="toc-dealing-with-missing-observations">Dealing with missing
+observations</a></li>
+<li><a href="#summary-stats-for-selected-variables"
+id="toc-summary-stats-for-selected-variables">Summary stats for selected
+variables</a>
+<ul>
+<li><a href="#option-1" id="toc-option-1">Option 1</a></li>
+<li><a href="#option-2" id="toc-option-2">Option 2</a></li>
+</ul></li>
+<li><a href="#using-subsets-of-data-by-filtering-observations"
+id="toc-using-subsets-of-data-by-filtering-observations">Using subsets
+of data, by filtering observations</a></li>
+<li><a href="#more-summary-stats" id="toc-more-summary-stats">More
+summary stats</a></li>
+<li><a href="#summary" id="toc-summary">Summary</a></li>
+</ul>
+</div>
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>Let’s start by loading a datafile. We are using the datafile with 752
 women’s wages and working hours as well as other variables. These are
-the data in the <code>mroz.csv</code> file (see the dataset links). Make
-sure that this file is loaded into a data subfolder of your working
+the data in the <code>mroz.csv</code> file (<a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv">mroz.csv</a>).
+Make sure that this file is loaded into a data subfolder of your working
 directory.</p>
 <pre class="r"><code>mydata &lt;- read.csv(&quot;data/mroz.csv&quot;,na.strings = &quot;.&quot;)  # Opens mroz.csv from working directory</code></pre>
 <p>You may wonder what the option <code>na.strings = "."</code> does. It

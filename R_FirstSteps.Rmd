@@ -4,6 +4,7 @@ author: "Ralf Becker"
 date: "`r Sys.Date()`"
 output: 
   html_document: 
+    toc: true
     keep_md: yes
 ---
 
@@ -35,7 +36,7 @@ Before you start you should create a space (i.e. a folder) on your computer from
 
 Let's say you named your folder `Rwork` on your C drive, then the path to your folder will be `C:\Rwork`.
 
-For this computer lab we are using the datafile [STATS19_GM_AccData.csv](https://datasquad.github.io/ECLR/Data/STATS19_GM_AccData.csv). You should download this datafile into the folder you just created and want to work from. It will also be useful to have the [Data Dictionary](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/995422/stats19.pdf) ready.
+For this computer lab we are using the datafile [STATS19_GM_AccData.csv](https://datasquad.github.io/ECLR/blob/STATS19_GM_AccData.csv). You should download this datafile into the folder you just created and want to work from. It will also be useful to have the [Data Dictionary](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/995422/stats19.pdf) ready.
 
 # Exploring RStudio and searching
 
