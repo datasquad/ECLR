@@ -1,11 +1,9 @@
 ---
-tidytitle: "Summary Statistics with Tidyverse"
-author: "RalfBecker"
-date: "`r Sys.Date()`"
-output: 
-  html_document: 
+title: "Summary Statistics with Tidyverse"
+output:
+  html_document:
     toc: true
-    keep_md: yes
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}

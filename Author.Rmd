@@ -1,0 +1,12 @@
+---
+title: "Author"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Material on this page has been authored by
+
+* [Ralf Becker](https://datasquad.github.io/ralffbecker/index.html), The University of Manchester

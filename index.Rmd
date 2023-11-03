@@ -1,10 +1,9 @@
 ---
 title: "Econom(etr)ic Computing Learning Resource"
-author:  "[Ralf Becker](https://www.socialsciences.manchester.ac.uk/economics/) at [The University of Manchester](http://www.manchester.ac.uk)"
-date: "`r Sys.Date()`"
 output:
   html_document:
-    fig_width: 1
+    toc: true
+    toc_float: true
 ---
 
 ----
@@ -37,6 +36,13 @@ In the following some data visualisation techniques are introduced.
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
 | Basic Data Visualisation (ggplot) | Workthrough: [R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
+
+# Dealing with Time-Series variables
+
+| Topic | Workthrough | Data used |
+|:------|:-----|:-----|
+| Basic TS modeling | Workthrough: [R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://datasquad.github.io/ECLR/blob/EUROSTATtimeseries.csv) 
+
 
 # Examples
 

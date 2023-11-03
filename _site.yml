@@ -8,6 +8,8 @@ navbar:
       href: Datasets.html
     - text: "Resources"
       href: resources.html
+    - text: "Author"
+      href: author.html
       
 output_dir: "."
 output:

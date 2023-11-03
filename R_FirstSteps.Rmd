@@ -1,11 +1,9 @@
 ---
-tidytitle: "First Steps in R"
-author: "Ralf Becker"
-date: "`r Sys.Date()`"
-output: 
-  html_document: 
+title: "First Steps in R"
+output:
+  html_document:
     toc: true
-    keep_md: yes
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
