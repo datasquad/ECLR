@@ -29,13 +29,21 @@ Whenever we introduce a new R functionality we will briefly explain it, but impo
 
 # Basic techniques
 
-In the following a few basic techniques needed for working in R are introduced
+In the following a few basic data techniques are introduced
 
-| Topic | R- Workthrough | Data |
+| Topic | Workthrough | Data used |
 |:------|:-----|:-----|
 | First Steps | Workthrough: [R](https://datasquad.github.io/ECLR/R_FirstSteps.html) | [STATS19_GM_AccData.csv](https://datasquad.github.io/ECLR/Data/STATS19_GM_AccData.csv)
-| Loading Data | Workthrough: [R](https://datasquad.github.io/ECLR/R_DataDownload.html) | [mroz.csv](https://datasquad.github.io/ECLR/Data/mroz.csv), [mroz.xlsx](https://datasquad.github.io/ECLR/Data/mroz.xlsx)
-| Basic Data Analysis | Workthrough: [R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [mroz.csv](https://datasquad.github.io/ECLR/Data/mroz.csv) 
-| Basic Data Analysis (Tidyverse) | Workthrough: [R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [mlb1.csv](https://datasquad.github.io/ECLR/Data/mlb1.csv) 
+| Loading Data | Workthrough: [R](https://datasquad.github.io/ECLR/R_DataDownload.html) | [mroz.csv](https://github.com/datasquad/ECLR/raw/gh-pages/data/Mroz.csv), [mroz.xlsx](https://github.com/datasquad/ECLR/raw/gh-pages/data/Mroz.xlsx)
+| Basic Data Analysis | Workthrough: [R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [mroz.csv](https://github.com/datasquad/ECLR/raw/gh-pages/data/mroz.csv) 
+| Basic Data Analysis (Tidyverse) | Workthrough: [R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [mlb1.csv](https://github.com/datasquad/ECLR/raw/gh-pages/data/mlb1.csv) 
+
+# Graphical representations
+
+In the following some data visualisation techniques are introduced.
+
+| Topic | Workthrough | Data used |
+|:------|:-----|:-----|
+| Basic Data Visualisation (ggplot) | Workthrough: [R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [mlb1.csv](https://github.com/datasquad/ECLR/raw/gh-pages/data/mlb1.csv) 
 
 You can find [further resources here](https://datasquad.github.io/ECLR/resources.html).

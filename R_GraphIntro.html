@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ralf Becker" />
+
+<meta name="date" content="2023-11-03" />
+
+<title>R_GraphIntro.knit</title>
+
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="Datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+
+</div>
+
+
+<div id="introduction-and-setup" class="section level1">
+<h1>Introduction and Setup</h1>
+<p>Here we will introduce one of the most powerful tools R has to offer,
+graphical representation of data. Adrian Pagan, an excellent Australian
+econometrician once said “A simple plot tells a lot!”. So let’s see how
+to create simple plots.</p>
+<p>With R being on open source software you will find quite a few
+different ways to produce graphics. Some are build, by default, into the
+R software, like the plot function. But as a regular user of R you will
+want to develop a wider range of graphics and then you will want to use
+a graphics package. The package we will introduce here is the
+<code>ggplot2</code> package. Install this package in case you have not
+yet done so on your computer.</p>
+<pre class="r"><code>install.packages(&quot;ggplot2&quot;)</code></pre>
+<p>As you know, the above package installation you will only have to do
+once on your computer.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<p>When you load a package with the <code>library()</code> command you
+will often get some warning messages. On most occasions you can just
+ignore them. <code>ggplot</code> will automatically load the
+<code>ggplot</code> package and you are likely to want to do some
+manipulation using the tiyverse package.</p>
+</div>
+<div id="loading-a-dataset" class="section level1">
+<h1>Loading a dataset</h1>
+<p>Let’s get a dataset to look at. We shall use the Baseball wages
+dataset, <a
+href="https://github.com/datasquad/ECLR/raw/gh-pages/data/mlb1.csv">mlb1.csv</a>.
+Make sure that it is saved into your working directory. (Recall, use
+<code>setwd()</code> to set your working directory).</p>
+<pre class="r"><code>mydata &lt;- read.csv(&quot;mlb1.csv&quot;, na.strings = &quot;.&quot;)</code></pre>
+<p>Let’s check out what variables we have in this data-file</p>
+<pre class="r"><code>names(mydata)</code></pre>
+<pre><code>##  [1] &quot;salary&quot;   &quot;teamsal&quot;  &quot;nl&quot;       &quot;years&quot;    &quot;games&quot;    &quot;atbats&quot;  
+##  [7] &quot;runs&quot;     &quot;hits&quot;     &quot;doubles&quot;  &quot;triples&quot;  &quot;hruns&quot;    &quot;rbis&quot;    
+## [13] &quot;bavg&quot;     &quot;bb&quot;       &quot;so&quot;       &quot;sbases&quot;   &quot;fldperc&quot;  &quot;frstbase&quot;
+## [19] &quot;scndbase&quot; &quot;shrtstop&quot; &quot;thrdbase&quot; &quot;outfield&quot; &quot;catcher&quot;  &quot;yrsallst&quot;
+## [25] &quot;hispan&quot;   &quot;black&quot;    &quot;whitepop&quot; &quot;blackpop&quot; &quot;hisppop&quot;  &quot;pcinc&quot;   
+## [31] &quot;gamesyr&quot;  &quot;hrunsyr&quot;  &quot;atbatsyr&quot; &quot;allstar&quot;  &quot;slugavg&quot;  &quot;rbisyr&quot;  
+## [37] &quot;sbasesyr&quot; &quot;runsyr&quot;   &quot;percwhte&quot; &quot;percblck&quot; &quot;perchisp&quot; &quot;blckpb&quot;  
+## [43] &quot;hispph&quot;   &quot;whtepw&quot;   &quot;blckph&quot;   &quot;hisppb&quot;   &quot;lsalary&quot;</code></pre>
+<p>You can find short variable descriptions <a
+href="http://fmwww.bc.edu/ec-p/data/wooldridge/mlb1.des">here</a> and of
+course you need to understand what data types the variables represent
+(check <code>str(mydata)</code> to confirm the R datatypes.) The
+datafile contains information on 353 baseball players.</p>
+<p>You can see that there are several variables which indicate which
+fielding position a player has. For instance player 10 is an outfield
+player as the player has a value of 1 in the outfield variable and 0s
+otherwise.</p>
+<pre class="r"><code>mydata[10,18:23]</code></pre>
+<pre><code>##    frstbase scndbase shrtstop thrdbase outfield catcher
+## 10        0        0        0        0        1       0</code></pre>
+<p>The following will create one new variable called
+<code>poition</code>, which indicates the position a player plays
+in.</p>
+<pre class="r"><code>mydata &lt;- mydata %&gt;%  mutate(position = case_when(frstbase == 1 ~ &quot;First Base&quot;,
+                                                  scndbase == 1 ~ &quot;Second Base&quot;,
+                                                  shrtstop == 1 ~ &quot;Shortstop&quot;,
+                                                  thrdbase == 1 ~ &quot;Third Base&quot;,
+                                                  outfield == 1 ~ &quot;Outfield&quot;,
+                                                  catcher == 1 ~ &quot;Catcher&quot;)) %&gt;% mutate(position = as.factor(position))</code></pre>
+<p>In a similar manner we create a variable which describes the
+ethnicity of players.</p>
+<pre class="r"><code>mydata &lt;- mydata %&gt;%  mutate(ethnicity = case_when(black == 1 ~ &quot;black&quot;,
+                                                   hispan == 1 ~ &quot;hispanic&quot;,
+                                                   (black == 0) &amp; (hispan == 0) ~ &quot;white&quot;)) %&gt;% 
+                               mutate(ethnicity = as.factor(ethnicity))</code></pre>
+<p>Here we categorise players as either black hispanic or white. This is
+the information available from the data but may not well represent more
+complicated ethnicities.</p>
+</div>
+<div id="basic-graphics-in-r" class="section level1">
+<h1>Basic graphics in R</h1>
+<p>Rhas some basic build-in graphics capability. This is called with the
+<code>plot</code> function. The plot function recognises the datatype
+and adjusts the graphics type accordingly. For instance:</p>
+<pre class="r"><code>plot(mydata$salary)</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-9-1.png" /><!-- --></p>
+<p>It has recognised that the data in <code>salary</code> are numeric
+and this triggers a scatterplot. To produce a scatter plot you need a
+second variable and as we did not deliver any it automatically uses the
+data index (which here is just like a numbering of the players in the
+datafile). If you want to set which variable appears on the horizontal
+axis (e.g. the batting average, <code>bavg</code>), then you need to set
+this as follows:</p>
+<pre class="r"><code>plot(mydata$bavg,mydata$salary) # first variable for horizontal, 2nd for vertical axis</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-10-1.png" /><!-- --></p>
+<p>If we are sending a categrical/factor variable to <code>plot</code>
+such as the <code>position</code> variable, then the function will
+automatically create a bar graph.</p>
+<pre class="r"><code>plot(mydata$position)</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-11-1.png" /><!-- --></p>
+<p>These plots can be very useful to get a first idea of what the data
+look like and it is possible to adapt certain aspects of these plots,
+however, when you want to prepare nice looking plots for a report, then
+you are likely to want to use a more powerful tool.</p>
+</div>
+<div id="advanced-graphics-with-ggplot" class="section level1">
+<h1>Advanced graphics with <code>ggplot</code></h1>
+<p>The <code>ggplot</code> package is one of these packages you can use
+to produce really beautiful graphics. There are literally <a
+href="https://ggplot2-book.org/">books</a> written just to help you with
+using this package to produce nice graphics. This here is just the
+briefest of introductions.</p>
+<p>There is a large range of different graphs that are available from
+the <code>ggplot</code> package. A great overview and an excellent
+source of help is available from this <a
+href="https://rstudio.github.io/cheatsheets/data-visualization.pdf">ggplot
+cheatsheet</a>. It is well worth having this available on your computer.
+Of ourse, al ot more detail is available from <a
+href="https://ggplot2-book.org/">Hadley Wikham’s online book</a>.</p>
+<div id="general-structure-of-graphic-commands-in-ggplot"
+class="section level2">
+<h2>General structure of graphic commands in <code>ggplot</code></h2>
+<p>In general the structure of creating</p>
+<pre class="r"><code>g1 &lt;- ggplot(mydata, aes(y = VARIABLENAME, x = VARIABLENAME, colour = VARIABLENAME)) + 
+  geom_GRAPHTYPE() +
+  geom_OTHERSTUFF()</code></pre>
+<p>It is worth briefly thinking about what this does, such that what
+follows makes more sense. First, we create a new object into which we
+will save the graph, here called <code>g1</code>. We call the function
+<code>ggplot(mydata, )</code> which instructs R to prepare a graph using
+data stored in the <code>mydata</code> object. This implies that in what
+follows R just assumes that variables we are using are in this
+dataframe.</p>
+<p><code>aes(y = VARIABLENAME1, x = VARIABLENAME2, colour = VARIABLENAME3)</code>
+then provides further detail. In particular it tells R that
+<code>VARIABLENAME1</code> should be on the vertical/y axis and
+<code>VARIABLENAM2</code> should be on the horizontal/x axis. Further,
+data points will be displayed in different colors as per
+<code>VARIABLENAME3</code>. Not all graph types will actually need all
+of this information.</p>
+<p>At this stage, R has just prepared a blank canvas with those
+parameters, but has not yet created a graph. That is achieved by
+<code>+ geom_GRAPHTYPE()</code>. As you will soon see there are
+different graph types available. Then you can add further details to
+your graph <code>+ geom_OTHERSTUFF()</code>.</p>
+<p>It is useful to differentiate between graphs that use one and those
+that use two variables.</p>
+</div>
+<div id="one-variable-graphs" class="section level2">
+<h2>One variable graphs</h2>
+<p>Say we want to graphically represent the distribution of a
+categorical variable, like the <code>position</code> variable.</p>
+<pre class="r"><code>g1 &lt;- ggplot(mydata, aes(x = position)) + 
+  geom_bar() </code></pre>
+<p>This has produced the graph and it is stored in <code>g1</code>. You
+can see it by calling <code>g1</code>.</p>
+<pre class="r"><code>g1</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-14-1.png" /><!-- --></p>
+<p>This is very similar to the bar graph produced in the basic graph
+section. Let’s change the esthetics a little by adding a theme and a
+title.</p>
+<pre class="r"><code>g1 &lt;- ggplot(mydata, aes(x = position)) + 
+  geom_bar() + 
+  theme_classic() +
+  labs(x = &quot;Player position&quot;, y = &quot;Number of players&quot;, title =&quot;Bar Chart for Player positions&quot;)
+g1</code></pre>
+<p>If you wish to represent numerical data you have a few more options
+than a bar chart.</p>
+<p>Let’s assume you want a histogram of the <code>hruns</code> variable,
+which indicates how many career home runs a player has.</p>
+<pre class="r"><code>g2 &lt;- ggplot(mydata, aes(x = hruns)) + 
+  geom_histogram() + 
+  theme_classic() +
+  labs(x = &quot;Home Runs&quot;, y = &quot;&quot;, title =&quot;Career Home Runs&quot;)
+g2</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better
+## value with `binwidth`.</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-16-1.png" /><!-- --></p>
+<p>You get a good idea from this about the distribution of the home run
+variale. Instead of <code>geom_histogram()</code> you could use a smooth
+versio of the histogram, called <code>geom_density()</code>. Try for
+yourself what the option <code>size = 1</code> inside the function call
+does by changing the value (remember you cannot break your
+computer).</p>
+<pre class="r"><code>g3 &lt;- ggplot(mydata, aes(x = hruns)) + 
+  geom_density(size = 1) + 
+  theme_classic() +
+  labs(x = &quot;Home Runs&quot;, y = &quot;&quot;, title =&quot;Career Home Runs&quot;)
+g3</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-17-1.png" /><!-- --></p>
+<p>And now you will learn one of the incredibly powerful modifications
+you can undertake with <code>ggplot</code>. In the initial function
+call, in the aesthetics (<code>aes</code>) settings we add
+<code>colour = position</code>. See what happens:</p>
+<pre class="r"><code>g4 &lt;- ggplot(mydata, aes(x = hruns, color = position)) + 
+  geom_density(size = 1) + 
+  theme_classic() +
+  labs(x = &quot;Home Runs&quot;, y = &quot;&quot;, title =&quot;Career Home Runs&quot;)
+g4</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-18-1.png" /><!-- --></p>
+<p>We now get different density plots by position. You can now easily
+see that Catchers, Shortstops and Second Base players have fewer home
+runs, they are the very specilist fielding positions.</p>
+<p>This is pretty nice already, but we can do even better. Try and
+identify the what was added and play with the <code>alpha</code>
+parameter to see what it does.</p>
+<pre class="r"><code>g4 &lt;- ggplot(mydata, aes(x = hruns, fill = position, colour = position)) + 
+  geom_density(size = 1, alpha = 0.2) + 
+  theme_classic() +
+  labs(x = &quot;Home Runs&quot;, y = &quot;&quot;, title =&quot;Career Home Runs&quot;)
+g4</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-19-1.png" /><!-- --></p>
+<p>It is important to understand that a data analyst will rarely
+remember all of these commands. A crucial programming technique is
+searching the internet. You could, for instance, search for “r ggplot
+overlying density plots” and then you should find an example which
+produces a similar plot. You can then copy and paste the code and adjust
+it to your dataset.</p>
+</div>
+<div id="two-variables-graph" class="section level2">
+<h2>Two variables graph</h2>
+<p>In this section you can learn how to produce graphs that visualise
+two variables.</p>
+<p>Perhaps the most classic of such plots is a scatter diagram.</p>
+<pre class="r"><code>g5 &lt;- ggplot(mydata, aes(x = hruns, y = salary)) + 
+  geom_point() + 
+  theme_classic() +
+  labs(x = &quot;Home Runs&quot;, y = &quot;Salary&quot;, title =&quot;Scatter plot&quot;)
+g5</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-20-1.png" /><!-- --></p>
+<p>Here we can see that in general there is a positive relationship
+between the number of career home runs and the salary variables.</p>
+<p>After we learned that the number of home runs differs significantly
+between positions (some positions job it is to get home runs, other
+positions have other specialisations), it is obvious that there is more
+to the data. Let’s see how we can use position information in this
+graph. We could add a colour differentiation</p>
+<pre class="r"><code>g7 &lt;- ggplot(mydata, aes(x = hruns, y = salary, colour = position)) + 
+  geom_point() + 
+  theme_classic() +
+  labs(x = &quot;Home Runs&quot;, y = &quot;Salary&quot;, title =&quot;Scatter plot&quot;)
+g7</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-21-1.png" /><!-- --></p>
+<p>But this is somewhat too messy to actually see anything here. Another
+way to do this is what is called facetting.</p>
+<pre class="r"><code>g8 &lt;- ggplot(mydata, aes(x = hruns, y = salary)) + 
+  geom_point() + 
+  theme_classic() +
+  facet_wrap(vars(position)) +
+  labs(x = &quot;Home Runs&quot;, y = &quot;Salary&quot;, title =&quot;Scatter plots&quot;)
+g8</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-22-1.png" /><!-- --></p>
+<p>The addition of <code>+ facet_wrap(vars(position))</code> produced a
+scatter plot for each position separately. In this case this does not
+really help us a lot other than to see that outfielders are the players
+which score, on average, more home runs than other positions.</p>
+<p>But faceting can be incredibly revealing. Look at this graph:</p>
+<pre class="r"><code>g9 &lt;- ggplot(mydata, aes(x = position)) + 
+  geom_bar() + 
+  theme_classic() +
+  facet_grid(vars(ethnicity)) +
+  labs(title =&quot;Bar graph of positions (conditional on ethnicity) &quot;)
+g9</code></pre>
+<p><img
+src="R_GraphIntro_files/figure-html/unnamed-chunk-23-1.png" /><!-- --></p>
+<p>This very clearly illustrates that, at the time, black players
+predominantly played in the outfield.</p>
+</div>
+<div id="other-graphs" class="section level2">
+<h2>Other graphs</h2>
+<p>In the above you really only scratched the surface of what
+<code>ggplot</code> can do. Another very common type of graph is a
+time-series plot. The Basketball data do not have any time dimension
+such that there is no obvious use for a time-series plot. However, it
+will be constructed in a very similar way, just using the
+<code>geom_line()</code> option. Explore the possibilities in <a
+href="https://ggplot2-book.org/">hadley Wickham’s book</a>.</p>
+</div>
+</div>
+<div id="saving-graphs" class="section level1">
+<h1>Saving graphs</h1>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>In this section you learned how to produce visual representations of
+data. These can be a very important tool when you communicate your
+work.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

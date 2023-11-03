@@ -11,28 +11,30 @@ output:
 
 Here we will introduce one of the most powerful tools R has to offer, graphical representation of data. Adrian Pagan, an excellent Australian econometrician once said "A simple plot tells a lot!". So let's see how to create simple plots.
 
-Wit R being on open source software you will find quite a few different ways to produce graphics. Some are build, by default, into the R software, like the plot function. But as a regular user of R you will want to develop a wider range of graphics and then you will want to use a graphics package. The package we will introduce here is the **lattice graphics** package. But rather than directly installing the lattice package we propose to download and install a different package, the **mosaic** package, which includes the lattice package but has other useful features.
+With R being on open source software you will find quite a few different ways to produce graphics. Some are build, by default, into the R software, like the plot function. But as a regular user of R you will want to develop a wider range of graphics and then you will want to use a graphics package. The package we will introduce here is the `ggplot2` package. Install this package in case you have not yet done so on your computer.
 
 ```{r eval=FALSE}
-#install.packages("mosaic")
+install.packages("ggplot2")
 ```
 
 As you know, the above package installation you will only have to do once on your computer.
 
 ```{r warning=FALSE, message=FALSE}
-library(mosaic)
+library(tidyverse)
 ```
 
-When you load a package with the `library()` command you will often get some warning messages. On most occasions you can just ignore them. If you want more extensive documentation you could use the following links ([Lattice Graphs](http://lattice.r-forge.r-project.org/Vignettes/src/lattice-intro/lattice-intro.pdf] and Mosaic) and [Mosaic](http://mosaic-web.org/go/Master-Starting.pdf))
-
-If you want to go all out in terms of graphis you will possibly want to get aquainted to the `ggplot2` package. Just google for it.
+When you load a package with the `library()` command you will often get some warning messages. On most occasions you can just ignore them. `ggplot` will automatically load the `ggplot` package and you are likely to want to do some manipulation using the tiyverse package.
 
 # Loading a dataset
 
-Let's get a dataset to look at. We shall use the Baseball wages dataset 
+Let's get a dataset to look at. We shall use the Baseball wages dataset, [mlb1.csv](https://github.com/datasquad/ECLR/raw/gh-pages/data/mlb1.csv). Make sure that it is saved into your working directory. (Recall, use `setwd()` to set your working directory).
 
-```{r}
-mydata <- read.csv("T:/ECLR/R/GraphIntro/mlb1.csv")
+```{r, eval = FALSE}
+mydata <- read.csv("mlb1.csv", na.strings = ".")
+```
+
+```{r, echo = FALSE}
+mydata <- read.csv("data/mlb1.csv", na.strings = ".")
 ```
 
 Let's check out what variables we have in this data-file
@@ -41,135 +43,216 @@ Let's check out what variables we have in this data-file
 names(mydata)
 ```
 
-You can find short variable descriptions [here](http://eclr.humanities.manchester.ac.uk/index.php/MLB1_Variable_Description) and of course you need to understand what data types the variables represent (check `str(mydata)` to confirm the R datatypes.) 
+You can find short variable descriptions [here](http://fmwww.bc.edu/ec-p/data/wooldridge/mlb1.des) and of course you need to understand what data types the variables represent (check `str(mydata)` to confirm the R datatypes.) The datafile contains information on 353 baseball players.
 
-# General structure of graphic commands
+You can see that there are several variables which indicate which fielding position a player has. For instance player 10 is an outfield player as the player has a value of 1 in the outfield variable and 0s otherwise.
 
-There are a range of different graphs that are available from the lattice package, but the way in which we call them is very similar
+```{r}
+mydata[10,18:23]
+```
+The following will create one new variable called `poition`, which indicates the position a player plays in.
+
+```{r}
+mydata <- mydata %>%  mutate(position = case_when(frstbase == 1 ~ "First Base",
+                                                  scndbase == 1 ~ "Second Base",
+                                                  shrtstop == 1 ~ "Shortstop",
+                                                  thrdbase == 1 ~ "Third Base",
+                                                  outfield == 1 ~ "Outfield",
+                                                  catcher == 1 ~ "Catcher")) %>% mutate(position = as.factor(position))
+```
+
+In a similar manner we create a variable which describes the ethnicity of players.
+
+```{r}
+mydata <- mydata %>%  mutate(ethnicity = case_when(black == 1 ~ "black",
+                                                   hispan == 1 ~ "hispanic",
+                                                   (black == 0) & (hispan == 0) ~ "white")) %>% 
+                               mutate(ethnicity = as.factor(ethnicity))
+```
+
+Here we categorise players as either black hispanic or white. This is the information available from the data but may not well represent more complicated ethnicities.
+
+# Basic graphics in R
+
+Rhas some basic build-in graphics capability. This is called with the `plot` function. The plot function recognises the datatype and adjusts the graphics type accordingly. For instance:
+
+```{r}
+plot(mydata$salary)
+```
+
+It has recognised that the data in `salary` are numeric and this triggers a scatterplot. To produce a scatter plot you need a second variable and as we did not deliver any it automatically uses the data index (which here is just like a numbering of the players in the datafile). If you want to set which variable appears on the horizontal axis (e.g. the batting average, `bavg`), then you need to set this as follows:
+
+```{r}
+plot(mydata$bavg,mydata$salary) # first variable for horizontal, 2nd for vertical axis
+```
+
+If we are sending a categrical/factor variable to `plot` such as the `position` variable, then the function will automatically create a bar graph.
+
+```{r}
+plot(mydata$position)
+```
+
+These plots can be very useful to get a first idea of what the data look like and it is possible to adapt certain aspects of these plots, however, when you want to prepare nice looking plots for a report, then you are likely to want to use a more powerful tool.
+
+# Advanced graphics with `ggplot`
+
+The `ggplot` package is one of these packages you can use to produce really beautiful graphics. There are literally [books](https://ggplot2-book.org/) written just to help you with using this package to produce nice graphics. This here is just the briefest of introductions. 
+
+There is a large range of different graphs that are available from the `ggplot` package. A great overview and an excellent source of help is available from this [ggplot cheatsheet](https://rstudio.github.io/cheatsheets/data-visualization.pdf). It is well worth having this available on your computer. Of ourse, al ot more detail is available from [Hadley Wikham's online book](https://ggplot2-book.org/).
+
+
+## General structure of graphic commands in `ggplot`
+
+
+In general the structure of creating
 
 ```{r eval=FALSE}
-plotname(y ~ x | z, data = dataframe, groups = variablename, ...)
+g1 <- ggplot(mydata, aes(y = VARIABLENAME, x = VARIABLENAME, colour = VARIABLENAME)) + 
+  geom_GRAPHTYPE() +
+  geom_OTHERSTUFF()
 ```
 
-Often we want to graphically relate two variables, say `y` and `x`. In a regression context `y` would be the dependent variable and `x` the explanatory. In terms of graphics we do not necessarily make such a distinction, so here `y`, the variable to the left of the `~` is the variable that will be represented on the vertical axis and 'x' would be represented on the horizontal axis. Here we also have a third variable `z` behind the vertical line `|` a conditioning variable. We will soon see how this will be used.
+It is worth briefly thinking about what this does, such that what follows makes more sense. First, we create a new object into which we will save the graph, here called `g1`. We call the function `ggplot(mydata, )` which instructs R to prepare a graph using data stored in the `mydata` object. This implies that in what follows R just assumes that variables we are using are in this dataframe. 
 
-# One variable graphs
+`aes(y = VARIABLENAME1, x = VARIABLENAME2, colour = VARIABLENAME3)` then provides further detail. In particular it tells R that `VARIABLENAME1` should be on the vertical/y axis and `VARIABLENAM2` should be on the horizontal/x axis. Further, data points will be displayed in different colors as per `VARIABLENAME3`. Not all graph types will actually need all of this information.
 
-Sometimes you will have the need to graph a single variable. For this need the general graphing command will reduce to 
+At this stage, R has just prepared a blank canvas with those parameters, but has not yet created a graph. That is achieved by `+ geom_GRAPHTYPE()`. As you will soon see there are different graph types available. Then you can add further details to your graph `+ geom_OTHERSTUFF()`.
+
+It is useful to differentiate between graphs that use one and those that use two variables.
+
+
+## One variable graphs
+
+Say we want to graphically represent the distribution of a categorical variable, like the `position` variable.
+
+```{r}
+g1 <- ggplot(mydata, aes(x = position)) + 
+  geom_bar() 
+```
+
+This has produced the graph and it is stored in `g1`. You can see it by calling `g1`.
+
+```{r}
+g1
+```
+
+This is very similar to the bar graph produced in the basic graph section. Let's change the esthetics a little by adding a theme and a title.
 
 ```{r eval=FALSE}
-plotname(~ x, data = dataframe, groups = variablename, ...)
+g1 <- ggplot(mydata, aes(x = position)) + 
+  geom_bar() + 
+  theme_classic() +
+  labs(x = "Player position", y = "Number of players", title ="Bar Chart for Player positions")
+g1
 ```
 
-hence we merely drop the `y` and `z` variable. Let's get some actual graphs going.
+If you wish to represent numerical data you have a few more options than a bar chart.
 
-## Histograms
-
-Let's assume you want a histogram of the `games` variable, which indicates how many career games a player has played.
+Let's assume you want a histogram of the `hruns` variable, which indicates how many career home runs a player has.
 
 ```{r warning=FALSE}
-histogram(~ games, data = mydata)
+g2 <- ggplot(mydata, aes(x = hruns)) + 
+  geom_histogram() + 
+  theme_classic() +
+  labs(x = "Home Runs", y = "", title ="Career Home Runs")
+g2
 ```
 
-We can clearly see that this distribution is positively skewed, i.e. there are some players with many more games than others. Before we look at other graphs, we will investigate a number of things you can change about this graph.
+You get a good idea from this about the distribution of the home run variale. Instead of `geom_histogram()` you could use a smooth versio of the histogram, called `geom_density()`. Try for yourself what the option `size = 1` inside the function call does by changing the value (remember you cannot break your computer).
 
-### Graph customisation I
+```{r warning=FALSE}
+g3 <- ggplot(mydata, aes(x = hruns)) + 
+  geom_density(size = 1) + 
+  theme_classic() +
+  labs(x = "Home Runs", y = "", title ="Career Home Runs")
+g3
+```
 
-Every different graph has different customisation options. For instance we will soon see how to change the number of bins in the histogram, but not all graphs have bins like a histogram. So if you want to change specific things about a graph you will have to check what can be changed. The way to find out is to use our friend Dr. Google and/or the help function (type `?histogram` into the command window).
+And now you will learn one of the incredibly powerful modifications you can undertake with `ggplot`. In the initial function call, in the aesthetics (`aes`) settings we add `colour = position`. See what happens:
 
 
 ```{r warning=FALSE}
-histogram(~ games, data = mydata, nint=50, main="Histogram of Games")
+g4 <- ggplot(mydata, aes(x = hruns, color = position)) + 
+  geom_density(size = 1) + 
+  theme_classic() +
+  labs(x = "Home Runs", y = "", title ="Career Home Runs")
+g4
 ```
 
-The additional elements in this call are `nint=20, main="Histogram of Salary"`. We call these options which you handed over to the `histogram` function. `nint` controls how many bins the histogram should have and `main` gives your graph a title.
+We now get different density plots by position. You can now easily see that Catchers, Shortstops and Second Base players have fewer home runs, they are the very specilist fielding positions.
 
-### Using a conditioning variable
-
-What happens if we use a conditioning variable (the `| z` part of the generic graphics call). We may be interested in figuring out whether players of different background have different length careers.
-
-The dataset contains two dummy variables, `hispan` and `black` which will be one if the player is either hispanic or black respectively. To answer the question we just posed graphically it is actually best to have a factor variable that takes one of the three values: White, Hispanic or Black. The following command creates just such a new variable in our dataframe.
-
-```{r}
-mydata$race <- ifelse(mydata$black == 1, c("Black"), ifelse(mydata$hispan==1,c("Hispanic"),c("White")))
-```
-
-Here I will not explain what exactly this command does. Try and understand yourself (check `?ifelse`).
-
-Now we can use this variable to create histograms conditional the value of the factor/conditional variable `race`.
+This is pretty nice already, but we can do even better. Try and identify the what was added and play with the `alpha` parameter to see what it does.
 
 ```{r warning=FALSE}
-histogram(~ games | race, data = mydata, nint=10, main="Histogram of Games")
+g4 <- ggplot(mydata, aes(x = hruns, fill = position, colour = position)) + 
+  geom_density(size = 1, alpha = 0.2) + 
+  theme_classic() +
+  labs(x = "Home Runs", y = "", title ="Career Home Runs")
+g4
 ```
 
+It is important to understand that a data analyst will rarely remember all of these commands. A crucial programming technique is searching the internet. You could, for instance, search for "r ggplot overlying density plots" and then you should find an example which produces a similar plot. You can then copy and paste the code and adjust it to your dataset.
 
-## Kernel density
+## Two variables graph
 
-If you don't know what a kernel density estimate is, then this is not the right place to learn it. Suffice to say that it is something like a smooth histogram.
+In this section you can learn how to produce graphs that visualise two variables.
+
+Perhaps the most classic of such plots is a scatter diagram.
 
 ```{r warning=FALSE}
-densityplot(~ games, data = mydata, main="Density of Games")
+g5 <- ggplot(mydata, aes(x = hruns, y = salary)) + 
+  geom_point() + 
+  theme_classic() +
+  labs(x = "Home Runs", y = "Salary", title ="Scatter plot")
+g5
 ```
 
-An important aspect of density plots is the degree of smoothing and you can control it via an option called `adjust` as in the following command
+Here we can see that in general there is a positive relationship between the number of career home runs and the salary variables.
+
+After we learned that the number of home runs differs significantly between positions (some positions job it is to get home runs, other positions have other specialisations), it is obvious that there is more to the data. Let's see how we can use position information in this graph. We could add a colour differentiation
 
 ```{r warning=FALSE}
-densityplot(~ games, data = mydata, main="Density of Salary", adjust = 1/3)
+g7 <- ggplot(mydata, aes(x = hruns, y = salary, colour = position)) + 
+  geom_point() + 
+  theme_classic() +
+  labs(x = "Home Runs", y = "Salary", title ="Scatter plot")
+g7
 ```
 
-The default of adjust is 1. If you use a smaller number you will find that the degree of smoothing decreases.
-
-# Two variable graphs
-
-More often than not we are interested in relationships between variables and to this purpose we need graphs that relate two variables.
-
-## Scatterplots
-
-The most common graph for two variables are scatterplots. Here is how we call them
+But this is somewhat too messy to actually see anything here. Another way to do this is what is called facetting.
 
 ```{r warning=FALSE}
-xyplot(salary~ games, data = mydata, main="Relation between games and salary")
+g8 <- ggplot(mydata, aes(x = hruns, y = salary)) + 
+  geom_point() + 
+  theme_classic() +
+  facet_wrap(vars(position)) +
+  labs(x = "Home Runs", y = "Salary", title ="Scatter plots")
+g8
 ```
 
-### using data groupings
+The addition of `+ facet_wrap(vars(position))` produced a scatter plot for each position separately. In this case this does not really help us a lot other than to see that outfielders are the players which score, on average, more home runs than other positions.
 
-Sometimes it is useful to identify observations of different groups in a scatterplot. This is what the `groups` option is for (it can be used for many different plots).
+But faceting can be incredibly revealing. Look at this graph:
 
 ```{r warning=FALSE}
-xyplot(salary~ games, data = mydata, groups = race, auto.key=list(space="right"),main="Relation between games and salary")
+g9 <- ggplot(mydata, aes(x = position)) + 
+  geom_bar() + 
+  theme_classic() +
+  facet_grid(vars(ethnicity)) +
+  labs(title ="Bar graph of positions (conditional on ethnicity) ")
+g9
 ```
 
-You can see that the option `auto.key=list(space="right")` placed the legend on the right hand side of the graph.
+This very clearly illustrates that, at the time, black players predominantly played in the outfield.
 
-### Graph customisation II
+## Other graphs
 
-This is a good point to introduce some more customisations. The graph aboth is quite nice, but as the dots are not fillwd it is somewhat difficult to tell the difference. Let's say we want to fill the symbols. In the end you can control almost everything in a graph you just need to find out how. I recommend that Dr Google may be the quickest way. So here I searched for "R lattice plots fill sympols". You will most likely find someone who had a similar problem and found a solution. and here it is
+In the above you really only scratched the surface of what `ggplot` can do. Another very common type of graph is a time-series plot. The Basketball data do not have any time dimension such that there is no obvious use for a time-series plot. However, it will be constructed in a very similar way, just using the `geom_line()` option. Explore the possibilities in [hadley Wickham's book](https://ggplot2-book.org/).
 
-```{r warning=FALSE}
-xyplot(salary~ games, data = mydata, groups = race, auto.key=list(space="right"), main="Relation between games and salary", pch = 16, par.settings = list(superpose.symbol = list(col=c("red","blue","green"))))
-```
+# Saving graphs
 
-Again, we will not explain everything in detail, just a few notes. `pch` controls the type of symbol used. `pch=16` represents solid round symbols. Check [here](http://www.endmemo.com/program/R/pchsymbols.php) for a list of all choices you have, just play around abit. The color control comes through the `par.settings` option. These are the things you will have to play around with a bit. Sometimes it is also useful to just look at a few examples to see what is possible. A good place is [this](https://fas-web.sunderland.ac.uk/~cs0her/Statistics/UsingLatticeGraphicsInR.htm).
 
-# Combining Multiple Plots
 
-Sometimes you want to combine multiple graphs in one picture. We best explain what we need by using an example.
-Let's say we want to arrange 4 plots in a (2,2) matrix, then we use the `par(mfrow=c(2,2))` command. The next four plots are then used to fill the four slots:
+# Summary
 
-```{r}
-par(mfrow=c(2,2))
-plot(mydata$games)
-hist(mydata$lsalary)
-boxplot(mydata$games)
-plot(mydata$years)
-```
-
-You can also arrange mutiple plots in a more irregular fashion. You should then use the `layout` command. While we will not provide any details here, we do provide an example. In practice you will have to read `?layout` and experiment a little. 
-
-```{r}
-layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE), 
-    widths=c(2,1), heights=c(1,2))
-hist(mydata$lsalary)
-boxplot(mydata$games)
-plot(mydata$years)
-```
+In this section you learned how to produce visual representations of data. These can be a very important tool when you communicate your work.
