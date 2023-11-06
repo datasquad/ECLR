@@ -328,7 +328,7 @@ div.tocify {
   <a href="resources.html">Resources</a>
 </li>
 <li>
-  <a href="author.html">Author</a>
+  <a href="Author.html">Author</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -468,7 +468,8 @@ Amongst the fielding positions included in this dataset, the average
 salary is highest amongst players on the First Base (closely followed by
 Outfielders) and lowest for catchers. Note that, although this is a
 rather old dataset, <a
-href="this%20ordering%20has%20not%20changed">http://www.businessinsider.com/chart-mlbs-highest-paid-positions-2014-7?IR=T</a>.</p>
+href="http://www.businessinsider.com/chart-mlbs-highest-paid-positions-2014-7?IR=T">this
+ordering has not changed</a>.</p>
 <p>Let’s show a few variations here:</p>
 <pre class="r"><code>mydata %&gt;% group_by(position) %&gt;% summarise(number = length(salary),avg.salary = mean(salary))</code></pre>
 <pre><code>## # A tibble: 6 × 3

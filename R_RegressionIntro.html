@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Introduction to Regression</title>
+
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="Datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+<li>
+  <a href="Author.html">Author</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Introduction to Regression</h1>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Here you will learn to</p>
+<ul>
+<li>create summary tables using the <code>group_by</code>,
+<code>summarise</code> and <code>spread</code> commands</li>
+<li>create scatter plots using <code>ggplot</code> and
+<code>geom_point</code></li>
+<li>run simple regression models using <code>lm</code></li>
+<li>apply heteroskedastic robust inference on regression
+coefficients</li>
+<li>display regression results</li>
+</ul>
+</div>
+<div id="preparing-your-workfile" class="section level1">
+<h1>Preparing your workfile</h1>
+<p>We add the basic libraries needed for this week’s work:</p>
+<pre class="r"><code>library(tidyverse)    # for almost all data handling tasks
+library(readxl)       # to import Excel data
+library(ggplot2)      # to produce nice graphics
+library(AER)          # to calculate robust regression standard errors
+library(stargazer)    # to produce nice results tables</code></pre>
+<p>We will also use one function saved in a .r file. The function in
+this file will be explained below. This file is available for download
+from here: <a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/docs/stargazer_HC.R">stargazer_HC.R</a>.
+When you get to that page you will see a download button.</p>
+<p><img src="images/GitHubdownload.png" /></p>
+<p>You should save this files into your working directory. You can then
+this functions available to your code using this line.</p>
+<pre class="r"><code>source(&quot;stargazer_HC.r&quot;)  # includes the robust regression display</code></pre>
+</div>
+<div id="data-context" class="section level1">
+<h1>Data Context</h1>
+<p>The example we are using here is taken from the <a
+href="https://www.core-econ.org/doing-economics/book/text/08-01.html">CORE
+- Doing Economics resource</a>. In particular we are using Project 8
+which deals with international data on well-being. The data represent
+several waves of data from the European Value Study (EVS). A wave means
+that the same survey is repeated at regular intervals (waves).</p>
+</div>
+<div id="importing-data" class="section level1">
+<h1>Importing Data</h1>
+<p>The data have been prepared as demonstrated in the Doing Economics
+Project 8, up to and including Walk-Through 8.3. Please have a look at
+this to understand the amount of data work required before an empirical
+analysis can begin. The datafile is saved as an R data structure (<a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/data/WBdata.Rdata">WBdata.Rdata</a>).
+Download the file and ensure that it is in your working directory.</p>
+<pre class="r"><code>load(&quot;WBdata.Rdata&quot;)
+str(wb_data)  # prints some basic info on variables</code></pre>
+<pre><code>## tibble [129,515 × 19] (S3: tbl_df/tbl/data.frame)
+##  $ S002EVS    : chr [1:129515] &quot;1981-1984&quot; &quot;1981-1984&quot; &quot;1981-1984&quot; &quot;1981-1984&quot; ...
+##  $ S003       : chr [1:129515] &quot;Belgium&quot; &quot;Belgium&quot; &quot;Belgium&quot; &quot;Belgium&quot; ...
+##  $ S006       : num [1:129515] 1001 1002 1003 1004 1005 ...
+##  $ A009       : num [1:129515] 3 5 2 5 5 5 5 5 4 4 ...
+##  $ A170       : num [1:129515] 9 9 3 9 9 9 9 10 8 10 ...
+##  $ C036       : num [1:129515] NA NA NA NA NA NA NA NA NA NA ...
+##  $ C037       : num [1:129515] NA NA NA NA NA NA NA NA NA NA ...
+##  $ C038       : num [1:129515] NA NA NA NA NA NA NA NA NA NA ...
+##  $ C039       : num [1:129515] NA NA NA NA NA NA NA NA NA NA ...
+##  $ C041       : num [1:129515] NA NA NA NA NA NA NA NA NA NA ...
+##  $ X001       : chr [1:129515] &quot;Male&quot; &quot;Male&quot; &quot;Male&quot; &quot;Female&quot; ...
+##  $ X003       : num [1:129515] 53 30 61 60 60 19 38 39 44 76 ...
+##  $ X007       : chr [1:129515] &quot;Single/Never married&quot; &quot;Married&quot; &quot;Separated&quot; &quot;Married&quot; ...
+##  $ X011_01    : num [1:129515] NA NA NA NA NA NA NA NA NA NA ...
+##  $ X025A      : chr [1:129515] NA NA NA NA ...
+##  $ Education_1: num [1:129515] NA NA NA NA NA NA NA NA NA NA ...
+##  $ Education_2: chr [1:129515] NA NA NA NA ...
+##  $ X028       : chr [1:129515] &quot;Full time&quot; &quot;Full time&quot; &quot;Unemployed&quot; &quot;Housewife&quot; ...
+##  $ X047D      : num [1:129515] NA NA NA NA NA NA NA NA NA NA ...</code></pre>
+<blockquote>
+<p>You can create <code>.RData</code> objects by saving your
+Environment. In this case all the objects in your environment will be
+saved and you can re-upload them as above using the load function.</p>
+</blockquote>
+<p>Checking your environment you will see two objects. Along the proper
+datafile (<code>wb_data</code>) you will find <code>wb_data_Des</code>
+which contains some information for each of the variables. It will help
+us to navigate the obscure variable names.</p>
+<pre class="r"><code>wb_data_Des</code></pre>
+<pre><code>##          Names                   Labels
+## 1      S002EVS                 EVS-wave
+## 2         S003           Country/region
+## 3         S006        Respondent number
+## 4         A009                   Health
+## 5         A170        Life satisfaction
+## 6         C036                  Work Q1
+## 7         C037                  Work Q2
+## 8         C038                  Work Q3
+## 9         C039                  Work Q4
+## 10        C041                  Work Q5
+## 11        X001                      Sex
+## 12        X003                      Age
+## 13        X007           Marital status
+## 14     X011_01       Number of children
+## 15       X025A                Education
+## 16 Education_1       Education category
+## 17 Education_2    Education Description
+## 18        X028               Employment
+## 19       X047D Monthly household income
+##                                                                                              Description
+## 1                                                                                               EVS-wave
+## 2                                                                                         Country/region
+## 3                                                                             Original respondent number
+## 4                                             State of health (subjective), 1 = Very Poor, 5 = Very good
+## 5                                                                            Satisfaction with your life
+## 6                   To develop talents you need to have a job, 1 = Strongly Agree, 5 = Strongly Disagree
+## 7  Humiliating to receive money without having to work for it, 1 = Strongly Agree, 5 = Strongly Disagree
+## 8                           People who don&#39;t work become lazy, 1 = Strongly Agree, 5 = Strongly Disagree
+## 9                              Work is a duty towards society, 1 = Strongly Agree, 5 = Strongly Disagree
+## 10    Work should come first even if it means less spare time, 1 = Strongly Agree, 5 = Strongly Disagree
+## 11                                                                                                   Sex
+## 12                                                                                                   Age
+## 13                                                                                        Marital status
+## 14                                             How many children you have-deceased children not included
+## 15                                                    Educational level respondent: ISCED-code one digit
+## 16                                                                      Educational ISCED-code one digit
+## 17                                                                           Education level description
+## 18                                                                                     Employment status
+## 19                                        Monthly household income (? 1,000), corrected for ppp in euros</code></pre>
+<p>As you can see there are a number of interesting questions in this
+dataset. These questions will allow us to investigate whether attitudes
+to work differ between coountries and whether such differences correlate
+to different levels of self-reported happiness/life satisfaction.</p>
+<p>Details on the variables are avialable from <a
+href="https://dbk.gesis.org/EVS/Variables/compview.asp">here</a> (chose
+EVS Longitudinal Data Files 1981-2008).</p>
+</div>
+<div id="initial-data-analysis-and-summary-statistics"
+class="section level1">
+<h1>Initial data analysis and summary statistics</h1>
+<p>It is important that you, before you embark on any regression
+analysis, understand your data. Let us investigate some of the features
+of this dataset. It has 129515 observations and 19 variables. Let’s see
+which countries are represented in our dataset.</p>
+<pre class="r"><code>unique(wb_data$S003)   # unque finds all the different values in a variable</code></pre>
+<pre><code>##  [1] &quot;Belgium&quot;            &quot;Canada&quot;             &quot;Denmark&quot;           
+##  [4] &quot;France&quot;             &quot;Germany&quot;            &quot;Iceland&quot;           
+##  [7] &quot;Ireland&quot;            &quot;Italy&quot;              &quot;Malta&quot;             
+## [10] &quot;Netherlands&quot;        &quot;Norway&quot;             &quot;Spain&quot;             
+## [13] &quot;Sweden&quot;             &quot;Great Britain&quot;      &quot;United States&quot;     
+## [16] &quot;Northern Ireland&quot;   &quot;Austria&quot;            &quot;Bulgaria&quot;          
+## [19] &quot;Czech Republic&quot;     &quot;Estonia&quot;            &quot;Finland&quot;           
+## [22] &quot;Hungary&quot;            &quot;Latvia&quot;             &quot;Lithuania&quot;         
+## [25] &quot;Poland&quot;             &quot;Portugal&quot;           &quot;Romania&quot;           
+## [28] &quot;Slovakia&quot;           &quot;Slovenia&quot;           &quot;Croatia&quot;           
+## [31] &quot;Greece&quot;             &quot;Russian Federation&quot; &quot;Turkey&quot;            
+## [34] &quot;Albania&quot;            &quot;Armenia&quot;            &quot;Bosnia Herzegovina&quot;
+## [37] &quot;Belarus&quot;            &quot;Cyprus&quot;             &quot;Northern Cyprus&quot;   
+## [40] &quot;Georgia&quot;            &quot;Luxembourg&quot;         &quot;Moldova&quot;           
+## [43] &quot;Montenegro&quot;         &quot;Serbia&quot;             &quot;Switzerland&quot;       
+## [46] &quot;Ukraine&quot;            &quot;Macedonia&quot;          &quot;Kosovo&quot;</code></pre>
+<p>As you can see these are 48 countries, almost all European, Canada
+and the U.S. being the exceptions. In the same manner we can find out
+how many waves of data we have available.</p>
+<pre class="r"><code>unique(wb_data$S002EVS)</code></pre>
+<pre><code>## [1] &quot;1981-1984&quot; &quot;1990-1993&quot; &quot;1999-2001&quot; &quot;2008-2010&quot;</code></pre>
+<p>Let’s find out how many observations/respondents we have for each
+country in each year. To do this we will resort to the powerful piping
+technique delivered through the functionality of the
+<code>tidyverse</code> (check out this <a
+href="https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html">page</a>
+in case you are not familiar with that technique):</p>
+<pre class="r"><code>table1 &lt;- wb_data %&gt;% group_by(S002EVS,S003) %&gt;% # groups by Wave and Country
+            summarise(n = n()) %&gt;%               # summarises each group by calculating obs
+            spread(S002EVS,n) %&gt;%                # put Waves across columns
+            print(n=Inf)                         # n = Inf makes sure that all rows are printed</code></pre>
+<pre><code>## # A tibble: 48 × 5
+##    S003               `1981-1984` `1990-1993` `1999-2001` `2008-2010`
+##    &lt;chr&gt;                    &lt;int&gt;       &lt;int&gt;       &lt;int&gt;       &lt;int&gt;
+##  1 Albania                     NA          NA          NA        1200
+##  2 Armenia                     NA          NA          NA        1224
+##  3 Austria                     NA        1432          NA        1216
+##  4 Belarus                     NA          NA          NA        1237
+##  5 Belgium                   1025        2721        1402        1343
+##  6 Bosnia Herzegovina          NA          NA          NA        1104
+##  7 Bulgaria                    NA         984         858        1183
+##  8 Canada                    1241        1717          NA          NA
+##  9 Croatia                     NA          NA         849        1188
+## 10 Cyprus                      NA          NA          NA         775
+## 11 Czech Republic              NA        2076        1637        1308
+## 12 Denmark                   1163        1020         854        1061
+## 13 Estonia                     NA         982         767        1273
+## 14 Finland                     NA         544          NA         940
+## 15 France                    1187         981        1233        1341
+## 16 Georgia                     NA          NA          NA        1233
+## 17 Germany                   1273        3391        1432        1683
+## 18 Great Britain             1153        1459          NA         997
+## 19 Greece                      NA          NA         885        1246
+## 20 Hungary                     NA         990          NA        1248
+## 21 Iceland                    907         690         853         666
+## 22 Ireland                   1197         997         782         504
+## 23 Italy                     1329        1970        1422         876
+## 24 Kosovo                      NA          NA          NA        1339
+## 25 Latvia                      NA         777         840        1197
+## 26 Lithuania                   NA         975         731        1143
+## 27 Luxembourg                  NA          NA          NA        1165
+## 28 Macedonia                   NA          NA          NA        1290
+## 29 Malta                      424          NA         698         730
+## 30 Moldova                     NA          NA          NA        1174
+## 31 Montenegro                  NA          NA          NA        1166
+## 32 Netherlands               1090         996         923        1250
+## 33 Northern Cyprus             NA          NA          NA         404
+## 34 Northern Ireland           311         304         625         309
+## 35 Norway                    1031        1205          NA         992
+## 36 Poland                      NA         958          NA        1050
+## 37 Portugal                    NA        1171         635         764
+## 38 Romania                     NA        1091          NA        1025
+## 39 Russian Federation          NA          NA        2074        1102
+## 40 Serbia                      NA          NA          NA        1216
+## 41 Slovakia                    NA        1081        1147        1042
+## 42 Slovenia                    NA        1011         627         801
+## 43 Spain                     2287        2619         741         908
+## 44 Sweden                     905         944         931         788
+## 45 Switzerland                 NA          NA          NA         934
+## 46 Turkey                      NA          NA        1143        2010
+## 47 Ukraine                     NA          NA          NA        1178
+## 48 United States             2253        1741          NA          NA</code></pre>
+<p>You can see that the number of countries have increased through time,
+although Canada and the U.S. have dropped out.</p>
+<p>If you look at the dataframe itself (either
+<code>view(wb_data)</code> or double click on the little spreadsheet
+icon on the right hand edge of the Environment window) you will
+recognise that there are a lot of missing observations (codes as
+<code>NA</code>). Ordinarily we would be interested in finding out how
+many effective observations we have for the life satisfaction variable
+(<code>A170</code>). However, the initial datawork in <a
+href="Project%208%20of%20Doing%20Economics,%20Walk-Through%208.2">https://www.core-econ.org/doing-economics/book/text/08-03.html#part-81-cleaning-and-summarizing-the-data</a>,
+has made sure that all the observations you can see are those with
+available data for this variable.</p>
+<p>Let’s look at a couple of graphical representations of our data (Look
+at this <a
+href="https://datasquad.github.io/ECLR/R_GraphIntro.html">page</a> for
+an introduction to basic graphing techniques). For instance we may be
+interested in figuring out whether life satisfaction (1 (dissatisfied)
+to 10 (satisfied)) and self-reported health are related to each other.
+We shall look at this on the basis of data aggregated for
+country-waves.</p>
+<pre class="r"><code>table2 &lt;- wb_data %&gt;% group_by(S002EVS,S003) %&gt;% # groups by Wave and Country
+            summarise(Avg_LifeSatis = mean(A170),Avg_Health = mean(A009))     # summarises each group by calculating obs
+            
+ggplot(table2,aes(Avg_Health,Avg_LifeSatis, colour=S002EVS)) +
+  geom_point() +
+  labs(title =&quot;Health v Life Satisfaction&quot;, 
+       x = &quot;Avg Health (1 = Very Poor, 5 = Very good)&quot;,
+       y = &quot;Avg Life Satisfaction (1 = dissatisfied, 10 = satisfied)&quot;)</code></pre>
+<p><img src="R_RegressionIntro_files/figure-html/scatter_HvLS-1.png" width="672" />
+We can see a clear positive relation between the two variables.</p>
+<p>Let’s see whether we can see a similarly clear relationship between
+life satisfaction and respondent’s attitude towards work
+(<code>C041</code> - “Work should come first even if it means less spare
+time, 1 = Strongly Agree, 5 = Strongly Disagree”). What would you expect
+to see?</p>
+<pre class="r"><code>table2 &lt;- wb_data %&gt;% group_by(S002EVS,S003) %&gt;% # groups by Wave and Country
+            summarise(Avg_LifeSatis = mean(A170),Avg_WorkFirst = mean(C041))    # summarises each group by calculating obs
+
+ggplot(table2,aes(Avg_WorkFirst, Avg_LifeSatis,colour=S002EVS)) +
+  geom_point() +
+  labs(title =&quot;Work First v Life Satisfaction&quot;, 
+       x = &quot;Work First (1 = Strongly Agree, 5 = Strongly Disagree)&quot;,
+       y = &quot;Avg Life Satisfaction (1 = dissatisfied, 10 = satisfied)&quot;)</code></pre>
+<p><img src="R_RegressionIntro_files/figure-html/scatter_WFvLS-1.png" width="672" /></p>
+<p>The relationship is less clear. Recall that small values for the
+“Work First” questions relate to the countries where, on average,
+respondents agreed more strongly with the statement that work should
+come first!</p>
+<p>The correlation between the two variables is not very clear when
+looking at it at a country level. Let us continue whether the
+correlation between these two countries in a country is more clear
+(i.e., do people in, say, Spain, tend to indicate that they are more
+satisfied with life if they are more inclined to think that work is more
+important? If so we should expect a negative correlation in Spain).</p>
+<p>We can calculate country wide correlations after grouping the data by
+country and then applying the summarise command to calculate
+correlations in a country. We restrict the analysis to the 2008-2010
+wave.</p>
+<pre class="r"><code>table3 &lt;- wb_data %&gt;% filter(S002EVS == &quot;2008-2010&quot;) %&gt;% 
+            group_by(S003) %&gt;% # groups by Country
+            summarise(cor_LS_WF = cor(A170,C041,use = &quot;pairwise.complete.obs&quot;),
+                      med_income = median(X047D)) %&gt;%    # correlation, remove missing data
+            arrange(cor_LS_WF) 
+
+ggplot(table3,aes( med_income,cor_LS_WF)) +
+  geom_point() +
+  ggtitle(&quot;Corr(Life Satisfaction, Work First) v Median Income&quot;)</code></pre>
+<p><img src="R_RegressionIntro_files/figure-html/scatter_cLSWFvMedInc-1.png" width="672" /></p>
+<p>There isn’t any really obvious relation between these correlations
+and the median income. Also the correlations are fairly close to 0 in
+all countries.</p>
+</div>
+<div id="regression-analysis" class="section level1">
+<h1>Regression Analysis</h1>
+<p>Regression analysis is a crucial tool in any data analyst’s toolbox.
+In the first instance regression analysis is tool of descriptive
+analysis, just like calculating sample means and correlations.</p>
+<p>Often regression analysis is seen as some magic tool to discover
+causal relationships, but it is certainly not. Having said that, a good
+causal analysis will often use regresison analysis, but this is not the
+place to discuss when regression results can be interpreted
+causally.</p>
+<p>In order to introduce how regressions are implemented in R we start
+by creating a new dataset which only contains the British data of the
+2008-10 wave.</p>
+<pre class="r"><code>test_data &lt;- wb_data %&gt;% 
+  filter(S003 ==&quot;Great Britain&quot;) %&gt;%  # pick British data
+  filter(S002EVS == &quot;2008-2010&quot;)         # pick latest wave</code></pre>
+<p>Now we run a regression of the Life Satisfaction variable
+(<code>A170</code>) against a constant only.</p>
+<p><span class="math inline">\(LifeSatis_{i} = \alpha +
+u_{i}\)</span></p>
+<p>To implement a regression we ise the <code>lm</code> function
+(<code>lm</code> for linear model). In the function call we need to tell
+R which data object to use (<code>data=test_data</code>) and what model
+to estimate. TO the left of the <code>~</code> symbol we state the
+dependent variable (here life satisfaction or the <code>A170</code>
+variable). To the right of the <code>~</code> symbol we list the
+explanatory variables. Here we only have a constant (or a variable which
+only takes the value 1 and hence, the model here is specified as
+<code>A170~1</code>). The results of the regression are saved in a new
+object which, here, we call <code>mod1</code>.</p>
+<pre class="r"><code>mod1 &lt;- lm(A170~1,data=test_data)</code></pre>
+<p>After executing this line you will see a new object <code>mod1</code>
+in your environment. This object is a list will 11 objects. With
+<code>names(mod1)</code> you can find out what elements are saved in
+that list. You can use particular elements of this object, e.g. the
+residuals, by calling <code>mod1$residuals</code>.</p>
+<p>If you want a standard regression output you can obtain this as
+follows:</p>
+<pre class="r"><code>summary(mod1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = A170 ~ 1, data = test_data)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -6.53  -0.53   0.47   1.47   2.47 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   7.5296     0.0634     119   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2 on 996 degrees of freedom</code></pre>
+<p>In fact, this is not very nice and a better way to display regression
+results is to use the <code>stargazer</code> function.</p>
+<pre class="r"><code>stargazer(mod1, type=&quot;text&quot;)</code></pre>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                                A170            
+## -----------------------------------------------
+## Constant                     7.500***          
+##                               (0.063)          
+##                                                
+## -----------------------------------------------
+## Observations                    997            
+## R2                             0.000           
+## Adjusted R2                    0.000           
+## Residual Std. Error      2.000 (df = 996)      
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>This looks more like a standard regresison output. Check out
+<code>?stargazer</code> to find out what the type option does.</p>
+<p>What we will find is that the estimated value for <span
+class="math inline">\(\alpha\)</span>, <span
+class="math inline">\(\widehat{\alpha}=7.530\)</span> is nothing else
+but the sample mean of all British observations in the 2008-2010
+wave.</p>
+<pre class="r"><code>mean(test_data$A170)</code></pre>
+<pre><code>## [1] 7.5</code></pre>
+<p>We could now calculate a t-test <span
+class="math inline">\(=(\widehat{\alpha}-\alpha_0)/se{\widehat{\alpha}}\)</span>
+<span class="math inline">\(=(7.530-0)/0.063=119.524\)</span> which
+tests the hypothesis that the average response to the Life Satisfaction
+question is equal to 0 (Yes, this makes no sense as the smallest
+possible response is 1, but R doesn’t know that!).</p>
+<p>This could also be calculated without a regression model using the
+<code>t.test</code> function:</p>
+<pre class="r"><code>t.test(test_data$A170, mu=0)  # testing that mu = 0</code></pre>
+<pre><code>## 
+##  One Sample t-test
+## 
+## data:  test_data$A170
+## t = 119, df = 996, p-value &lt;2e-16
+## alternative hypothesis: true mean is not equal to 0
+## 95 percent confidence interval:
+##  7.4 7.7
+## sample estimates:
+## mean of x 
+##       7.5</code></pre>
+<p>The differences in the t-tests are rounding differences.</p>
+<p>Let’s see how we could use a regression to test for the difference in
+means. First we adjust our dataset <code>test_data</code> to include
+British and Swedish data. Note here how we use the increadibly useful
+<code>S003 %in% c("Sweden","Great Britain")</code> condition which
+selects all observations for which the country variable
+(<code>S003</code>) is included in the list
+<code>c("Sweden","Great Britain")</code>. Type <code>?c</code> in the
+console to see what the <code>c()</code> function does.</p>
+<pre class="r"><code>test_data &lt;- wb_data %&gt;% 
+  filter(S003 %in% c(&quot;Sweden&quot;,&quot;Great Britain&quot;)) %&gt;%  # pick British and Swedish data
+  filter(S002EVS == &quot;2008-2010&quot;)         # pick latest wave</code></pre>
+<p>Then we run a regression with the Life Expectancy as the dependent
+variable and a constant and a dummy variable which takes the value 1 if
+the respondent is from Sweden and 0 if the respondent is from Britain.
+This is achieved by specifying the model as <code>A170~S003</code>. The
+variable name before the <code>~</code> is the dependent variable, here
+<code>A170</code>. The variable after the <code>~</code> is the
+explanatory variable, here <code>S003</code>. (Note that R automatically
+includes a constant into the regression model, even if you do not
+specify it explicitly.)</p>
+<pre class="r"><code>mod1 &lt;- lm(A170~S003,data=test_data)
+stargazer(mod1, type=&quot;text&quot;)</code></pre>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                                A170            
+## -----------------------------------------------
+## S003Sweden                     0.150           
+##                               (0.097)          
+##                                                
+## Constant                     7.500***          
+##                               (0.064)          
+##                                                
+## -----------------------------------------------
+## Observations                   1,785           
+## R2                             0.001           
+## Adjusted R2                    0.001           
+## Residual Std. Error      2.000 (df = 1783)     
+## F Statistic            2.400 (df = 1; 1783)    
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>This regression is a very special one as it uses the country variable
+as the explanatory variable. Recall that <code>test_data</code> only
+contain British and Swedish data. The regression picked one country as
+the base country (here Britain as it is first in the alphabet) and for
+the other it created a dummy variable. Basically a variable (<span
+class="math inline">\(Sweden_i\)</span>) which takes the value 1 if the
+observation comes from Sweden and 0 otherwise.</p>
+<p><span class="math inline">\(LifeSatis_{i} = \alpha + \beta~
+Sweden_{i} + u_{i}\)</span></p>
+<p>You can see that the constant (<span
+class="math inline">\(\widehat{\alpha}\)</span>) still reports the
+sample average for the British observations. It is identical to the
+value we saw in the previous regression. But what is the meaning of
+<span class="math inline">\(\widehat{\beta}=0.149\)</span>? This is not
+the average response value for Swedish respondents, but the difference
+between the British and Swedish average. As it is positive it means that
+the Swedish average response is larger than the British. In fact it is
+7.530+0.149=7.679.</p>
+<p>Let’s confirm this by briefly calculating the the two means in the
+usual manner</p>
+<pre class="r"><code>test_data %&gt;%  group_by(S003) %&gt;% summarise(mean = mean(A170))</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   S003           mean
+##   &lt;chr&gt;         &lt;dbl&gt;
+## 1 Great Britain  7.53
+## 2 Sweden         7.68</code></pre>
+<p>You can now test whether that difference is significantly different
+from 0 (<span class="math inline">\(H_0:\beta = 0\)</span>) which is
+equivalent to testing that the two averages are identical. The t-test
+for this hypothesis test would be <span
+class="math inline">\(0.149/0.097=1.536\)</span>.</p>
+<p>The regressions we ran so far were special in the sense that they
+involved explanatory variables which were either a constant (i.e. ones)
+or dummy variables (0s or 1s). The result of this was that the resulting
+estimates represented sample means or differences in sample means.</p>
+<p>The interpretation of coefficient estimates changes as explanatory
+variables take a more general form.</p>
+<pre class="r"><code>test_data &lt;- wb_data %&gt;% 
+  filter(S003 ==&quot;Great Britain&quot;) %&gt;%  # pick British data
+  filter(S002EVS == &quot;2008-2010&quot;)         # pick latest wave</code></pre>
+<p>We now estimate a regression model which includes a constant and the
+household’s monthly income (in 1,000 Euros) as an explanatory variable
+(<span class="math inline">\(INC_i\)</span> OR VARIABLE
+<code>x047D</code> in our dataset).</p>
+<p><span class="math inline">\(LifeSatis_{i} = \alpha + \beta~ Inc_{i} +
+u_{i}\)</span></p>
+<pre class="r"><code>mod1 &lt;- lm(A170~X047D,data=test_data)
+stargazer(mod1, type=&quot;text&quot;)</code></pre>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                                A170            
+## -----------------------------------------------
+## X047D                        0.180***          
+##                               (0.039)          
+##                                                
+## Constant                     7.200***          
+##                               (0.095)          
+##                                                
+## -----------------------------------------------
+## Observations                    997            
+## R2                             0.022           
+## Adjusted R2                    0.021           
+## Residual Std. Error      2.000 (df = 995)      
+## F Statistic           22.000*** (df = 1; 995)  
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>Here you see that <span
+class="math inline">\(\widehat{\beta}=0.184\)</span>. What does this
+mean? As the income increases by one unit (here that represents an
+increase of Euro 1,000) we should expect that Life Satisfaction
+increases by 0.184 units. What is the interpretation for <span
+class="math inline">\(\widehat{\alpha}=7.190\)</span>? For someone with
+0 income we should expect the Life Satisfaction to be 7.119. Let’s
+present a graphical representation, including a representation of the
+estimated regression line
+(<code>+         geom_abline(intercept = mod1$coefficients[1], slope = mod1$coefficients[2])</code>).</p>
+<pre class="r"><code>ggplot(test_data, aes(x=X047D, y=A170, colour = S003)) +
+    geom_point() +    
+    geom_abline(intercept = mod1$coefficients[1], slope = mod1$coefficients[2]) +
+    ggtitle(&quot;Income v Life Satisfaction, Britain&quot;)</code></pre>
+<p><img src="R_RegressionIntro_files/figure-html/RegPlot1-1.png" width="672" /></p>
+<p>This plot is somewhat awkward as each of the points you see may
+represent many observations as incomes are only reported in 12 different
+values. R has a neat option for cases like this. Instead of using
+<code>geom_point</code> you can use <code>geom_jitter</code> whcih
+raandomises the location of teh points a little such that you can see
+the individual points.</p>
+<pre class="r"><code>ggplot(test_data, aes(x=X047D, y=A170, colour = S003)) +
+    geom_jitter(width=0.2, size = 0.5) +    # Use jitter rather than point so we can see indiv obs
+    geom_abline(intercept = mod1$coefficients[1], slope = mod1$coefficients[2])+
+    ggtitle(&quot;Income v Life Satisfaction, Britain&quot;)</code></pre>
+<p><img src="R_RegressionIntro_files/figure-html/RegPlot2-1.png" width="672" /></p>
+<p>The regression parameters, which deliver the line of best fit, are
+estimated by Ordinary Least Squares (OLS). The name comes from the fact
+that these parameters are the ones which minimise the sum of squared
+residuals, <span class="math inline">\(\Sigma \widehat{u}^2_i = \Sigma
+(LifeSatis_{i} - \widehat{\alpha} - \widehat{\beta}~
+Inc_{i})^2\)</span>. These parameters achieve another thing, they ensure
+that <span
+class="math inline">\(Corr(Inc_{i},\widehat{u}_{i})=0\)</span> is
+true.</p>
+<p>This last point is incredibly important, as one of the assumptions
+underpinning the estimation of regression models by OLS is that <span
+class="math inline">\(Corr(Inc_{i},u_{i})=0\)</span>, called the
+exogeneity assumption. Why is that assumption important? If the
+assumption was not true, then we need to accept that the OLS estimation
+imposes a feature into the model that is not appropriate for the data.
+As a result the resulting regression coefficients are biased. As a
+consequence the resulting regression model cannot be said to have any
+causal interpretation.</p>
+<p>As we cannot observe <span class="math inline">\(u_i\)</span>, the
+assumption of exogeneity cannot be tested directly and we need to make
+an argument using economic understanding.</p>
+<p>A lot of econometric work is therefore directed at building either
+models or estimation methods (alternatives to OLS) which make this
+assumption more defendable. This could be the inclusion of additional
+explanatory variables (leading to multivariate regression analysis) or
+the application of alternative estimation methods (like instrumental
+variables estimation).</p>
+<div id="multiple-regression" class="section level2">
+<h2>Multiple Regression</h2>
+<p>In the earlier model we reelated life satisfaction to income. There
+is of course no suggestion that life satisfaction should only be related
+to income. It is clear that other variables should also be related, such
+as health (variable <code>A009</code>).</p>
+<p>Let’s add this health variable as well as a dummy variable indicating
+whether a respondent is a male of female (a variable taken 0 if female
+or 1 if male) to the regression to estimate this model:</p>
+<p><span class="math display">\[LifeSatis_{i} = \alpha + \beta~ Inc_{i}
++ \gamma~Health_{i} + \delta~Sex_{i}+  u_{i}\]</span></p>
+<pre class="r"><code>mod2 &lt;- lm(A170~X047D+A009+X001 ,data=test_data)
+stargazer(mod1, mod2, type=&quot;text&quot;)</code></pre>
+<pre><code>## 
+## ===================================================================
+##                                   Dependent variable:              
+##                     -----------------------------------------------
+##                                          A170                      
+##                               (1)                     (2)          
+## -------------------------------------------------------------------
+## X047D                      0.180***                0.120***        
+##                             (0.039)                 (0.039)        
+##                                                                    
+## A009                                               0.500***        
+##                                                     (0.064)        
+##                                                                    
+## X001Male                                            -0.240*        
+##                                                     (0.120)        
+##                                                                    
+## Constant                   7.200***                5.400***        
+##                             (0.095)                 (0.260)        
+##                                                                    
+## -------------------------------------------------------------------
+## Observations                  997                     997          
+## R2                           0.022                   0.084         
+## Adjusted R2                  0.021                   0.081         
+## Residual Std. Error    2.000 (df = 995)        1.900 (df = 993)    
+## F Statistic         22.000*** (df = 1; 995) 30.000*** (df = 3; 993)
+## ===================================================================
+## Note:                                   *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>You can see that the effect of income (<code>X047D</code>) has
+reduced somewhat with this inclusion of extra covariates. You can see
+that being a male is associated with a somewhat lower life satisfaction.
+The health variable, coded as (1 = very poor and 5 = very good), seems
+to be positively correlated with life satisfation (coded from 1 to 10).
+This is of course not a surprise as bad health is bound to impact
+negatively on life satisfaction.</p>
+<p>If you check the data format for the Health variable it is a numeric
+data format. This means that the way in which the parameter is
+interpreted it implies that (on average) an increase of 1 on the health
+score should be expected to relate to an increase of the life
+satisfaction score of about 0.5. This interpretation implies that
+increasing your health from a score of 1 to 2 has the same effect on
+life satisfaction as an increase from 3 to 4. This may not be the
+case.</p>
+<p>In order to allow for a nonlinear relationship between health and
+life satisfaction it will be instructive to not treat the health
+variable as a numeric variable, but rather as a categorical one. This is
+achieved by turning <code>A009</code> into a factor variable
+(<code>as.factor(A009)</code>). Let’s look at the outcome.</p>
+<pre class="r"><code>mod3 &lt;- lm(A170~X047D+as.factor(A009)+X001 ,data=test_data)
+stargazer(mod1, mod2, mod3, type=&quot;text&quot;)</code></pre>
+<pre><code>## 
+## ===========================================================================================
+##                                               Dependent variable:                          
+##                     -----------------------------------------------------------------------
+##                                                      A170                                  
+##                               (1)                     (2)                     (3)          
+## -------------------------------------------------------------------------------------------
+## X047D                      0.180***                0.120***                0.120***        
+##                             (0.039)                 (0.039)                 (0.039)        
+##                                                                                            
+## A009                                               0.500***                                
+##                                                     (0.064)                                
+##                                                                                            
+## as.factor(A009)2                                                             0.680         
+##                                                                             (0.470)        
+##                                                                                            
+## as.factor(A009)3                                                           1.500***        
+##                                                                             (0.430)        
+##                                                                                            
+## as.factor(A009)4                                                           1.800***        
+##                                                                             (0.420)        
+##                                                                                            
+## as.factor(A009)5                                                           2.300***        
+##                                                                             (0.430)        
+##                                                                                            
+## X001Male                                            -0.240*                 -0.240*        
+##                                                     (0.120)                 (0.120)        
+##                                                                                            
+## Constant                   7.200***                5.400***                5.600***        
+##                             (0.095)                 (0.260)                 (0.410)        
+##                                                                                            
+## -------------------------------------------------------------------------------------------
+## Observations                  997                     997                     997          
+## R2                           0.022                   0.084                   0.086         
+## Adjusted R2                  0.021                   0.081                   0.081         
+## Residual Std. Error    2.000 (df = 995)        1.900 (df = 993)        1.900 (df = 990)    
+## F Statistic         22.000*** (df = 1; 995) 30.000*** (df = 3; 993) 16.000*** (df = 6; 990)
+## ===========================================================================================
+## Note:                                                           *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>What R has done here is the following: There are five possible values
+for the health variable. The first (<code>A009=1</code>) is used as the
+default. Then there are four extra dummy variables included. For
+instance a dummy variable which takes a value 1 if <code>A009=3</code>
+(and equally for outcomes 2, 4 and 5). For nstance the estimated
+coefficient of 1.515 for the outcome 3 indicates that relative to the
+default answer (<code>A009=1</code>) we should expect the answer to the
+Life Satifaction answer to be 1.515 larger if a respondent answered 3 to
+the health question. Now you can see from the coefficients that
+answering 4 instead of 3 makes actually very little difference to the
+life satisfaction question.</p>
+</div>
+</div>
+<div id="robust-regression-inference" class="section level1">
+<h1>Robust Regression Inference</h1>
+<p>This page is not a complete econometric discussion of regression
+analysis and its assumptions. One of the commonly made assumptions is
+that the variance of regression error terms is constant across all
+observations. This is called the homoskedasticity assumption. This is an
+assumption frequently breached, in which case we say that there is
+heteroskedasticity.</p>
+<p>There are diagnostics test available to test the null hypothesis of
+the absence of heteroskedasticity (e.g. the <code>bptest</code> function
+of the <code>AER</code> package). However, here we concentrate on how to
+deal with the presence of heteroskedasticity. The immediate consequence
+is that the standard errors that are calculated by R, or most other
+econometric packages, are incorrect. For all but very small sample sizes
+there is a straightforward fix, heteroskedasticity robust standard
+errors can be calculated.</p>
+<p>This is not done by the <code>lm</code> function but by another
+function, <code>vcovHC</code> provided by the <code>AER</code> package.
+You can use the help function for <code>vcovHC</code> to see what
+options you have and how to do this. However, the
+<code>stargazer_HC</code> function which you loaded at the beginning of
+this exercise does implement this in an easy to use manner. If you wish
+to calculate heteroskedastic standard errors you can call
+<code>stargazer_HC</code> instead of <code>stargazer</code> to display
+the regression output.</p>
+<pre class="r"><code>stargazer_HC(mod1, type_out=&quot;text&quot;)</code></pre>
+<pre><code>## 
+## =========================================================
+##                              Dependent variable:         
+##                     -------------------------------------
+##                                     A170                 
+## ---------------------------------------------------------
+## X047D                             0.180***               
+##                                    (0.034)               
+##                                                          
+## Constant                          7.200***               
+##                                    (0.100)               
+##                                                          
+## ---------------------------------------------------------
+## Observations                         997                 
+## R2                                  0.022                
+## Adjusted R2                         0.021                
+## Residual Std. Error           2.000 (df = 995)           
+## F Statistic                22.000*** (df = 1; 995)       
+## =========================================================
+## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Robust standard errors in parenthesis</code></pre>
+<p>Comparing the standard errors, the values in parenthesis underneath
+the coefficient estimates, you will see that the standard errors are
+somewhat different to the ones in the earlier regression output. The
+coefficients, however, remain unchanged.</p>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>You have learned how to use R to estimate a regression model and how
+to calculate heteroskedasticity robust standard errors.</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

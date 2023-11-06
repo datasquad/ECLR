@@ -328,7 +328,7 @@ div.tocify {
   <a href="resources.html">Resources</a>
 </li>
 <li>
-  <a href="author.html">Author</a>
+  <a href="Author.html">Author</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -365,9 +365,15 @@ library(stargazer)  # delivers nice regresison output
 library(gridExtra)  # required for the combination of ggplots</code></pre>
 <p>We will also use two functions saved in .r files. The function of
 these two files will be explained below. These are available for
-download from here: XXXX. You should save these two files into your
-working directory. Once they are there, you can make these functions
-available to your code using these two lines.</p>
+download from here: <a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/docs/stargazer_HC.R">stargazer_HC.R</a>
+and <a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/docs/stargazer_HAC.R">stargazer_HAC.R</a>.</p>
+<p>When you get to that page you will see a download button.</p>
+<p><img src="images/GitHubdownload.png" /></p>
+<p>You should save these two files into your working directory. Once
+they are there, you can make these functions available to your code
+using these two lines.</p>
 <pre class="r"><code>source(&quot;stargazer_HC.r&quot;)  # includes the robust regression display
 source(&quot;stargazer_HAC.r&quot;)  # includes the Newey-West standard errors</code></pre>
 </div>

@@ -29,7 +29,13 @@ library(gridExtra)  # required for the combination of ggplots
 
 ```
 
-We will also use two functions saved in .r files. The function of these two files will be explained below. These are available for download from here: XXXX. You should save these two files into your working directory. Once they are there, you can make these functions available to your code using these two lines.
+We will also use two functions saved in .r files. The function of these two files will be explained below. These are available for download from here: [stargazer_HC.R](https://github.com/datasquad/ECLR/blob/gh-pages/docs/stargazer_HC.R) and [stargazer_HAC.R](https://github.com/datasquad/ECLR/blob/gh-pages/docs/stargazer_HAC.R).
+
+When you get to that page you will see a download button. 
+
+![](images/GitHubdownload.png)
+
+You should save these two files into your working directory. Once they are there, you can make these functions available to your code using these two lines.
 
 ```{r, eval = FALSE}
 source("stargazer_HC.r")  # includes the robust regression display

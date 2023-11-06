@@ -101,7 +101,7 @@ mydata %>% group_by(position) %>% summarise(mean(salary))
 ```
 Here we used the `%>%` piping operator. What this does is best described in words. Here we did the following: "Thake the dataset mydata, group the data by position and then summarise the data by presenting the mean salary for each group".
 
-We can clearly see that average salaries vary between positions. Amongst the fielding positions included in this dataset, the average salary is highest amongst players on the First Base (closely followed by Outfielders) and lowest for catchers. Note that, although this is a rather old dataset, [http://www.businessinsider.com/chart-mlbs-highest-paid-positions-2014-7?IR=T](this ordering has not changed).
+We can clearly see that average salaries vary between positions. Amongst the fielding positions included in this dataset, the average salary is highest amongst players on the First Base (closely followed by Outfielders) and lowest for catchers. Note that, although this is a rather old dataset, [this ordering has not changed](http://www.businessinsider.com/chart-mlbs-highest-paid-positions-2014-7?IR=T).
 
 Let's show a few variations here:
 

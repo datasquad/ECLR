@@ -9,7 +9,7 @@ navbar:
     - text: "Resources"
       href: resources.html
     - text: "Author"
-      href: author.html
+      href: Author.html
       
 output_dir: "."
 output:

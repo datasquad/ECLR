@@ -37,11 +37,17 @@ In the following some data visualisation techniques are introduced.
 |:------|:-----|:-----|
 | Basic Data Visualisation (ggplot) | Workthrough: [R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
 
-# Dealing with Time-Series variables
+# Regression models and related techniques
 
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
-| Basic TS modeling | Workthrough: [R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://datasquad.github.io/ECLR/blob/EUROSTATtimeseries.csv) 
+| Basic regression models | Workthrough: [R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [WBdata.Rdata](https://github.com/datasquad/ECLR/blob/gh-pages/data/WBdata.Rdata) 
+
+## Dealing with Time-Series variables
+
+| Topic | Workthrough | Data used |
+|:------|:-----|:-----|
+| Basic TS modeling | Workthrough: [R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/EUROSTATtimeseries.csv) 
 
 
 # Examples
