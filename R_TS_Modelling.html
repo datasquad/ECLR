@@ -749,38 +749,38 @@ class="math inline">\(\Delta rGDP_{t-2}\)</span>).</p>
 <pre class="r"><code>mod5 &lt;- lm(d_lur~lag(d_lur,1)+lag(d_lur,2)+d_lgdp+lag(d_lgdp,1)+lag(d_lgdp,2),data = reg_data)
 stargazer_HAC(mod5)</code></pre>
 <pre><code>## 
-## =========================================================
-##                              Dependent variable:         
-##                     -------------------------------------
-##                                     d_lur                
-## ---------------------------------------------------------
-## lag(d_lur, 1)                       0.068                
-##                                    (0.085)               
-##                                                          
-## lag(d_lur, 2)                      0.200**               
-##                                    (0.079)               
-##                                                          
-## d_lgdp                            -0.430***              
-##                                    (0.120)               
-##                                                          
-## lag(d_lgdp, 1)                    -0.710***              
-##                                    (0.130)               
-##                                                          
-## lag(d_lgdp, 2)                    -0.540***              
-##                                    (0.130)               
-##                                                          
-## Constant                            0.370                
-##                                    (0.340)               
-##                                                          
-## ---------------------------------------------------------
-## Observations                         120                 
-## R2                                  0.350                
-## Adjusted R2                         0.320                
-## Residual Std. Error           3.400 (df = 114)           
-## F Statistic                12.000*** (df = 5; 114)       
-## =========================================================
-## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                     Robust standard errors in parenthesis</code></pre>
+## ====================================================================================
+##                                           Dependent variable:                       
+##                     ----------------------------------------------------------------
+##                                                  d_lur                              
+## ------------------------------------------------------------------------------------
+## lag(d_lur, 1)                                   1.000***                            
+##                                                 (0.000)                             
+##                                                                                     
+## lag(d_lur, 2)                                                                       
+##                                                                                     
+##                                                                                     
+## d_lgdp                                           0.000                              
+##                                                 (0.000)                             
+##                                                                                     
+## lag(d_lgdp, 1)                                                                      
+##                                                                                     
+##                                                                                     
+## lag(d_lgdp, 2)                                                                      
+##                                                                                     
+##                                                                                     
+## Constant                                         0.000                              
+##                                                 (0.000)                             
+##                                                                                     
+## ------------------------------------------------------------------------------------
+## Observations                                      122                               
+## R2                                               1.000                              
+## Adjusted R2                                      1.000                              
+## Residual Std. Error                         0.000 (df = 119)                        
+## F Statistic         292,758,802,201,879,899,082,866,864,044,268.000*** (df = 2; 119)
+## ====================================================================================
+## Note:                                                    *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                                                Robust standard errors in parenthesis</code></pre>
 <pre class="r"><code>par(mfrow=c(1,2))
 plot(mod5$residuals, type = &quot;l&quot;,main = &quot;mod5 - Residuals&quot;)
 acf(mod5$residuals)</code></pre>
@@ -794,42 +794,42 @@ from two quarters prior (t-2), <code>lag(d_lur,2)</code>.</p>
 ##  Breusch-Godfrey test for serial correlation of order up to 4
 ## 
 ## data:  mod5
-## LM test = 2, df = 4, p-value = 0.7</code></pre>
+## LM test = 0.4, df = 4, p-value = 1</code></pre>
 <p>Now we remove the contemporaneous GDP growth rate as this will be
 important if you wanted to produce forecasts from the unemployment rate
 from this model.</p>
 <pre class="r"><code>mod6 &lt;- lm(d_lur~lag(d_lur,1)+lag(d_lur,2)+lag(d_lgdp,1)+lag(d_lgdp,2),data = reg_data)
 stargazer_HAC(mod6)</code></pre>
 <pre><code>## 
-## =========================================================
-##                              Dependent variable:         
-##                     -------------------------------------
-##                                     d_lur                
-## ---------------------------------------------------------
-## lag(d_lur, 1)                       0.100                
-##                                    (0.088)               
-##                                                          
-## lag(d_lur, 2)                      0.210**               
-##                                    (0.083)               
-##                                                          
-## lag(d_lgdp, 1)                    -0.550***              
-##                                    (0.130)               
-##                                                          
-## lag(d_lgdp, 2)                    -0.450***              
-##                                    (0.140)               
-##                                                          
-## Constant                            0.073                
-##                                    (0.340)               
-##                                                          
-## ---------------------------------------------------------
-## Observations                         120                 
-## R2                                  0.280                
-## Adjusted R2                         0.260                
-## Residual Std. Error           3.500 (df = 115)           
-## F Statistic                11.000*** (df = 4; 115)       
-## =========================================================
-## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                     Robust standard errors in parenthesis</code></pre>
+## ====================================================================================
+##                                           Dependent variable:                       
+##                     ----------------------------------------------------------------
+##                                                  d_lur                              
+## ------------------------------------------------------------------------------------
+## lag(d_lur, 1)                                   1.000***                            
+##                                                 (0.000)                             
+##                                                                                     
+## lag(d_lur, 2)                                                                       
+##                                                                                     
+##                                                                                     
+## lag(d_lgdp, 1)                                   0.000                              
+##                                                 (0.000)                             
+##                                                                                     
+## lag(d_lgdp, 2)                                                                      
+##                                                                                     
+##                                                                                     
+## Constant                                         0.000                              
+##                                                 (0.000)                             
+##                                                                                     
+## ------------------------------------------------------------------------------------
+## Observations                                      122                               
+## R2                                               1.000                              
+## Adjusted R2                                      1.000                              
+## Residual Std. Error                         0.000 (df = 119)                        
+## F Statistic         292,758,802,201,879,899,082,866,864,044,268.000*** (df = 2; 119)
+## ====================================================================================
+## Note:                                                    *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                                                Robust standard errors in parenthesis</code></pre>
 <pre class="r"><code>par(mfrow=c(1,2))
 plot(mod6$residuals, type = &quot;l&quot;,main = &quot;mod6 - Residuals&quot;)
 acf(mod6$residuals)</code></pre>
@@ -839,7 +839,7 @@ acf(mod6$residuals)</code></pre>
 ##  Breusch-Godfrey test for serial correlation of order up to 4
 ## 
 ## data:  mod6
-## LM test = 2, df = 4, p-value = 0.8</code></pre>
+## LM test = 0.4, df = 4, p-value = 1</code></pre>
 </div>
 <div id="autoregressive-models" class="section level1">
 <h1>Autoregressive Models</h1>
@@ -849,29 +849,29 @@ models.</p>
 <pre class="r"><code>mod7 &lt;- lm(d_lur~lag(d_lur,1)+lag(d_lur,2),data = reg_data)
 stargazer_HAC(mod7)</code></pre>
 <pre><code>## 
-## =========================================================
-##                              Dependent variable:         
-##                     -------------------------------------
-##                                     d_lur                
-## ---------------------------------------------------------
-## lag(d_lur, 1)                     0.240***               
-##                                    (0.089)               
-##                                                          
-## lag(d_lur, 2)                      0.220**               
-##                                    (0.089)               
-##                                                          
-## Constant                           -0.340                
-##                                    (0.360)               
-##                                                          
-## ---------------------------------------------------------
-## Observations                         120                 
-## R2                                  0.140                
-## Adjusted R2                         0.130                
-## Residual Std. Error           3.800 (df = 117)           
-## F Statistic                9.600*** (df = 2; 117)        
-## =========================================================
-## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                     Robust standard errors in parenthesis</code></pre>
+## ====================================================================================
+##                                           Dependent variable:                       
+##                     ----------------------------------------------------------------
+##                                                  d_lur                              
+## ------------------------------------------------------------------------------------
+## lag(d_lur, 1)                                   1.000***                            
+##                                                 (0.000)                             
+##                                                                                     
+## lag(d_lur, 2)                                                                       
+##                                                                                     
+##                                                                                     
+## Constant                                         0.000                              
+##                                                 (0.000)                             
+##                                                                                     
+## ------------------------------------------------------------------------------------
+## Observations                                      122                               
+## R2                                               1.000                              
+## Adjusted R2                                      1.000                              
+## Residual Std. Error                         0.000 (df = 120)                        
+## F Statistic         590,078,567,225,798,664,784,020,846,024,042.000*** (df = 1; 120)
+## ====================================================================================
+## Note:                                                    *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                                                Robust standard errors in parenthesis</code></pre>
 <pre class="r"><code>par(mfrow=c(1,2))
 plot(mod7$residuals, type = &quot;l&quot;,main = &quot;mod7 - Residuals&quot;)
 acf(mod7$residuals)</code></pre>
@@ -881,7 +881,7 @@ acf(mod7$residuals)</code></pre>
 ##  Breusch-Godfrey test for serial correlation of order up to 4
 ## 
 ## data:  mod7
-## LM test = 3, df = 4, p-value = 0.6</code></pre>
+## LM test = 0.3, df = 4, p-value = 1</code></pre>
 <p>Let’s look at all these models together in one table.</p>
 <pre class="r"><code>stargazer_HAC(mod4,mod5,mod6,mod7,type_out = &quot;text&quot;, omit.stat = &quot;f&quot;)</code></pre>
 <pre><code>## 
@@ -891,29 +891,29 @@ acf(mod7$residuals)</code></pre>
 ##                                                    d_lur                               
 ##                           (1)              (2)              (3)              (4)       
 ## ---------------------------------------------------------------------------------------
-## lag(d_lur, 1)                             0.068            0.100           0.240**     
-##                                          (0.092)          (0.093)          (0.110)     
+## lag(d_lur, 1)                            1.000***         1.000***         1.000***    
+##                                          (0.000)          (0.000)          (0.000)     
 ##                                                                                        
-## lag(d_lur, 2)                            0.200***         0.210***         0.220**     
-##                                          (0.069)          (0.074)          (0.100)     
+## lag(d_lur, 2)                                                                          
 ##                                                                                        
-## d_lgdp                   -0.210         -0.430***                                      
-##                         (0.240)          (0.120)                                       
 ##                                                                                        
-## lag(d_lgdp, 1)                          -0.710***        -0.550***                     
-##                                          (0.072)          (0.076)                      
+## d_lgdp                   -0.210           0.000                                        
+##                         (0.240)          (0.000)                                       
 ##                                                                                        
-## lag(d_lgdp, 2)                          -0.540***        -0.450***                     
-##                                          (0.070)          (0.055)                      
+## lag(d_lgdp, 1)                                             0.000                       
+##                                                           (0.000)                      
 ##                                                                                        
-## Constant                 -0.470           0.370            0.073            -0.340     
-##                         (0.430)          (0.320)          (0.340)          (0.410)     
+## lag(d_lgdp, 2)                                                                         
+##                                                                                        
+##                                                                                        
+## Constant                 -0.470           0.000            0.000            0.000      
+##                         (0.430)          (0.000)          (0.000)          (0.000)     
 ##                                                                                        
 ## ---------------------------------------------------------------------------------------
-## Observations              122              120              120              120       
-## R2                       0.019            0.350            0.280            0.140      
-## Adjusted R2              0.011            0.320            0.260            0.130      
-## Residual Std. Error 4.100 (df = 120) 3.400 (df = 114) 3.500 (df = 115) 3.800 (df = 117)
+## Observations              122              122              122              122       
+## R2                       0.019            1.000            1.000            1.000      
+## Adjusted R2              0.011            1.000            1.000            1.000      
+## Residual Std. Error 4.100 (df = 120) 0.000 (df = 119) 0.000 (df = 119) 0.000 (df = 120)
 ## =======================================================================================
 ## Note:                                                       *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
 ##                                               Newey-West standard errors in parenthesis</code></pre>
@@ -941,47 +941,47 @@ stargazer_HAC(mod6,mod7,mod6_4,mod7_4,type_out = &quot;text&quot;, omit.stat = &
 ##                                                    d_lur                               
 ##                           (1)              (2)              (3)              (4)       
 ## ---------------------------------------------------------------------------------------
-## lag(d_lur, 1)            0.100           0.240**           0.089           0.260**     
-##                         (0.093)          (0.110)          (0.110)          (0.120)     
+## lag(d_lur, 1)           1.000***         1.000***         1.000***         1.000***    
+##                         (0.000)          (0.000)          (0.000)          (0.000)     
 ##                                                                                        
-## lag(d_lur, 2)           0.210***         0.220**          0.220**          0.270***    
-##                         (0.074)          (0.100)          (0.093)          (0.093)     
+## lag(d_lur, 2)                                                                          
 ##                                                                                        
-## lag(d_lur, 3)                                              -0.089           -0.110     
-##                                                           (0.095)          (0.110)     
 ##                                                                                        
-## lag(d_lur, 4)                                              -0.011           -0.063     
-##                                                           (0.083)          (0.083)     
+## lag(d_lur, 3)                                                                          
 ##                                                                                        
-## lag(d_lgdp, 1)         -0.550***                         -0.600***                     
-##                         (0.076)                           (0.120)                      
 ##                                                                                        
-## lag(d_lgdp, 2)         -0.450***                         -0.520***                     
-##                         (0.055)                           (0.130)                      
+## lag(d_lur, 4)                                                                          
 ##                                                                                        
-## lag(d_lgdp, 3)                                             -0.160                      
-##                                                           (0.160)                      
 ##                                                                                        
-## lag(d_lgdp, 4)                                             0.080                       
-##                                                           (0.140)                      
+## lag(d_lgdp, 1)           0.000                             0.000                       
+##                         (0.000)                           (0.000)                      
 ##                                                                                        
-## Constant                 0.073            -0.340           0.110            -0.380     
-##                         (0.340)          (0.410)          (0.350)          (0.410)     
+## lag(d_lgdp, 2)                                                                         
+##                                                                                        
+##                                                                                        
+## lag(d_lgdp, 3)                                                                         
+##                                                                                        
+##                                                                                        
+## lag(d_lgdp, 4)                                                                         
+##                                                                                        
+##                                                                                        
+## Constant                 0.000            0.000            0.000            0.000      
+##                         (0.000)          (0.000)          (0.000)          (0.000)     
 ##                                                                                        
 ## ---------------------------------------------------------------------------------------
-## Observations              120              120              118              118       
-## R2                       0.280            0.140            0.300            0.160      
-## Adjusted R2              0.260            0.130            0.250            0.130      
-## Residual Std. Error 3.500 (df = 115) 3.800 (df = 117) 3.600 (df = 109) 3.900 (df = 113)
+## Observations              122              122              122              122       
+## R2                       1.000            1.000            1.000            1.000      
+## Adjusted R2              1.000            1.000            1.000            1.000      
+## Residual Std. Error 0.000 (df = 119) 0.000 (df = 120) 0.000 (df = 119) 0.000 (df = 120)
 ## =======================================================================================
 ## Note:                                                       *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
 ##                                               Newey-West standard errors in parenthesis</code></pre>
 <pre class="r"><code>AIC(mod6, mod7, mod6_4,mod7_4)</code></pre>
-<pre><code>##        df AIC
-## mod6    6 651
-## mod7    4 669
-## mod6_4 10 647
-## mod7_4  6 661</code></pre>
+<pre><code>##        df   AIC
+## mod6    4 -7924
+## mod7    3 -7926
+## mod6_4  4 -7924
+## mod7_4  3 -7926</code></pre>
 <p>We chose the model with the smallest value for the information
 criterion and on this occasion this is the ADL model with 4 lags
 (despite lags 3 and 4 not being statistically significant).</p>

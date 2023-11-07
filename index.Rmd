@@ -24,10 +24,11 @@ In the following a few basic data techniques are introduced. Where you need to d
 
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
-| First Steps | Workthrough: [R](https://datasquad.github.io/ECLR/R_FirstSteps.html) | [STATS19_GM_AccData.csv](https://datasquad.github.io/ECLR/blob/STATS19_GM_AccData.csv)
-| Loading Data | Workthrough: [R](https://datasquad.github.io/ECLR/R_DataDownload.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv), [mroz.xlsx](https://github.com/datasquad/ECLR/raw/gh-pages/data/Mroz.xlsx)
-| Basic Data Analysis | Workthrough: [R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv) 
-| Basic Data Analysis (Tidyverse) | Workthrough: [R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
+| Installing R and RStudio |  [Video](https://youtu.be/0HzKf-StvOE?si=obnXCLWVP7sIsDy4) | none
+| First Steps |  [Workthrough in R](https://datasquad.github.io/ECLR/R_FirstSteps.html), [Video](https://youtu.be/fPRcu9g7ZTQ) | [STATS19_GM_AccData.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/STATS19_GM_AccData.csv)
+| Loading Data | Workthrough: [Workthrough in R](https://datasquad.github.io/ECLR/R_DataDownload.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv), [mroz.xlsx](https://github.com/datasquad/ECLR/raw/gh-pages/data/Mroz.xlsx)
+| Basic Data Analysis | Workthrough: [Workthrough in R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv) 
+| Basic Data Analysis (Tidyverse) | Workthrough: [Workthrough in R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
 
 # Graphical representations
 
@@ -35,19 +36,19 @@ In the following some data visualisation techniques are introduced.
 
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
-| Basic Data Visualisation (ggplot) | Workthrough: [R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
+| Basic Data Visualisation (ggplot) | Workthrough: [Workthrough in R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
 
 # Regression models and related techniques
 
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
-| Basic regression models | Workthrough: [R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [WBdata.Rdata](https://github.com/datasquad/ECLR/blob/gh-pages/data/WBdata.Rdata) 
+| Basic regression models | Workthrough: [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [WBdata.Rdata](https://github.com/datasquad/ECLR/blob/gh-pages/data/WBdata.Rdata) 
 
 ## Dealing with Time-Series variables
 
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
-| Basic TS modeling | Workthrough: [R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/EUROSTATtimeseries.csv) 
+| Basic TS modeling | Workthrough: [Workthrough in R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/EUROSTATtimeseries.csv) 
 
 
 # Examples

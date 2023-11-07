@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Introduction to Panel Regression</title>
+
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="Datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+<li>
+  <a href="Author.html">Author</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Introduction to Panel Regression</h1>
+
+</div>
+
+
+<div id="preparing-your-workfile" class="section level1">
+<h1>Preparing your workfile</h1>
+<p>We add the basic libraries needed for this week’s work:</p>
+<pre class="r"><code>library(tidyverse)    # for almost all data handling tasks
+library(ggplot2)      # to produce nice graphics
+library(stargazer)    # to produce nice results tables
+library(haven)        # to import stata file
+library(AER)          # access to HS robust standard errors</code></pre>
+<p>We will also use one function saved in a .r file. The function in
+this file will be explained below. This file is available for download
+from here: <a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/docs/stargazer_HC.R">stargazer_HC.R</a>.
+When you get to that page you will see a download button.</p>
+<p><img src="images/GitHubdownload.png" /></p>
+<p>You should save this files into your working directory. You can then
+this functions available to your code using this line.</p>
+<pre class="r"><code>source(&quot;stargazer_HC.r&quot;)  # includes the robust regression display</code></pre>
+<p>As we are using panel methods we also require an additional package
+<code>plm</code>.</p>
+<pre class="r"><code>#install.packages(&quot;plm&quot;) # only execute this if plm is not installed yet
+library(plm)</code></pre>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The data are an extract from the <a
+href="https://www.understandingsociety.ac.uk/">Understanding Society
+Survey</a> (formerly the British Household Survey Panel).</p>
+</div>
+<div id="data-upload---and-understanding-data-structure"
+class="section level1">
+<h1>Data Upload - and understanding data structure</h1>
+<p>Load the data (<a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/data/20222_USoc_extract.dta">20222_USoc_extract.dta</a>),
+which are saved in a STATA datafile (extension <code>.dta</code>), into
+your working directory. There is a function which loads STATA file. It
+is called <code>read_dta</code> and is supplied by the
+<code>haven</code> package.</p>
+<pre><code>##  [1] &quot;pidp&quot;    &quot;age&quot;     &quot;jbhrs&quot;   &quot;paygu&quot;   &quot;wave&quot;    &quot;cpi&quot;     &quot;year&quot;   
+##  [8] &quot;region&quot;  &quot;urate&quot;   &quot;male&quot;    &quot;race&quot;    &quot;educ&quot;    &quot;degree&quot;  &quot;mfsize9&quot;</code></pre>
+<pre class="r"><code>data_USoc &lt;- read_dta(&quot;20222_USoc_extract.dta&quot;)
+data_USoc &lt;- as.data.frame(data_USoc)    # ensure data frame structure
+names(data_USoc)</code></pre>
+<p>Let us ensure that categorical variables are stored as
+<code>factor</code> variables. It is easiest to work with these in
+R.</p>
+<pre class="r"><code>data_USoc$region &lt;- as_factor(data_USoc$region)
+data_USoc$male &lt;- as_factor(data_USoc$male)
+data_USoc$degree &lt;- as_factor(data_USoc$degree)
+data_USoc$race &lt;- as_factor(data_USoc$race)</code></pre>
+<p>Here we used the <code>as_factor</code> function to turn the
+variables into factor variables. You could have used
+<code>as.factor</code>. But when you get data from STATA files, they
+often come with labels and <code>as_factor</code> ensures that the
+factor levels are defined according to the labels rather than just
+numbers.</p>
+<p>The pay information (<code>paygu</code>) is provided as a measure of
+the (usual) gross pay per month. As workers work for varying numbers of
+hours per week (<code>jbhrs</code>) we divide the monthly pay by the
+approximate monthly hours (<code>4*jbhrs</code>). We shall also adjust
+for increasing price levels (as measured by <code>cpi</code>). These two
+adjustments leave us with an inflation adjusted hourly wage. We call
+this variable <code>hrpay</code> and also calculate the natural log of
+this variable (<code>lnhrpay</code>).</p>
+<pre class="r"><code>data_USoc &lt;- data_USoc %&gt;%
+              mutate(hrpay = paygu/(jbhrs*4)/(cpi/100)) %&gt;%
+              mutate(lnhrpay = log(hrpay))</code></pre>
+<p>As we wanted to save these additional variables we assign the result
+of the operation to <code>data_USoc</code>.</p>
+<p>We will also use the logarithm of the unemployment rate</p>
+<pre class="r"><code>data_USoc &lt;- data_USoc %&gt;%
+              mutate(lnurate=log(urate)) </code></pre>
+</div>
+<div id="understanding-the-panel-structure" class="section level1">
+<h1>Understanding the Panel Structure</h1>
+<p>To explain the meaning of these let us just pick out all the
+observations that pertain to one particular individual
+(<code>pidp == 272395767</code>). The following command does the
+following in words: “Take <code>data_USoc</code> filter/keep all
+observations which belong to individual pidp == 272395767, then select a
+list of variables (we don’t need to see all 14 variables) and print the
+result”:</p>
+<pre class="r"><code>data_USoc %&gt;% filter(pidp == 272395767) %&gt;% 
+              select(c(&quot;pidp&quot;,&quot;male&quot;,&quot;wave&quot;,&quot;year&quot;,&quot;paygu&quot;,&quot;age&quot;,&quot;educ&quot;)) %&gt;% 
+              print()</code></pre>
+<pre><code>##        pidp   male wave year paygu age educ
+## 1 272395767 female    1 2009   775  40   11
+## 2 272395767 female    2 2010   812  41   11
+## 3 272395767 female    3 2011   772  42   11</code></pre>
+<p>The same person (female) was observed three years in a row (from 2009
+to 2011). Their gross monthly income changed, as did, of course, their
+age, but not their education. This particular person was observed in
+three consecutive waves. Let’s see whether this is a common pattern.</p>
+<p>In the context of this exercise we will ignore the second wave and
+only look at waves 1 and 3.</p>
+<pre class="r"><code>data_USoc &lt;- data_USoc %&gt;%  
+  filter(wave != 2) %&gt;% 
+  filter(!is.na(lnhrpay))</code></pre>
+<p>The code below figures how many waves we have for each individual (1
+or 2) and then saves this in a new variable (<code>n_wave</code>). This
+information will be used later as we may want to know whether only using
+observations for which we have both waves makes a difference to the
+analysis.</p>
+<pre class="r"><code>data_USoc &lt;- data_USoc %&gt;% 
+                group_by(pidp) %&gt;% 
+                mutate(n_wave = n()) </code></pre>
+<p>Now we need to let R know that we are dealing with panel data. This
+is why we loaded up the <code>plm</code> library which contains the
+<code>plm.data</code> function. Using the
+<code>index = c("pidp","wave")</code> we let the function know what
+identifies the individuals and what identifies the wave.</p>
+<pre class="r"><code>pdata_USoc &lt;- pdata.frame(data_USoc, index = c(&quot;pidp&quot;,&quot;wave&quot;)) # defines the panel dimensions</code></pre>
+<p>We saved the output in <code>pdata_USoc</code> and we will use this
+for any panel data estimations.</p>
+<p>When dealing with panel data it is super useful to understand in how
+many and in which wave individuals are presented. We already calculated
+the <code>n_wave</code> variable which tells us in how many of our
+remaining two waves observations are represented. We also have
+information (<code>wave</code>) on which wave someone is represented in.
+To disentagle this we merely need a contingency <code>table</code> of
+the <code>n_wave</code> and <code>waves</code> variables.</p>
+<pre class="r"><code>table(pdata_USoc$n_wave,pdata_USoc$wave, dnn = c(&quot;n_waves&quot;,&quot;waves&quot;))</code></pre>
+<pre><code>##        waves
+## n_waves     1     3
+##       1  9666  4112
+##       2 13078 13078</code></pre>
+<p>Naturally the 13078 respondents which have two observations
+(<code>n_wave == 2)</code> are represented in waves 1 and 3. Then we
+have (<code>n_wave == 1</code>) 9666 respondents which are represented
+in wave 1 and the 4112 which are represented in wave 3.</p>
+<p>For the respondents for which we have 2 waves of observations we can
+actually calculate a difference, or change in variables. This will
+become important in a later model estimation (although for that we could
+let R do the work in the background) and hence we will calculate these
+variables explicitly, here for <code>lnhrpay</code> and
+<code>lnurate</code>.</p>
+<pre class="r"><code># the lag function below will recognise the panel nature of the data and 
+# will only calculate lags for individuals
+# we also need to specify that we are calculating k=2 step lag as
+# we calculate the difference between wave 3 and 1
+
+Dlnhrpay &lt;- pdata_USoc$lnhrpay-lag(pdata_USoc$lnhrpay,k=2)
+Dlnurate &lt;- pdata_USoc$lnurate-lag(pdata_USoc$lnurate,k=2)
+pdata_USoc$Dlnhrpay &lt;- Dlnhrpay   # add the new series to the dataframe
+pdata_USoc$Dlnurate &lt;- Dlnurate</code></pre>
+<p>For a later purpose we will also identify all individuals who moved
+from one region to another between waves 1 and 3. It is not so important
+to understand this code.</p>
+<pre class="r"><code>temp &lt;- pdata_USoc   # create a temporary dataframe
+
+temp &lt;- temp %&gt;%  filter(n_wave == 2) %&gt;%   # only keep individuals with two waves
+                  group_by(pidp) %&gt;%        # group data by individual
+                  mutate(move = ifelse(length(unique(region))==1,&quot;no move&quot;,&quot;move&quot;)) %&gt;% 
+                  select(pidp,wave,move)    # only keep these 3 variables
+
+# the move variable will take the value 1 if both regions are identical (no move) 
+# and 2 if there are two different regions (move) 
+
+temp$move &lt;- as_factor(temp$move)  # convert to factor variable
+
+# the following merges the new variable into the pdata_USoc dataframe
+pdata_USoc &lt;- merge(pdata_USoc,temp,all.x = TRUE) </code></pre>
+<p>Let’s check how many movers there are.</p>
+<pre class="r"><code>pdata_USoc %&gt;%  count(move)</code></pre>
+<pre><code>##      move     n
+## 1 no move 25804
+## 2    move   352
+## 3    &lt;NA&gt; 13778</code></pre>
+<p>So ther are 352 observations associated with movers. That means that
+there are 176 movers as each mover will have two observations.</p>
+</div>
+<div id="some-data-descriptions" class="section level1">
+<h1>Some data descriptions</h1>
+<p>We will use the <code>lnhrpay</code> and the <code>urate</code>
+variables below. We therefore will have a look at these variables. Below
+we will use the <code>stargazer</code> function to show some summary
+statistics.</p>
+<pre class="r"><code>stargazer(pdata_USoc[,c(&quot;lnhrpay&quot;,&quot;urate&quot;,&quot;year&quot;,&quot;Dlnhrpay&quot;,&quot;Dlnurate&quot;)],type = &quot;text&quot;)</code></pre>
+<pre><code>## 
+## ==================================================
+## Statistic   N      Mean    St. Dev.   Min    Max  
+## --------------------------------------------------
+## lnhrpay   39,934   2.300    0.640   -7.800  8.900 
+## urate     39,934   7.900    1.300    5.800  11.000
+## year      39,934 2,010.000  1.100    2,009  2,013 
+## Dlnhrpay  13,078  -0.009    0.520   -10.000 9.500 
+## Dlnurate  13,078   0.037    0.065   -0.460  0.550 
+## --------------------------------------------------</code></pre>
+<p>Let us look at some summary statistics grouped by region</p>
+<pre class="r"><code>pdata_USoc %&gt;% group_by(region) %&gt;% 
+              summarise(n = n(), mean_lnhrpay = mean(lnhrpay),mean_urate = mean(urate))</code></pre>
+<pre><code>## # A tibble: 12 × 4
+##    region                       n mean_lnhrpay mean_urate
+##    &lt;fct&gt;                    &lt;int&gt;        &lt;dbl&gt;      &lt;dbl&gt;
+##  1 north east                1576         2.21       9.88
+##  2 north west                4280         2.24       8.44
+##  3 yorkshire and the humber  3247         2.20       9.00
+##  4 east midlands             3107         2.20       9.15
+##  5 west midlands             3454         2.23       7.67
+##  6 east of england           3724         2.32       6.58
+##  7 london                    5736         2.42       9.30
+##  8 south east                5125         2.39       6.10
+##  9 south west                3119         2.25       6.11
+## 10 wales                     1831         2.14       8.45
+## 11 scotland                  3020         2.27       7.76
+## 12 northern ireland          1715         2.24       6.78</code></pre>
+<p>Below we will want to use the mean <code>lnhrpay</code> and mean
+<code>lnurate</code> as calculated for every region-year. The following
+will group the data by region-wave (as we have 12 regions and 2 waves we
+will 24 such groups). This is similar to the above command but note that
+we start with <code>pdata_USoc &lt;-</code> to ensure that the
+calculated average wage and unemployment rate values are added as
+variables to the data frame. Also, instead of <code>summarise</code>
+(which displays the calculated statistics) we use the
+<code>mutate</code> function as we want the calculated series to be
+saved in the data frame.</p>
+<pre class="r"><code>pdata_USoc &lt;- pdata_USoc %&gt;% 
+              group_by(region,year) %&gt;% 
+              mutate(mean_lnhrpay = mean(lnhrpay),mean_urate = mean(urate)) </code></pre>
+</div>
+<div id="estimating-models" class="section level1">
+<h1>Estimating Models</h1>
+<p>We start by estimating a model which does not use the panel nature of
+the data. We relate the log hourly pay (<code>lnhrpay</code>) to the
+region/wave specific log unemployment rate (<code>lnurate</code>).</p>
+<pre class="r"><code>POLS0 &lt;- lm(lnhrpay~lnurate, data = pdata_USoc)
+stargazer_HC(POLS0)</code></pre>
+<pre><code>## 
+## =========================================================
+##                              Dependent variable:         
+##                     -------------------------------------
+##                                    lnhrpay               
+## ---------------------------------------------------------
+## lnurate                           -0.100***              
+##                                    (0.019)               
+##                                                          
+## Constant                          2.500***               
+##                                    (0.039)               
+##                                                          
+## ---------------------------------------------------------
+## Observations                       39,934                
+## R2                                  0.001                
+## Adjusted R2                         0.001                
+## Residual Std. Error          0.630 (df = 39932)          
+## F Statistic               30.000*** (df = 1; 39932)      
+## =========================================================
+## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Robust standard errors in parenthesis</code></pre>
+<p>Let’s add the predicted model values to the data frame. As our
+explanatory variable only has 24 different values we will only get 24
+different predicted values.</p>
+<pre class="r"><code>pdata_USoc$pred_POLS0 &lt;- POLS0$fitted.values</code></pre>
+<p>Here we basically used all observations available, whether they were
+from wave 1 or 3. We <strong>pooled</strong> the observations and hence
+we could use our normal <code>lm</code> function to estimate this model.
+We could estimate this model also with the <code>plm</code> function
+(see below).</p>
+<pre class="r"><code>POLS0a &lt;- plm(lnhrpay~lnurate, data = pdata_USoc, model = &quot;pooling&quot;)
+stargazer_HC(POLS0a)</code></pre>
+<pre><code>## 
+## ==================================================
+##                       Dependent variable:         
+##              -------------------------------------
+##                             lnhrpay               
+## --------------------------------------------------
+## lnurate                    -0.100***              
+##                             (0.022)               
+##                                                   
+## Constant                   2.500***               
+##                             (0.046)               
+##                                                   
+## --------------------------------------------------
+## Observations                39,934                
+## R2                           0.001                
+## Adjusted R2                  0.001                
+## F Statistic        30.000*** (df = 1; 39932)      
+## ==================================================
+## Note:                  *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##              Robust standard errors in parenthesis</code></pre>
+<p>However, the <code>plm</code> package we imported earlier has a few
+additional panel specific tricks up its sleeve (we will use them
+shortly).</p>
+<p>Now we plot the predicted values of log hourly pay and compare them
+against the realised values.</p>
+<pre class="r"><code># pdf(&quot;Lecture6plot_Pooled.pdf&quot;,width = 5.5, height = 4) # uncomment to save as pdf
+ggplot(pdata_USoc, aes(x=lnurate,y=pred_POLS0)) +
+  geom_point(aes(colour = &quot;red&quot;)) +
+  geom_line(aes(colour = &quot;red&quot;)) +
+  geom_point(aes(y = mean_lnhrpay,colour = &quot;blue&quot;)) +
+  ggtitle(&quot;Predicted values - Pooled OLS&quot;) +
+  ylab(&quot;Log Hourly Wage&quot;) +
+  xlab(&quot;Log Unemployment Rate&quot;) +
+  scale_colour_manual(name=&quot;Data/Model&quot;, values = c(red = &quot;red&quot;, blue = &quot;blue&quot;),
+                      labels=c(&quot;Data&quot;, &quot;POLS&quot;))</code></pre>
+<p><img src="R_PanelRegression_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<pre class="r"><code># dev.off() # uncomment to save as pdf</code></pre>
+<p>Now we will include a dummy variable for <code>wave == 3</code>. The
+<code>wave</code> variable is a factor variable with two levels (1 and
+3) for waves 1 and 3.</p>
+<pre class="r"><code>POLS1 &lt;- lm(lnhrpay~lnurate+wave, data = pdata_USoc)
+stargazer_HC(POLS1)</code></pre>
+<pre><code>## 
+## =========================================================
+##                              Dependent variable:         
+##                     -------------------------------------
+##                                    lnhrpay               
+## ---------------------------------------------------------
+## lnurate                           -0.097***              
+##                                    (0.019)               
+##                                                          
+## wave3                             -0.019***              
+##                                    (0.006)               
+##                                                          
+## Constant                          2.500***               
+##                                    (0.039)               
+##                                                          
+## ---------------------------------------------------------
+## Observations                       39,934                
+## R2                                  0.001                
+## Adjusted R2                         0.001                
+## Residual Std. Error          0.630 (df = 39931)          
+## F Statistic               20.000*** (df = 2; 39931)      
+## =========================================================
+## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Robust standard errors in parenthesis</code></pre>
+<p>The first wave is the base category of <code>wave</code> and hence is
+not included. So far we have used the standard <code>lm</code> function
+to estimate this model.</p>
+<p>Alternatively this could be estimated using the <code>plm</code>
+package</p>
+<pre class="r"><code>POLS1a &lt;- plm(lnhrpay~lnurate+wave, data = pdata_USoc, model = &quot;pooling&quot;)
+stargazer_HC(POLS1a)</code></pre>
+<pre><code>## 
+## ==================================================
+##                       Dependent variable:         
+##              -------------------------------------
+##                             lnhrpay               
+## --------------------------------------------------
+## lnurate                    -0.097***              
+##                             (0.022)               
+##                                                   
+## wave3                      -0.019***              
+##                             (0.005)               
+##                                                   
+## Constant                   2.500***               
+##                             (0.046)               
+##                                                   
+## --------------------------------------------------
+## Observations                39,934                
+## R2                           0.001                
+## Adjusted R2                  0.001                
+## F Statistic        20.000*** (df = 2; 39931)      
+## ==================================================
+## Note:                  *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##              Robust standard errors in parenthesis</code></pre>
+<p>This regression will have observations for individuals for which we
+only observe one wave (<code>n_wave == 1</code>). Let’s restrict the
+analysis to only individuals for which we have two waves
+(<code>n_wave == 2</code>).</p>
+<pre class="r"><code>POLS2 &lt;- lm(lnhrpay~lnurate+wave, data = pdata_USoc, subset = (n_wave ==2))
+stargazer_HC(POLS2)</code></pre>
+<pre><code>## 
+## =========================================================
+##                              Dependent variable:         
+##                     -------------------------------------
+##                                    lnhrpay               
+## ---------------------------------------------------------
+## lnurate                           -0.096***              
+##                                    (0.023)               
+##                                                          
+## wave3                              -0.005                
+##                                    (0.008)               
+##                                                          
+## Constant                          2.500***               
+##                                    (0.046)               
+##                                                          
+## ---------------------------------------------------------
+## Observations                       26,156                
+## R2                                  0.001                
+## Adjusted R2                         0.001                
+## Residual Std. Error          0.610 (df = 26153)          
+## F Statistic               10.000*** (df = 2; 26153)      
+## =========================================================
+## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Robust standard errors in parenthesis</code></pre>
+<p>or using the <code>plm</code> function</p>
+<pre class="r"><code>POLS2a &lt;- plm(lnhrpay~lnurate+wave, data = pdata_USoc, subset = (n_wave ==2), model = &quot;pooling&quot;)
+stargazer_HC(POLS2a)</code></pre>
+<pre><code>## 
+## ==================================================
+##                       Dependent variable:         
+##              -------------------------------------
+##                             lnhrpay               
+## --------------------------------------------------
+## lnurate                    -0.096***              
+##                             (0.029)               
+##                                                   
+## wave3                       -0.005                
+##                             (0.005)               
+##                                                   
+## Constant                   2.500***               
+##                             (0.058)               
+##                                                   
+## --------------------------------------------------
+## Observations                26,156                
+## R2                           0.001                
+## Adjusted R2                  0.001                
+## F Statistic        10.000*** (df = 2; 26153)      
+## ==================================================
+## Note:                  *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##              Robust standard errors in parenthesis</code></pre>
+<p>Now we estimate a first difference (FD) model. We will only do this
+using the <code>plm</code> function. If we were to use the
+<code>lm</code> function we had to first calculate differenced series
+(which we have done on this occasion, but only to illustrate the
+mechanics). Before we estimate the model let’s look at the data for a
+few respondents.</p>
+<pre class="r"><code>pdata_USoc %&gt;% filter(pidp %in% c(&quot;3915445&quot;,&quot;68001367&quot;,&quot;68004087&quot;,&quot;68195851&quot;)) %&gt;% 
+              select(c(&quot;pidp&quot;,&quot;male&quot;,&quot;wave&quot;,&quot;lnhrpay&quot;,&quot;Dlnhrpay&quot;,&quot;lnurate&quot;, &quot;Dlnurate&quot;)) %&gt;% 
+              print()</code></pre>
+<pre><code>## # A tibble: 6 × 9
+## # Groups:   region, year [5]
+##   region         year pidp     male   wave  lnhrpay Dlnhrpay lnurate Dlnurate
+##   &lt;fct&gt;         &lt;dbl&gt; &lt;fct&gt;    &lt;fct&gt;  &lt;fct&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+## 1 scotland       2011 3915445  female 3        1.88  NA         2.09  NA     
+## 2 north east     2009 68001367 male   1        2.45  NA         2.22  NA     
+## 3 north east     2009 68004087 male   1        1.83  NA         2.22  NA     
+## 4 north east     2011 68004087 male   3        1.90   0.0728    2.38   0.160 
+## 5 north west     2009 68195851 female 1        2.20  NA         2.13  NA     
+## 6 west midlands  2011 68195851 female 3        1.84  -0.360     2.08  -0.0488</code></pre>
+<p>When estimating a FD model we are basically running a regression of
+<code>Dlnhrpay</code> on <code>Dlnurate</code>. Respondents for whom we
+do not have two waves will not be used in such a model. The calculation
+of the <code>Dlnhrpay</code> and <code>Dlnurate</code> series happens
+automatically inside the <code>plm</code> function when we specify
+<code>model = "fd"</code>.</p>
+<pre class="r"><code>FD1a &lt;- plm(lnhrpay~lnurate, data = pdata_USoc, subset = (n_wave ==2), model = &quot;fd&quot;)
+stargazer_HC(FD1a)</code></pre>
+<pre><code>## 
+## ==================================================
+##                       Dependent variable:         
+##              -------------------------------------
+##                             lnhrpay               
+## --------------------------------------------------
+## lnurate                      0.042                
+##                             (0.060)               
+##                                                   
+## Constant                   -0.011***              
+##                             (0.004)               
+##                                                   
+## --------------------------------------------------
+## Observations                13,078                
+## R2                          0.00003               
+## Adjusted R2                -0.00005               
+## F Statistic          0.350 (df = 1; 13076)        
+## ==================================================
+## Note:                  *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##              Robust standard errors in parenthesis</code></pre>
+<p>We can show a scatter plot of the available difference observations
+and the regression line estimated by <code>FD1a</code>.</p>
+<pre class="r"><code># pdf(&quot;Lecture6plot_FD_R.pdf&quot;,width = 5.5, height = 4) # uncomment to save as pdf
+ggplot(pdata_USoc, aes(x=Dlnurate,y=Dlnhrpay,color=move)) +
+  geom_point() +
+  geom_abline(intercept = FD1a$coefficients[1], slope = FD1a$coefficients[2],colour = &quot;blue&quot;) +
+  ggtitle(&quot;Scatter plot and FD regression line&quot;) +
+  ylab(&quot;D(Log Hourly Wage)&quot;) +
+  xlab(&quot;D(Log Unemployment Rate)&quot;)</code></pre>
+<p><img src="R_PanelRegression_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+<pre class="r"><code># dev.off() # uncomment to save as pdf</code></pre>
+<p>As you can see, there is no obvious relationship between the changes
+in hourly pay and the respective local unemployment rate.</p>
+<p>Now we will show models, <code>POLS0a</code>, <code>POLS1a</code>,
+<code>POLS2a</code> and <code>FD1a</code> in one table. In previous
+tables you may have seen that the F-stat takes up a lot of space and
+hence we use the <code>omit_stat</code> option to indicate that we do
+not want to see the F-statistic.</p>
+<pre class="r"><code>stargazer_HC(POLS0a,POLS1a,POLS2a,FD1a,omit.stat = &quot;f&quot;)</code></pre>
+<pre><code>## 
+## =====================================================
+##                        Dependent variable:           
+##              ----------------------------------------
+##                              lnhrpay                 
+##                 (1)        (2)       (3)       (4)   
+## -----------------------------------------------------
+## lnurate      -0.100***  -0.097*** -0.096***   0.042  
+##               (0.022)    (0.022)   (0.029)   (0.060) 
+##                                                      
+## wave3                   -0.019***  -0.005            
+##                          (0.005)   (0.005)           
+##                                                      
+## Constant      2.500***  2.500***  2.500***  -0.011***
+##               (0.046)    (0.046)   (0.058)   (0.004) 
+##                                                      
+## -----------------------------------------------------
+## Observations   39,934    39,934    26,156    13,078  
+## R2             0.001      0.001     0.001    0.00003 
+## Adjusted R2    0.001      0.001     0.001   -0.00005 
+## =====================================================
+## Note:                     *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                 Robust standard errors in parenthesis</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
