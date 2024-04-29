@@ -10,3 +10,4 @@ knitr::opts_chunk$set(echo = TRUE)
 Material on this page has been authored by
 
 * [Ralf Becker](https://datasquad.github.io/ralffbecker/index.html), The University of Manchester
+* Arthur Sinko
