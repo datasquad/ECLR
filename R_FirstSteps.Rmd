@@ -179,7 +179,7 @@ library(ggplot2)      # to produce nice graphiscs
 
 By just typing these commands into the script file nothing is actually happening. If you want R to execute any of the commands in your script file you have to do one of the following:
 
-![RStudio Environment saves variables](images/RStudio_Image1.png)
+![RStudio executing code](images/RStudio_image1.png)
 
 1. Press the "Source" button, in which case R will execute all commands in the script file
 2. Press the "Run" button, in which case R will run the command in which the curser currently is

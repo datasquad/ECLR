@@ -373,7 +373,13 @@ library(plm)</code></pre>
 <h1>Introduction</h1>
 <p>The data are an extract from the <a
 href="https://www.understandingsociety.ac.uk/">Understanding Society
-Survey</a> (formerly the British Household Survey Panel).</p>
+Survey</a> (formerly the British Household Survey Panel). The question
+we are looking at using these data is how responsive wages are to local
+unemployment rates. Or in other words, do wages respond to unemployment
+rates (increase if unemployment is low and decrease if unemployment is
+high)? For instance <a
+href="https://doi.org/10.2307/3440026">Blanchflower and Oswald
+(1989)</a> find that there is such a negative relationship.</p>
 </div>
 <div id="data-upload---and-understanding-data-structure"
 class="section level1">
@@ -568,6 +574,8 @@ saved in the data frame.</p>
 </div>
 <div id="estimating-models" class="section level1">
 <h1>Estimating Models</h1>
+<div id="pooled-regression" class="section level2">
+<h2>Pooled regression</h2>
 <p>We start by estimating a model which does not use the panel nature of
 the data. We relate the log hourly pay (<code>lnhrpay</code>) to the
 region/wave specific log unemployment rate (<code>lnurate</code>).</p>
@@ -757,6 +765,9 @@ stargazer_HC(POLS2a)</code></pre>
 ## ==================================================
 ## Note:                  *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
 ##              Robust standard errors in parenthesis</code></pre>
+</div>
+<div id="first-difference-estimation" class="section level2">
+<h2>First difference estimation</h2>
 <p>Now we estimate a first difference (FD) model. We will only do this
 using the <code>plm</code> function. If we were to use the
 <code>lm</code> function we had to first calculate differenced series
@@ -846,6 +857,70 @@ not want to see the F-statistic.</p>
 ## =====================================================
 ## Note:                     *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
 ##                 Robust standard errors in parenthesis</code></pre>
+<p>Looking at this table we can briefly investigate whether the data
+provide evidence for a negative relationship between local unemployment
+rates and wages. As the regressions are run with logarithmic variables,
+the coefficients are interpreted as elasticities (refer to your
+econometric textbook or lecture notes to remind yourself of this). The
+pooled regressions all indicate that 10% increase in the unemployment
+rate (say from 8% to 8.8%) has the following effect on on real hourly
+pay (using model <code>POLS2a</code>): <span
+class="math inline">\(−0.096 ∗ 0.10 = −0.0096\)</span> i.e. a drop of
+0.0096 log-points (1 percent). This effect also is highly statistically
+significant. This is similar to the findings in Blanchflower and
+Oswald.</p>
+<p>However, using the panel data structure available here, the results
+from the first difference model suggests that this effect is not
+statistically significant and in fact actually slightly positive
+(0.042).</p>
+</div>
+<div id="fixed-effects-estimation" class="section level2">
+<h2>Fixed effects estimation</h2>
+<p>A different panel data technique that can be applied is that of a
+fixed effects regression. In this regression. In the pooled regresison
+models we estimated</p>
+<p><span class="math display">\[y_{it} = \alpha + \beta x_{it} +
+\epsilon_{it}\]</span></p>
+<p>where <span class="math inline">\(y\)</span> and <span
+class="math inline">\(x\)</span> represent the log wage and the log
+unemployment rate respectively. In a fixed effects regression we
+recognise that there are individual specific effects which may explain a
+significant part of the variation in the dependent variable. Estimating
+a fixed effects model replaces the constant <span
+class="math inline">\(\alpha\)</span> in the above model (which applies
+to all individuals <span class="math inline">\(i\)</span>) with an <span
+class="math inline">\(i\)</span> specific constant.</p>
+<p><span class="math display">\[y_{it} = \alpha_i + \beta x_{it} +
+\epsilon_{it}\]</span></p>
+<p>In R this is implemented by using the “within” model</p>
+<pre class="r"><code>FE1 &lt;- plm(lnhrpay~lnurate, data = pdata_USoc, subset = (n_wave ==2), model = &quot;within&quot;)
+stargazer_HC(POLS0a,POLS1a,POLS2a,FD1a,FE1,omit.stat = &quot;f&quot;)</code></pre>
+<pre><code>## 
+## ============================================================
+##                            Dependent variable:              
+##              -----------------------------------------------
+##                                  lnhrpay                    
+##                 (1)       (2)       (3)       (4)      (5)  
+## ------------------------------------------------------------
+## lnurate      -0.100*** -0.097*** -0.096***   0.042   -0.028 
+##               (0.022)   (0.022)   (0.029)   (0.060)  (0.071)
+##                                                             
+## wave3                  -0.019***  -0.005                    
+##                         (0.005)   (0.005)                   
+##                                                             
+## Constant     2.500***  2.500***  2.500***  -0.011***        
+##               (0.046)   (0.046)   (0.058)   (0.004)         
+##                                                             
+## ------------------------------------------------------------
+## Observations  39,934    39,934    26,156    13,078   26,156 
+## R2             0.001     0.001     0.001    0.00003  0.00002
+## Adjusted R2    0.001     0.001     0.001   -0.00005  -1.000 
+## ============================================================
+## Note:                            *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                        Robust standard errors in parenthesis</code></pre>
+<p>As you can see this output does not show any constant. Effectifely
+the model estimated 13078 constants, one for each individual.</p>
+</div>
 </div>
 
 

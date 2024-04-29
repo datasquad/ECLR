@@ -14,3 +14,4 @@ The following examples are implemented on this page
 |:------|:-----|:-----|:--------|
 | Minimum Wage | Card and Krueger | Summary Statistics, Diff-in-Diff | R-Workthrough: [Rmd](https://datasquad.github.io/ECLR/Ex/CardKrueger.html) | 
 | Debt Levels and GDP Growth | Reinhard and Rogoff; Herndon, Ash and Pollin | Summary Statistics, Weighting, Hypothesis testing, Regression | R-Workthrough: [Rmd](https://datasquad.github.io/ECLR/Ex/RogoffReinhard.html) | 
+| Firearm Laws and Homicide Deaths | Siegel et al | Data Collection, Diff-in-Diff | R-Workthrough: [RMd - Data collection and Prep](https://datasquad.github.io/ECLR/Ex/GunPolicyDataMgmt.html), [Rmd - Dff-in-Diff analysis]()]

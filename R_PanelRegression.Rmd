@@ -54,7 +54,7 @@ library(plm)
 
 # Introduction
 
-The data are an extract from the [Understanding Society Survey](https://www.understandingsociety.ac.uk/) (formerly the British Household Survey Panel).
+The data are an extract from the [Understanding Society Survey](https://www.understandingsociety.ac.uk/) (formerly the British Household Survey Panel). The question we are looking at using these data is how responsive wages are to local unemployment rates. Or in other words, do wages respond to unemployment rates (increase if unemployment is low and decrease if unemployment is high)? For instance [Blanchflower and Oswald (1989)](https://doi.org/10.2307/3440026) find that there is such a negative relationship.
 
 # Data Upload - and understanding data structure
 
@@ -212,6 +212,8 @@ pdata_USoc <- pdata_USoc %>%
 
 # Estimating Models
 
+## Pooled regression
+
 We start by estimating a model which does not use the panel nature of the data. We relate the log hourly pay (`lnhrpay`) to the region/wave specific log unemployment rate (`lnurate`).
 
 ```{r}
@@ -280,6 +282,8 @@ POLS2a <- plm(lnhrpay~lnurate+wave, data = pdata_USoc, subset = (n_wave ==2), mo
 stargazer_HC(POLS2a)
 ```
 
+## First difference estimation
+
 Now we estimate a first difference (FD) model. We will only do this using the `plm` function. If we were to use the `lm` function we had to first calculate differenced series (which we have done on this occasion, but only to illustrate the mechanics). Before we estimate the model let's look at the data for a few respondents.
 
 ```{r}
@@ -316,4 +320,25 @@ Now we will show models, `POLS0a`, `POLS1a`, `POLS2a` and `FD1a` in one table. I
 stargazer_HC(POLS0a,POLS1a,POLS2a,FD1a,omit.stat = "f")
 ```
 
+Looking at this table we can briefly investigate whether the data provide evidence for a negative relationship between local unemployment rates and wages. As the regressions are run with logarithmic variables, the coefficients are interpreted as elasticities (refer to your econometric textbook or lecture notes to remind yourself of this). The pooled regressions all indicate that 10% increase in the unemployment rate (say from 8% to 8.8%) has the following effect on on real hourly pay (using model `POLS2a`): $−0.096 ∗ 0.10 = −0.0096$ i.e. a drop of 0.0096 log-points (1 percent). This effect also is highly statistically significant. This is similar to the findings in Blanchflower and Oswald. 
 
+However, using the panel data structure available here, the results from the first difference  model suggests that this effect is not statistically significant and in fact actually slightly positive (0.042).
+
+## Fixed effects estimation
+
+A different panel data technique that can be applied is that of a fixed effects regression. In this regression. In the pooled regresison models we estimated
+
+\[y_{it} = \alpha + \beta x_{it} + \epsilon_{it}\]
+
+where $y$ and $x$ represent the log wage and the log unemployment rate respectively. In a fixed effects regression we recognise that there are individual specific effects which may explain a significant part of the variation in the dependent variable. Estimating a fixed effects model replaces the constant $\alpha$ in the above model (which applies to all individuals $i$) with an $i$ specific constant.
+
+\[y_{it} = \alpha_i + \beta x_{it} + \epsilon_{it}\]
+
+In R this is implemented by using the "within" model
+
+```{r}
+FE1 <- plm(lnhrpay~lnurate, data = pdata_USoc, subset = (n_wave ==2), model = "within")
+stargazer_HC(POLS0a,POLS1a,POLS2a,FD1a,FE1,omit.stat = "f")
+```
+
+As you can see this output does not show any constant. Effectifely the model estimated 13078 constants, one for each individual.

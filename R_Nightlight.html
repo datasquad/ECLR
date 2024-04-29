@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Accessing nightlight data</title>
+
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="Datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+<li>
+  <a href="Author.html">Author</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Accessing nightlight data</h1>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Measuring economic activity is a rather tricky business. Most of us
+are familiar with gross domestic product (GDP) as a measure of economic
+activity. It’s strengths and weaknesses are well known. One particular
+issue with any national statistics like GDP but also for instance
+industrial production, is that their production requires the full might
+of National Statistical Authorities.</p>
+<p>It therefore seems attractive to consider using measures of academic
+activity that do</p>
+</div>
+<div id="data-source" class="section level1">
+<h1>Data Source</h1>
+</div>
+<div id="further-reading" class="section level1">
+<h1>Further reading</h1>
+<p>For an overview of the uses and sources of night light data in
+Economics:</p>
+<p><a
+href="https://onlinelibrary.wiley.com/doi/epdf/10.1111/joes.12387">Gibson
+J., S. Olivia and G. Boe-Gibson (2020), Night Light in Economics:
+Sources and Uses, Journal of Economic Surveys, 34 (5), 953-1186.</a></p>
+<p>The R code in this post is mainly based on the code shared by:</p>
+<p><a
+href="https://twitter.com/yohaniddawela/status/1781279844304650566">Y.
+Iddawela (2024),
+https://twitter.com/yohaniddawela/status/1781279844304650566</a></p>
+</div>
+<div id="file-upload" class="section level1">
+<h1>File upload</h1>
+<p>When you are working with an existing datafile on your computer, then
+you should first ensure that you have set your working directory such
+that it points to the folder from which you are working and where you
+can find your datafile. Let’s assume that you have saved <a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv"
+target="_blank">mroz.csv</a> to your working directory:
+<code>C:\Rwork</code>. Then the command below should read
+<code>setwd("C:/Rwork")</code>. Note that all backward slashes
+(<code>\</code>) have to be replaced by forward slashes
+(<code>/</code>).</p>
+<pre class="r"><code>setwd(&quot;XXXX:/XXXX&quot;)   # replace the XXXX with your drive and path</code></pre>
+<p>The datafile we practice with here is a comma separated values file
+(csv). To upload such a file we use the <code>read.csv</code> function
+as follows, assuming that the data file is in the working directory:</p>
+<pre class="r"><code>mydata &lt;- read.csv(&quot;mroz.csv&quot;)</code></pre>
+<p>This loads the data (753 observations and 22 variables), as a new
+object called <code>mydata</code> into your environment. Check in your
+environment window to confirm that it is there.</p>
+<p>A typical erorr message at this stage is “Error in file(file,”rt”) :
+cannot open the connection”. If you get that error message this is an
+indicatin that the datafile you are intending to upload is not in the
+working directory. You can check what the current working directory is
+with <code>getwd()</code> in the console. Make sure that file location
+and working directory are synchronised.</p>
+<p>If you use the help function (<code>?read.csv</code> in the console)
+you will find some guidance in the use of this function.</p>
+<p><img src="images/readcsvhelp.png" style="width:50.0%"
+alt="read.csv help" /> As you can see there are a lot of options you can
+set. One which is often important to use is the <code>na.strings</code>
+option. Here you are telling R how missing values are coded up in the
+spreadsheet you are uploading.</p>
+<p>Let’s see why this is important. You can get a first glimpse at the
+data using the <code>str()</code> function. This is useful as it gives
+you the datatypes.</p>
+<pre class="r"><code>str(mydata)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    753 obs. of  22 variables:
+##  $ inlf    : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ hours   : int  1610 1656 1980 456 1568 2032 1440 1020 1458 1600 ...
+##  $ kidslt6 : int  1 0 1 0 1 0 0 0 0 0 ...
+##  $ kidsge6 : int  0 2 3 3 2 0 2 0 2 2 ...
+##  $ age     : int  32 30 35 34 31 54 37 54 48 39 ...
+##  $ educ    : int  12 12 12 12 14 12 16 12 12 12 ...
+##  $ wage    : chr  &quot;3.354&quot; &quot;1.3889&quot; &quot;4.5455&quot; &quot;1.0965&quot; ...
+##  $ repwage : num  2.65 2.65 4.04 3.25 3.6 4.7 5.95 9.98 0 4.15 ...
+##  $ hushrs  : int  2708 2310 3072 1920 2000 1040 2670 4120 1995 2100 ...
+##  $ husage  : int  34 30 40 53 32 57 37 53 52 43 ...
+##  $ huseduc : int  12 9 12 10 12 11 12 8 4 12 ...
+##  $ huswage : num  4.03 8.44 3.58 3.54 10 ...
+##  $ faminc  : int  16310 21800 21040 7300 27300 19495 21152 18900 20405 20425 ...
+##  $ mtr     : num  0.722 0.661 0.692 0.781 0.622 ...
+##  $ motheduc: int  12 7 12 7 12 14 14 3 7 7 ...
+##  $ fatheduc: int  7 7 7 7 14 7 7 3 7 7 ...
+##  $ unem    : num  5 11 5 5 9.5 7.5 5 5 3 5 ...
+##  $ city    : int  0 1 0 0 1 1 0 0 0 0 ...
+##  $ exper   : int  14 5 15 6 7 33 11 35 24 21 ...
+##  $ nwifeinc: num  10.9 19.5 12 6.8 20.1 ...
+##  $ lwage   : chr  &quot;1.210154&quot; &quot;0.3285121&quot; &quot;1.514138&quot; &quot;0.0921233&quot; ...
+##  $ expersq : int  196 25 225 36 49 1089 121 1225 576 441 ...</code></pre>
+<p>Most of the data are of the <code>num</code> (numeric) and
+<code>int</code> (integer) type, but two variables (<code>wage</code>
+and <code>lwage</code>) come as character/text (<code>chr</code>)
+variables. This is awkwar as we are likely to want to use these data
+(here wages) for some numerical analysis. Why did R not recognise these
+numbers as numbers?</p>
+<p>To see that, here is an excerpt of the file we just uploaded:</p>
+<div class="float">
+<img src="images/csvex.png" style="width:50.0%"
+alt="Example for missing data" />
+<div class="figcaption">Example for missing data</div>
+</div>
+<p>You can see that in the wage column there are some observations which
+do not have a number but rather a “.”. This is this spreadsheet’s way of
+telling you that for these observations there is no wage information.
+The information is missing. Different spreadsheets code missing values
+in different ways. Sometimes it will just be empty cells, sometimes it
+will say “NA” or “na”. You need to help R to recognise missing values.
+That is what the <code>na.strings</code> option in the
+<code>read.csv</code> function does.</p>
+<pre class="r"><code>mydata &lt;- read.csv(&quot;mroz.csv&quot;, na.strings = &quot;.&quot;)</code></pre>
+<p>You can now test with <code>str(mydata)</code> to confirm that the
+<code>wage</code> and <code>lwage</code> data are now recognised as
+numeric data.</p>
+<p>If your data come as an excel file (<a
+href="https://datasquad.github.io/ECLR/Data/mroz.xlsx">mroz.xlsx</a>),
+then we need to use a different function. There are, as always,
+different functions which do the same job. We recommend
+<code>read_excel</code> which comes from the <code>readxl</code> package
+(needs loading!). Note that the option to indicate how missing values
+are coded is here called <code>na</code>.</p>
+<pre class="r"><code>library(readxl)
+mydata &lt;- read_excel(&quot;Mroz.xlsx&quot;, na = &quot;.&quot;)</code></pre>
+</div>
+<div id="direct-link-to-data-databases" class="section level1">
+<h1>Direct link to data databases</h1>
+<p>There are a number of packages which facilitate the easy download of
+data directly from your R code. These data are then not saved on your
+computer. This is very convenient, but does require that you have
+internet access when you work.</p>
+<p>The ones we will discuss here are:</p>
+<ul>
+<li>Quantmod</li>
+<li>Quandl</li>
+<li>pdfetch</li>
+</ul>
+<div id="quantmod" class="section level2">
+<h2>Quantmod</h2>
+<p>A package that works well for downloading financial data is the
+<code>quantmod</code> package.</p>
+<pre class="r"><code>library(quantmod)</code></pre>
+<p>Let’s demonstrate how to download data. We will explain what happened
+afterwards.</p>
+<pre class="r"><code>getSymbols(&quot;^GSPC&quot;,env=.GlobalEnv,src=&quot;yahoo&quot;,from=as.Date(&quot;1960-01-04&quot;),to=as.Date(&quot;2009-01-01&quot;))</code></pre>
+<pre><code>## [1] &quot;GSPC&quot;</code></pre>
+<p>The following things happened. The <code>getSymbols</code> function
+went to the Yahoo database (<code>src="yahoo"</code>) and downloaded the
+data associated with the “^GSPC” symbol (The S&amp;P500 index) for the
+dates specified in the function call. Once you ran this command you
+should see an object called <code>GSPC</code> in your environment
+(<code>env=.GlobalEnv</code>).</p>
+<p>Let’s download Apple share prices (“AAPL”) from 4 Jan 2000 to 1 Jan
+2023:</p>
+<pre class="r"><code>getSymbols(&quot;AAPL&quot;,env=.GlobalEnv,src=&quot;yahoo&quot;,from=as.Date(&quot;2000-01-04&quot;),to=as.Date(&quot;2023-01-01&quot;))</code></pre>
+<pre><code>## [1] &quot;AAPL&quot;</code></pre>
+<p>Confirm that you have a new object called <code>AAPL</code> in your
+environment.</p>
+<p>You can also download multiple series at the same time, say share
+proces for Amazon (“AMZN”) and Fedex (“FDX”).</p>
+<pre class="r"><code>getSymbols(c(&quot;AMZN&quot;,&quot;FDX&quot;),env=.GlobalEnv,src=&quot;yahoo&quot;,from=as.Date(&quot;2000-01-04&quot;),to=as.Date(&quot;2023-01-01&quot;))</code></pre>
+<pre><code>## [1] &quot;AMZN&quot; &quot;FDX&quot;</code></pre>
+<p>Both time-series should be saved to your environment now.</p>
+</div>
+<div id="pdfetch" class="section level2">
+<h2>pdfetch</h2>
+<p>Another very useful package that can be used to access a host of
+online databases is the <code>pdfetch</code> function. It downloads data
+into the <code>xts</code> format which is a time-series format and
+therefore, before using this, you should load (and install if you havn’t
+done so yet) the <code>pdfetch</code> and the <code>xls</code>
+package.</p>
+<pre class="r"><code>library(pdfetch)
+library(xts)</code></pre>
+<p>This package has data download functions specific to the database you
+are using. Say you wish to get data from the Office for National
+Statistics (ONS) in the UK, then you need to use the
+<code>pdfetch_ONS</code> function.</p>
+<p>To get the data you need to know what the series ID and in which
+database the data are. For instance a <a
+href="https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l55o/mm23">CPI
+inflation</a> measure is in the <code>mm23</code> database and the
+series has ID <code>l550</code>. Then you can download these data as
+follows:</p>
+<pre class="r"><code>ons_data &lt;- pdfetch_ONS(&quot;l55o&quot;,&quot;mm23&quot;)
+periodicity(ons_data)</code></pre>
+<pre><code>## Monthly periodicity from 1989-01-31 to 2024-03-31</code></pre>
+<p>If you are looking for a particular series you will have to go to the
+ONS homepage and search for the database and series ID information you
+need. In the helo for the <code>pdfetch_ONS</code> function you will
+find a link which you can use to find the necessary information.</p>
+<p>Let’s get some data from the <a
+href="https://fred.stlouisfed.org">FRED</a> database:</p>
+<pre class="r"><code>fred_data &lt;- pdfetch_FRED(c(&quot;GFDEBTN&quot;))
+periodicity(fred_data)</code></pre>
+<pre><code>## Quarterly periodicity from 1966-01-01 to 2023-10-01</code></pre>
+<p>The data we downloaded here is the size of the <a
+href="https://fred.stlouisfed.org/series/GFDEBTN">US public debt</a>.
+The series ID of this series is “GFDEBTN”. If you are looking for any
+particular series you should find it on the FRED website and identify
+its series ID.</p>
+</div>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>In this workthrough you learned how to make data available to your
+code. The two techniques were to either load the data from a file on
+your computer or to load them directly from a database.</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
