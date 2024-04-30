@@ -1,5 +1,5 @@
 ---
-title: "Gun Example"
+title: "Firearm Laws - Data Acquisition and Management (Part 1)"
 author: "Ralf Becker"
 output:
   html_document:
@@ -12,13 +12,15 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 
-## Intro
+## Introduction
 
 Here we are looking at replicating aspects of this paper:
 
 Siegel et al (2019) The Impact of State Firearm Laws on Homicide and Suicide Deaths in the USA, 1991–2016: a Panel Study, J Gen Intern Med 34(10):2021–8.
 
-In this paper the authors evaluate whether the introduction of different types of gun control laws have a causal impact on a range of outcome variables, e.g. the rate of gun related deaths. In these walk-throughs we will attempt to first access the data used in the paper and then to replicate the empirical results. We will be unable to obtain the exact same dataset and therefore our attempt will only be partially successful. But in any case the process shown here will reflect the process of an empirical piece of research.
+In this paper the authors evaluate whether the introduction of different types of gun control laws have a causal impact on a range of outcome variables, e.g. the rate of gun related deaths. In these walk-throughs we will attempt to first access the data used in the paper (this Part 1) and then to replicate the empirical results. We will be unable to obtain the exact same dataset and therefore our attempt will only be partially successful. But in any case the process shown here will reflect the process of an empirical piece of research.
+
+In Part 2 we will use the data acquired to implement a Difference in Difference methodology to evaluate the effectiveness of Laws that attempt to restrict the ownership of firearms on the number of firearm deaths.
 
 
 ## Load packages

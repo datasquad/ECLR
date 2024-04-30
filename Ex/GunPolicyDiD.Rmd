@@ -1,8 +1,10 @@
 ---
-title: "Gun Example - Part 2 - initial Diff-in-Diff"
+title: "Firearm Laws - Difference in Difference (Part 2)"
 author: "Ralf Becker"
-date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -10,13 +12,13 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 
-## Intro
+## Introduction
 
 Here we are looking at replicating aspects of this paper:
 
 Siegel et al (2019) The Impact of State Firearm Laws on Homicide and Suicide Deaths in the USA, 1991–2016: a Panel Study, J Gen Intern Med 34(10):2021–8.
 
-In Part 1 - Data acquisition and management, we organised the data in a new datafile saved in "US Gun_example_v3.csv". We will continue working from that datafile.
+In Part 1 - Data acquisition and management, we organised the data in a new datafile saved in "US Gun_example_v3.csv". We will continue working from that datafile and in this part we will apply the Difference in Difference methodology. This is a common methodology to evaluate the effectiveness of a policy. We will use this methodology here to evaluate whether laws aimed to regulate gun ownership (such as background check) have any measurable effect on the number of firearm deaths.
 
 
 ## Load packages
@@ -34,24 +36,34 @@ library(stargazer)    # for nice regression output
 library(stringr)      # to extract strings
 library(coefplot)     # to create coefficient plots
 library(AER)          # to use lht
+```
 
+We will later apply regression analysis in order to implement the Difference-in-Difference method. Here we will use the standard regression function in R, the `lm` function, but to implement the proper inference procedure (heteroskedasticity robust standard errors) we will display the regression results with the `stargazer_hc` function. This is an amended form of the `stargazer` function. The `stargazer_hc` function can be downloaded from here. Save it into your working directory such that you can load it using the following command:
+
+```{r}
 source("Stargazer_HC.R")
 ```
 
 ## Load Data
 
+In the last step of Part 1 we saved all data in a well formatted datafile "US Gun_example_v3.csv", [https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/data/US%20Gun_example_v3.csv](which you can download from here) such that you can then load it:
 
 ```{r, eval = FALSE}
+datadir <- "data/"  # folder in which my data are saved, adjust to your own data location
+
 # ensure you know where you saved this file from Part 1
-data3 <- read.csv("US Gun_example_v3.csv")
+data3 <- read.csv(paste0(datadir,"US Gun_example_v3.csv"))
 
 # we also load the laws codebook just in case we need to refer to it
-law_data_codebook <- read_excel("../data/Firearmlaws codebook_0.xlsx")
+law_data_codebook <- read_excel(paste0(datadir,"Firearmlaws codebook_0.xlsx"))
 names(law_data_codebook) = make.names(names(law_data_codebook)) # This elimnates spaces in variable names
 ```
 
 ```{r, echo = FALSE}
-data3 <- read.csv("../data/US Gun_example_v3.csv")
+datadir <- "../data/"  # folder in which my data are saved, adjust to your own data location
+
+# ensure you know where you saved this file from Part 1
+data3 <- read.csv(paste0(datadir,"US Gun_example_v3.csv"))
 
 # we also load the laws codebook just in case we need to refer to it
 law_data_codebook <- read_excel("../data/Firearmlaws codebook_0.xlsx")
@@ -82,12 +94,13 @@ If you are working on replicating or extending some published work you should tr
 data3 %>% filter(Year == 2016, State == "Louisiana") %>%
   select(State, Year, firearm.deaths.pc, homi.pc)
 ```
-In the table above you can see that we have a value of 21.20 (per 100,000 population) firearm deaths in Louisiana for 2016. That is not the same as the 14.2 in the paper but we wouldn't expect this as theirs doesn't include homicides.
+In the table above you can see that we have a value of 21.20 (per 100,000 population) firearm deaths in Louisiana for 2016. That is not the same as the 14.2 in the paper but we wouldn't expect this as theirs does include all homicides regardless of the method of death. The firearm deaths data, while being age adjusted, does not actually record whether a death was a suicide or homicide, but only registered the mechanism of death. Of course a death by firearm could be either a homicide or a suicide.
 
-The reason for the difference is that the data we got from the F.B.I. website (`homi.pc`) are not age adjusted data (as are the data from the CDC). The firearm deaths data, while being age adjusted, does not actually record whether a death was a suicide or homicide, but only registered the mechanism of death. Of course a death by firearm could be either a homicide or a suicide. In summary, we do not have exactly the same data to replicate Siegal et al's analysis. But both variables are quite highly correlated and are certainly, size-wise, in the same ballpark.
+The homicide data we obtained from the F.B.I. website (`homi.pc`) are not age adjusted data. This may well explain the difference between the rate of 11.86 reported here and the age adjusted homicide rate of 14.2 in the paper. 
 
-This means that in our subsequent analysis we can either use the age adjusted firearm deaths
-data (`firearm.deaths.pc`) or the non-age adjusted homicide data  (`homi.pc`). We could of course also attempt to apply the age adjustment procedure, but we will not do this here. For now we will use `firearm.deaths.pc` as the main outcome variable.
+In summary, we do not have exactly the same data to replicate Siegel et al's analysis. But both variables are in a similar ballpark and are logically connected.
+
+This means that in our subsequent analysis we can either use the age adjusted firearm deaths data (`firearm.deaths.pc`) or the non-age adjusted homicide data  (`homi.pc`). We could of course also attempt to apply the age adjustment procedure, but we will not do this here. For now we will use `firearm.deaths.pc` as the main outcome variable.
 
 Let’s look at a few time-series plots of the data. Whenever you are working with data that have a time-series dimension, plots such as these will give the reader a better understanding of the data, and are strongly recommended.
 
@@ -104,11 +117,13 @@ For three of these states, there an upward trend in the number of firearm deaths
 
 ## Initial Diff-in-Diff
 
+Here we expect that you have an understanding of the difference-in-difference (DiD) methodology. Certain aspects will be elaborated on below, but this walkthrough is not meant to be an initial introduction to this methodology. If you want such an introduction, then this [R-Workthrough](https://datasquad.github.io/ECLR/Ex/CardKrueger.html) of Card and Kruegers seminal paper on the effect of minimum wages is a better starting point.
+
+In short, what is needed for a DiD analysis is a number of units (here US States) with data over a time period which starts before one or some of the states implemented some policy and extends until a few periods after that policy introduction. It is also important that some states implemented the policy and others did not. 
+
 ### Policy set-up
 
-We wish to evaluate whether various gun control policies have a causal effect. The
-policies considered here are (a) the universal background checks policy  (`pol_ubc`),
-(b) policies that prevent person with recorded violent misdemeanors from owning a gun (`pol_vmisd`) and (c) the so-called may issue laws (`pol_mayissue`), which gives authorities the discretion to grant a permit to carry a concealed gun (or otherwise).
+We wish to evaluate whether various gun control policies have a causal effect. The policies considered here are (a) the universal background checks policy  (`pol_ubc`), (b) policies that prevent person with recorded violent misdemeanors from owning a gun (`pol_vmisd`) and (c) the so-called may issue laws (`pol_mayissue`), which gives authorities the discretion to grant a permit to carry a concealed gun (or otherwise).
 
 For (a) let's remind ourselves how the policy variables are coded in the data.
 
@@ -156,10 +171,7 @@ ggplot(data3, aes(x = Year, y = State)) +
 
 ```
 
-As you can see, these policies are generally being phased out, meaning that
-authorities are loosing the ability to deny firearm permits. In terms of a
-diff-in-diff setup we like to evaluate policies that are being introduced, not
-phased out. Therefore, in the Siegel et al. paper, you will see a reference to a "Shall issue" policy, which is basically the absence of a "May issue" policy. This is defined as one-minus `pol_mayissue`. So let's add that variable to the data frame.
+As you can see, these policies are generally being phased out, meaning that authorities are loosing the ability to deny firearm permits. In terms of a DiD setup we like to evaluate policies that are being introduced, not phased out. Therefore, in the Siegel et al. paper, you will see a reference to a "Shall issue" policy, which is basically the absence of a "May issue" policy. This is defined as one-minus `pol_mayissue`. So let's add that variable to the data frame.
 
 ```{r}
 data3$pol_shallissue <- 1 - data3$pol_mayissue
@@ -175,22 +187,22 @@ ggplot(data3, aes(x = Year, y = State)) +
 
 ```
 
-Now you can see that this is a policy being introduced. The policy is really to remove a gun control policy. It is exactly the mirror image of the preceding figure. The variable records whether a gun control policy is being removed. Just like pol_ubc this is still a political decision, but in the opposite direction.
+Now you can see that this is a policy being introduced. The policy is really to remove a gun control policy. It is exactly the mirror image of the preceding figure. The variable records whether a gun control policy is being removed. Just like `pol_ubc` this is still a political decision, but in the opposite direction.
 
 The following table illustrates for how many observations (state-years) the policies (a) and (c) are in place. Sometimes such tables are called cross-tabs.
 
 ```{r}
 addmargins(table(data3$pol_ubc, data3$pol_shallissue, dnn = c("UBC","Shall Issue")))
 ```
+You can discern from this that there are few stat-years (only 51) in which a state had both policies, universal background checks and a shall issue policy, in place. This is perhaps not surprising as the two policies have different emphasis, one tightening access and the other providing easier access.
 
 ### Estimation
 
-We will now estimate our first "base" two-way fixed effects (TWFE) model:
+We will now estimate our first "base" two-way fixed effects (TWFE) model. This is a particular version of a difference-in-difference method.
 
 $$log(fd.pc_{st}) = \alpha_s + \gamma_t + \tau~ pol_{st} + error_{st}$$
 
 where $log(fd.pc_{st})$ is the log of the age adjusted death rate by firearms and $pol_{st}$ is either `pol_ubc` or `pol_shallissue`. At this stage there are no covariates. $\tau$ is the treatment effect we are seeking to estimate (and hopefully claim that it is causal).
-This equation is EW's (13.16) on Slide 33 of the pdf for Lecture 7.
 
 We construct the logged outcome variables and set-up the dataframe as a panel data set.
 
@@ -212,7 +224,9 @@ stargazer(mod_twfe1, mod_twfe2, keep = c("pol_ubc","pol_shallissue"), type="text
           digits = 6, notes="Cluster (State) Robust standard errors in parenthesis")
 ```
 
-The result for `pol_shallissue` is very close to that in Siegel et al. (2019), which is 0.082. Recall that the policy is actually the removal of a gun control policy and therefore the positive sign makes sense. The coefficient for the universal background policy has halved from -0.173 in Siegel et al. to -0.086 here. Whilst this estimate is now statistically insignificant, it is "economically" sizeable. The issue here is the size of the clustered standard error, not the estimate. This happens a lot in diff-in-diff analyses.
+The result for `pol_shallissue` is very close to that in Siegel et al. (2019), which is 0.082. Recall that the policy is actually the removal of a gun control policy and therefore the positive sign makes sense. Introducing this policy (meaning the removal of a "may issue" policy) makes it easier to acquire a firearm and the results indicate that this has an increasing effect on the outcome variable, here the rate of firearm deaths.
+
+The coefficient for the universal background policy has halved from -0.173 in Siegel et al. to -0.086 here. Whilst this estimate is now statistically insignificant, it is "economically" sizeable. The issue here is the size of the clustered standard error, not the estimate. This happens a lot in DiD analyses.
 
 Why "economically" sizeable? Let us interpret the estimate associated with the `pol_shallissue` variable. The estimated coefficient is 0.081 and is interpreted as follows. If the policy switches from 0 to 1 (here meaning the abolition of a "may issue" policy or the introduction of a "shall issue" policy), then the number of firearm deaths increases by 0.08 log points or 8.4% (the latter using $100*(exp(\hat{\tau})-1)$). What does that mean? The average of the `firearm.deaths.pc` variable is 12 firearm deaths per year per 100,000 population. 8.4% of 12 is 1.01 deaths per 100,000. In Texas, for example, there is a population of about 30 Million. If we project that policy impact onto a population of 30,000,000 (multiply by 300) that would be the equivalent of 302 deaths a year.
 
@@ -228,7 +242,7 @@ As you can see the model did include year and state fixed effects. The reason fo
 
 ### Investigating the difference
 
-As we are attempting to replicate the results in the Siegel et al. (2019) paper we should attempt to investigate why we do not get identical results. One obvious reason is that we are not using the same sample period. Their sample starts in 1991 to 2016, ours are from 2001 to 2020. A lot of the policy variation in the policies may have happened before 2001 and hence we do not see that in our sample. If you go back to the original policy file and check you will find that three states introduced universal background check policies before 2000, Cennecticut (CT), Massachusetts (MA) and Pennsylvania (PA).
+As we are attempting to replicate the results in the Siegel et al. (2019) paper we should attempt to investigate why we do not get identical results. One obvious reason is that we are not using the same sample period. Their sample starts in 1991 to 2016, ours are from 2001 to 2020. A lot of the policy variation in the policies may have happened before 2001 and hence we do not see that in our sample. If you go back to the original policy file and check you will find that three states introduced universal background check policies before 2000, Connecticut (CT), Massachusetts (MA) and Pennsylvania (PA).
 
 A different reason why the results may be different is that we cannot be certain about the policy coding used by Siegel et al. (2019). We combined the two policies that had explicitly "universal" in their naming, however, there are more background check policies. In Table 1 of their paper they state which states had the policy implemented in 1991. They are CA, IL, MA, NJ and RI. However, in the above image we see that only CA and RI have the policy implemented in our coding.
 
@@ -238,15 +252,17 @@ Here we will not investigate this line of enquiry any further.
 
 Another reason for differences may be that we are not yet using all the covariates that were included in the Siegel et al. (2019) paper. Once they are included, coefficients may well change. We do not have data for all their covariates, but let's include the ones we have.
 
-
 ```{r}
-mod_twfe1c <- lm(log.fd.pc~State+Year+pol_ubc+prop18.24+law.officers.pc+ur+vcrime.pc+alcc.pc+incarc.pc+log(Population), data = pdata)
+mod_twfe1c <- lm(log.fd.pc~State+Year+pol_ubc+prop18.24+law.officers.pc+ur+vcrime.pc+alcc.pc+incarc.pc+log(Population), 
+                 data = pdata)
 se_twfe1c <- sqrt(diag(vcovCL(mod_twfe1c, cluster = ~ State)))
 
-mod_twfe2c <- lm(log.fd.pc~State+Year+pol_shallissue+prop18.24+law.officers.pc+ur+vcrime.pc+alcc.pc+incarc.pc+log(Population), data = pdata)
+mod_twfe2c <- lm(log.fd.pc~State+Year+pol_shallissue+prop18.24+law.officers.pc+ur+vcrime.pc+alcc.pc+incarc.pc+log(Population), 
+                 data = pdata)
 se_twfe2c <- sqrt(diag(vcovCL(mod_twfe2c, cluster = ~ State)))
 
-stargazer(mod_twfe1c, mod_twfe2c, keep = c("pol_ubc","pol_shallissue"), type="text", se=list(se_twfe1c,se_twfe2c),
+stargazer(mod_twfe1c, mod_twfe2c, keep = c("pol_ubc","pol_shallissue"), type="text", 
+          se=list(se_twfe1c,se_twfe2c),
           digits = 6, notes="Cluster (State) Robust standard errors in parenthesis")
 ```
 
@@ -254,52 +270,34 @@ You can see that the inclusion of the covariates does not change the main conclu
 
 Recall that we recognised that our data for the outcome variable is not the same as that used in Siegel et al. (2019). Above we used `firearm.deaths.pc` but we also acquired the `homi.pc` data from the F.B.I.. Let us re-run the above models (with covariates) with that outcome variable.
 
-
 ```{r}
-mod_twfe3c <- lm(log.homi.pc~State+Year+pol_ubc+prop18.24+law.officers.pc+ur+vcrime.pc+alcc.pc+incarc.pc+log(Population), data = pdata)
+mod_twfe3c <- lm(log.homi.pc~State+Year+pol_ubc+prop18.24+law.officers.pc+ur+vcrime.pc+alcc.pc+incarc.pc+log(Population), 
+                 data = pdata)
 se_twfe3c <- sqrt(diag(vcovCL(mod_twfe3c, cluster = ~ State)))
 
-mod_twfe4c <- lm(log.homi.pc~State+Year+pol_shallissue+prop18.24+law.officers.pc+ur+vcrime.pc+alcc.pc+incarc.pc+log(Population), data = pdata)
+mod_twfe4c <- lm(log.homi.pc~State+Year+pol_shallissue+prop18.24+law.officers.pc+ur+vcrime.pc+alcc.pc+incarc.pc+log(Population),
+                 data = pdata)
 se_twfe4c <- sqrt(diag(vcovCL(mod_twfe4c, cluster = ~ State)))
 
-stargazer(mod_twfe3c, mod_twfe4c, keep = c("pol_ubc","pol_shallissue"), type="text", se=list(se_twfe3c,se_twfe4c),
+stargazer(mod_twfe3c, mod_twfe4c, keep = c("pol_ubc","pol_shallissue"), type="text", 
+          se=list(se_twfe3c,se_twfe4c),
           digits = 6, notes="Cluster (State) Robust standard errors in parenthesis")
 ```
 As you can see, we now get coefficients that are closer to those published in Siegel et al. (2019), but the coefficients are estimated to be statistically not different from 0.
 
-
 ### A note of caution
 
-In the above, we estimated a TWFE model on a setup with staggered entry, meaning
-that different states implement a given policy at different calendar times (see
-Slide 37).  Much recent methodological research investigates the properties of
-the TWFE estimator in this setting.  It turns out that the properties crucially
-depend on (a) the parallel trends assumption and (b) on assuming that the policy
-has the same effect in different states.  If either (a) or (b) are not true, the
-TWFE estimator is biased.
+In the above, we estimated a TWFE model on a setup with staggered entry, meaning that different states implement a given policy at different calendar times. Much recent methodological research investigates the properties of the TWFE estimator in this setting.  It turns out that the properties crucially depend on (a) the parallel trends assumption and (b) on assuming that the policy has the same effect in different states.  If either (a) or (b) are not true, the TWFE estimator is biased.
 
-When we estimated the effect of introducing the "may issue" policy at
-about 0.08 log points (or 0.05 with covariates), we are assuming that $\tau$
-is the same across all states.  This assumption may be a valid one in some
-situations, but surely is not correct in others.  The current research
-frontier is adapting these methods to allow for such policy heterogeneity.  In
-this unit, such advanced methods are not part of the syllabus and you are not
-expected to use these in your project.  But we need you to be aware that what
-you learn in this unit is not the end of the road ... there is always more to
-learn.  Indeed, we will briefly return to this point at the end of this
-document.
+When we estimated the effect of introducing the "may issue" policy at about 0.08 log points (or 0.05 with covariates), we are assuming that $\tau$ is the same across all states.  This assumption may be a valid one in some situations, but surely is not correct in others.  The current research frontier is adapting these methods to allow for such policy heterogeneity.  
 
-## Event studies approach or fully saturated model
+Without going into any details, the following section will show the building blocks needed to deal with situations where this assumption is not met.
 
-One of the issues with the TWFE approach is that we assume that the policy
-implementation has an immediate and constant impact on the outcome variable.
-We now relax this assumption and let the data decide about the timing
-and strength of the policy effect.
+## Event studies approach for common entry
 
-This method is really meant for datasets that do have common (and not staggered) entry.  Of
-course staggered policy implementation is a standard feature of many datasets,
-as is the case here.  To create a dataset with common entry, let's look again at
-the implementation of the "shall issue" policy through time:
+One of the issues with the TWFE approach is that we assume that the policy implementation has an immediate and constant impact on the outcome variable. We now relax this assumption and let the data decide about the timing and strength of the policy effect.
+
+This method is really meant for datasets that do have common (and not staggered) entry.  Of course staggered policy implementation is a standard feature of many datasets, as is the case here.  To create a dataset with common entry, let's look again at the implementation of the "shall issue" policy through time:
 
 ```{r}
 ggplot(pdata, aes(x = Year, y = State)) +
@@ -309,7 +307,7 @@ ggplot(pdata, aes(x = Year, y = State)) +
   guides(x = guide_axis(n.dodge = 2)) # this offsets every 2nd x axis label
 ```
 
-From the full dataset we can create subsets of data that creates a nice treatment and control group set. For instance pick out the following nine states:
+From the full dataset we can create subsets of data that creates a treatment group with common policy entry. For instance pick out the following nine states:
 
 ```{r}
 State_sel <- c("Alabama", "Illinois", "Delaware", "Connecticut", "Rhode Island", "New York", "New Jersey", "Massachusetts", "Maryland")
@@ -339,7 +337,7 @@ mod_event_sub1 <- lm(log.fd.pc~State+d*Year, data = pdata_sub1)
 stargazer_HC(mod_event_sub1, type_out="text")
 ```
 
-Note that we did not use cluster robust standard errors. Convention is that you should only use them if you have at least 50 clusters, here we only have 9. We therefore use the standard robust standard errors.
+Note that we did not use cluster robust standard errors. Convention is that you should only use them if you have at least 50 clusters (here states), here we only have 9. We therefore use the standard robust standard errors.
 
 Note what variables were included by specifying the model as "log.fd.pc~State+d*Year":
 
@@ -365,7 +363,7 @@ coefplot(mod_event_sub1, coefficients = coef_keep, innerCI = 0, horizontal = TRU
   guides(x = guide_axis(n.dodge = 2)) # this offsets every 2nd x axis label
 ```
 
-The confidence bars indicate +/- 2 standard errors. However, the standard errors used here are the normal standard errors and not the heteroskedasticity robust ones. Unfortunately the `coefplot` function does not have an option to feed in the correct standard errors. So for now we treat the standard errors as indicative only.
+The confidence bars indicate +/- 2 standard errors. However, the standard errors used here are the normal standard errors and not the heteroskedasticity robust ones. Unfortunately the `coefplot` function does not have an option to feed in the correct standard errors. So for now we treat the standard errors as indicative only and we return below to the question of statistical significance.
 
 There are two important observations from this. First, all the coefficients up to the period of policy implementation (2013) are close to 0. This suggests that there is no evidence against the parallel trends assumption prior to the policy implementation. Second, the coefficients after 2015 indicate that in the policy states there was a somewhat positive effect of the policy, although we are not sure about the statistical significance. But note that this result suggests that the effect only manifested itself a few years after the policy introduction (in 2013).
 
@@ -393,6 +391,7 @@ X. <- X[, -c(1,10)]  # we delete columns 1 - the intercept - and 10 - the d vari
 mod_event_sub1b <- lm(log.fd.pc~X., data = pdata_sub1)
 stargazer_HC(mod_event_sub1b, type_out="text")
 ```
+
 Note that the coefficient estimates are identical to those in `mod_event_sub1`. We basically estimated the same model without R having to silently drop some variables.
 
 Now we can test the null hypothesis that all the coefficients for the interaction terms between `d` and the Years 2013 to 2021 are not different from 0.
@@ -433,4 +432,4 @@ For the event studies approach we set up a clean treatment group in the sense th
 
 When we looked at the TWFE model we had a somewhat more flexible setup. In particular we allowed treatments to come in at different time-periods (staggered policy design). Very recent research into the properties of these estimation methods has concluded that estimating TWFE models with staggered policy design can be very problematic and deliver misleading results, in particular if the effects of the policy on outcome variables differs between states. Imagine that the introduction of a shall policy in Illinois had a different effect on firearm deaths than the introduction of the same policy in Alabama. This is a situation which is not unlikely in most examples.
 
-Very recent methodological advances are dealing with such situations. They are not covered here. However, a simple way around this issue is to divide your sample into clean setups like the one above which only had Illinois and Alabama in the treatment group as they introduced the policy at the same time. If you go back to the earlier image that displays when states introduced policies you will find that you could construct another clean treatment group with Nebraska and Kansas. As it turns out, most of the recent advances in Difference in Difference estimation make clever use of such clean treatment groups.
+Very recent methodological advances are dealing with such situations. They are not covered here. However, a simple way around this issue is to divide your sample into clean setups like the one above which only had Illinois and Alabama in the treatment group as they introduced the policy at the same time. If you go back to the earlier image that displays when states introduced policies you will find that you could construct another clean treatment group with Nebraska and Kansas. As it turns out, most of the recent advances in Difference-in-Difference estimation make clever use of such clean treatment groups.
