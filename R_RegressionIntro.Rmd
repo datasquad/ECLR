@@ -33,9 +33,7 @@ library(AER)          # to calculate robust regression standard errors
 library(stargazer)    # to produce nice results tables
 ```
 
-We will also use one function saved in a .r file. The function in this file will be explained below. This file is available for download from here: [stargazer_HC.R](https://github.com/datasquad/ECLR/blob/gh-pages/docs/stargazer_HC.R). When you get to that page you will see a download button. 
-
-![](images/GitHubdownload.png)
+We will also use one function saved in a .r file. The function in this file will be explained below. This file is available for download from here: [stargazer_HC.R](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HC.R). 
 
 You should save this files into your working directory. You can then this functions available to your code using this line.
 
@@ -49,7 +47,7 @@ source("docs/stargazer_HC.r")  # includes the robust regression display
 
 # Data Context
 
-The example we are using here is taken from the [CORE - Doing Economics resource](https://www.core-econ.org/doing-economics/book/text/08-01.html). In particular we are using Project 8 which deals with international data on well-being. The data represent several waves of data from the European Value Study (EVS). A wave means that the same survey is repeated at regular intervals (waves).
+The example we are using here is taken from the [CORE - Doing Economics resource](https://www.core-econ.org/doing-economics/book/text/08-01.html). In particular we are using Project 8 which deals with international data on well-being. The data represent several waves of data from the European Value Study (EVS). A wave means that the same survey is repeated at regular intervals (waves). You will learn more about the variables included in that dataset below.
 
 
 # Importing Data
@@ -65,7 +63,7 @@ load("data/WBdata.Rdata")
 str(wb_data)  # prints some basic info on variables
 ```
 
-> You can create `.RData` objects by saving your Environment. In this case all the objects in your environment will be saved and you can re-upload them as above using the load function.
+You can create `.RData` objects yourselves by saving your Environment. In this case all the objects in your environment will be saved and you can re-upload them as above using the load function. This is how this datafile has been created.
 
 Checking your environment you will see two objects. Along the proper datafile (`wb_data`) you will find `wb_data_Des` which contains some information for each of the variables. It will help us to navigate the obscure variable names.
 
@@ -75,14 +73,14 @@ wb_data_Des
 
 As you can see there are a number of interesting questions in this dataset. These questions will allow us to investigate whether attitudes to work differ between coountries and whether such differences correlate to different levels of self-reported happiness/life satisfaction.
 
-Details on the variables are avialable from [here](https://dbk.gesis.org/EVS/Variables/compview.asp) (chose EVS Longitudinal Data Files 1981-2008).
+Details on the variables are available from [here](https://europeanvaluesstudy.eu/methodology-data-documentation/previous-surveys-1981-2008/).
 
 # Initial data analysis and summary statistics
 
 It is important that you, before you embark on any regression analysis, understand your data. Let us investigate some of the features of this dataset. It has `r nrow(wb_data)` observations and `r length(wb_data)` variables. Let's see which countries are represented in our dataset.
 
 ```{r}
-unique(wb_data$S003)   # unque finds all the different values in a variable
+unique(wb_data$S003)   # unique finds all the different values in a variable
 ```
 
 As you can see these are 48 countries, almost all European, Canada and the U.S. being the exceptions. In the same manner we can find out how many waves of data we have available.

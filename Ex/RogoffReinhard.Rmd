@@ -25,9 +25,13 @@ library(stargazer)    # to produce nice results tables
 
 # Introduction
 
-Here we use an example which, at the time, made a lot of waves.  Carmen Reinhart and Kenneth Rogoff (2010) wrote work that attempted to examine the [relationship between Debt to GDP levels and GDP growth](https://scholar.harvard.edu/files/rogoff/files/growth_in_time_debt_aer.pdf). Their general conclusion was that, as long as the debt to GDP ration does not exceed 90% there seems to be no clear relationship between the two. However, countries eunning higher debt to GDP ratios are paying a sizeable growth penalty.
+Here we use an example which, at the time, made a lot of waves.  Carmen Reinhart and Kenneth Rogoff (2010) wrote work that attempted to examine the [relationship between Debt to GDP levels and GDP growth](https://scholar.harvard.edu/files/rogoff/files/growth_in_time_debt_aer.pdf). Their general conclusion was that, as long as the debt to GDP ration does not exceed 90% there seems to be no clear relationship between the two. However, countries running higher debt to GDP ratios are paying a sizeable growth penalty. Reinhart and Rogoff were influential economists and had the ear of many governments around the world, including that of the UK. It was often characterised as one of the pieces of work offering the academic credibility to austerity policies.
 
-The empirical work of Reinhard and Rogoff was critised on three aspects by Thomas Herndon, Michael Ash and Robert Pollin. This work was published in the [Cambridge Journal of Economics in 2014](https://academic.oup.com/cje/article-abstract/38/2/257/1714018?redirectedFrom=fulltext) and previous to that as a working paper. The [working paper's website](https://www.peri.umass.edu/publication/item/526-does-high-public-debt-consistently-stifle-economic-growth-a-critique-of-reinhart-and-rogoff) also contains all the relevant data and code.
+The empirical work of Reinhard and Rogoff was critised on three aspects by Thomas Herndon, Michael Ash and Robert Pollin. This work was published in the [Cambridge Journal of Economics in 2014](https://academic.oup.com/cje/article-abstract/38/2/257/1714018?redirectedFrom=fulltext). and previous to that as a working paper. An earlier working paper had the relevant data and code published alongside and the work presented here is based on this.
+
+The publication of this critique made waves around the globe not least because the critique was published by academics from a lower ranked institution, one of the authors was a graduate student and because one of the shortcomings of the original work highlighted was a mistake in an EXCEL spreadsheet. This article in [The New Yorker](https://www.newyorker.com/news/john-cassidy/the-reinhart-and-rogoff-controversy-a-summing-up) provides a nice summary of the "affair".
+
+The criticism of the empirical work in Reinhard and Rogoff, importantly, went beyond a deficient spreadsheet and this piece will review Thomas Herndon's work and present it such that you can replicate it. 
 
 # Statistical concepts used
 
@@ -54,11 +58,10 @@ The following R programming concepts were used in this document. The links lead 
 
 # Importing Data
 
-This is a simplified spreadsheet (based on the work of Herndon et al.)
+This is a simplified spreadsheet (based on the work of Herndon et al., 2014): [RRdata.xlsx](https://github.com/datasquad/ECLR/raw/gh-pages/data/RRdata.xlsx). Download the file and save it in your working folder.
 
 ```{r}
-# RRData <- read_excel("C:/Rcode/ECLR/data/RRdata.xlsx")
-RRData <- read_excel("data/RRdata.xlsx")
+RRData <- read_excel("../data/RRdata.xlsx") # make sure you point to the right file in your working directory
 RRData <- as.data.frame(RRData)
 str(RRData)  # prints some basic info on variables
 ```
@@ -109,7 +112,8 @@ Let's have a look at some of the data. We will first look at a scatterplot (usin
 ```{r scatter_DEvGDP}
 ggplot(RRData,aes(x=debtgdp,y=dRGDP)) +
   geom_point() +    # this produces the scatter plot
-  geom_smooth(method = "lm", se = FALSE)  # this adds the linear line of best fit
+  geom_smooth(method = "lm", se = FALSE)  + # this adds the linear line of best fit
+  ggtitle("GDP growth v Debt to GDP ratios, Scatterplot")
 
 ```
 
@@ -130,17 +134,23 @@ To illustrate this point we should look at the data as time series.
 ```{r lineplot}
 tempdata <- RRData %>% filter(Country %in% c("Germany","Greece","UK","US"))
 ggplot(tempdata,aes(Year,debtgdp,color=Country)) +
-  geom_line()     # this produces the line plot
+  geom_line() +    # this produces the line plot
+  ggtitle("Debt to GDP ratios, seleted countries")
 
 tempdata <- RRData %>% filter(Country %in% c("Germany","Greece","UK","US"))
 ggplot(tempdata,aes(Year,dRGDP,color=Country)) +
-  geom_line(size=1)     # this produces the line plot
+  geom_line(size=1) +    # this produces the line plot
+  ggtitle("GDP growth, seleted countries")
 
 ```
 
 You can clearly see that the `debtgdp` data, from year to year, are dependent. Also, the `dRGDP` plot reveals that there is a fair bit of correlation between the growth rates in economies.
 
-# Some data cuts
+Running regressions with such highly correlated data is a tricky exercise for a number of reasons that are not to focus of this discussion. Perhaps the most important issue being that the two variables are obviously bi-directional related. The narrative of Reinhard and Rogoff's advice is that there is dependence from the Debt to GDP ratio to GDP growth. It is equally apparent that GDP growth will have an impact on the debt to GDP ratio.
+
+Dealing with these issues is not straightforward at all and here we will not pursue this any further. All that we require for the remainder is the calculation of averages.
+
+# Some initial data analysis
 
 Let's look at the data for a few countries
 
@@ -151,7 +161,7 @@ ggplot(tempdata,aes(debtgdp,dRGDP,color=Country)) +
 
 ```
 
-From here you can see that different countries appear to have quite different patterns.
+From here you can see that different countries appear to have quite different patterns. For instance, throughout the sample period, the debt to GDP ration in Germany was rather constant, whereas Greece's and the UK's debt to GDP  ratio varied substantially. No apparent correlation between GDP growth and the Debt to GDP ratio arises from this scatterplot.
 
 Let's calculate average and median growth rates and debt to gdp ratios for these countries. To achieve this we will first group the data by Country `group_by(Country)` and then summarise the variables `dRGDP` and `debtgdp` (`summarise_at(c("dRGDP", "debtgdp"), ...)`) in the resulting groups by applying the mean and median function (`funs(mean, median, sd)`).
 
@@ -163,7 +173,9 @@ tempdata %>% group_by(Country) %>%
 
 # Create categorical debt to GDP ratios - Reinhard-Rogoff analysis I
 
-In order to replicate some of the analysis in Reinhard and Rogoff and the subsequent critique in Herndon et al. we will want to create categorical variables for the Debt to GDP ratio. In other words we want to 
+In order to replicate some of the analysis in Reinhard and Rogoff and the subsequent critique in Herndon et al. we will want to create categorical variables for the Debt to GDP ratio. We place each observation in one of four bins or groups, depending on how large the Debt to GDP ratio in a particular country in a particular year is.
+
+We are using the same cut-off points as those used in the empirical work.
 
 ```{r}
 RRData <- RRData %>% mutate(dgcat = cut(RRData$debtgdp, breaks=c(0,30,60,90,Inf)))
@@ -173,11 +185,15 @@ RRData %>% group_by(dgcat) %>%
             print()
 ```
 
+You can see that the mean and median growth rates differ between the different groups. And by and large the differences are such that in country-years where there were lower Debt to GDP ratios the growth rate was larger.  
+
 # Hypothesis Testing - means and differences in mean
+
+As a aspiring empirical economist or econometrician you understand that just comparing means is very different to claiming any causal relationship. In fact, at now stage here we will be able ot make a convincing statistical case for a causal relationship. We are working in the realm of establishing correlations only. But even there you know that the differences we see in the above table may well be the result of some random sampling variation. To establish a statistically significant relationship we typically resort to the tool of hypothesis testing.
 
 Hypothesis testing is at the core of much empirical analysis. Here we will show how to perform hyothesis tests. We are using the `t.test` function. Often hypothesis tests will be testing hypotheses about the mean of a random variable. We also learn how to perform hypothesis on regression coefficients (often these are nothing else but ways to estimate means!).
 
-Let's start by testing a hypothesis on the sample mean of the GDP growth rate (`dRGDP`) Let's say we want to test the hypothesis that the mean growth rate is 3.3% (note that 3.3% in the data is represented as 3.3). Let's get one calculated and then diiscuss what we really did:
+Let's start by testing a hypothesis on the sample mean of the GDP growth rate (`dRGDP`) Let's say we want to test the hypothesis that the mean growth rate is 3.3% (note that 3.3% in the data is represented as 3.3). Let's get one calculated and then discuss what we really did:
 
 ```{r}
 t.test(RRData$dRGDP, mu=3.3)
@@ -230,7 +246,7 @@ RRselective <- RRData %>% filter(!((Year<1950 & Country=="New Zealand") | (Year<
 RRselective <- RRselective %>% filter(!( Country %in% c("Australia","Austria","Belgium","Canada","Denmark") ))
 ```
 
-And now we repeat the mean and median calculations we performed above on teh complete dataset.
+And now we repeat the mean and median calculations we performed above on the complete dataset.
 
 ```{r}
 RRselective %>% group_by(dgcat) %>% 
@@ -251,9 +267,20 @@ RRselective2 <- RRselective %>%
                 print()
 ```
 
-Clearly, this scheme delivers clearly lower average and median growth for the highest debt category.
+This scheme delivers clearly lower average and median growth for the highest debt category.
 
-The main difference in this new scheme is that not each country-year receives the same weight. The authors calculate groups of data by `dgcat` and `Country` and then calculate average growth rates. That means that for instance France receives one average growth rate for each of the the three lowest debt categories (not in any year did it exceed the 90% threshold) and Germany receives an average growth for the two lowest debt categories (as it never exceeded the 60% threshold in the sample period). Then the country averages in each category are averaged again.
+The main difference in this new scheme is that not each country-year receives the same weight. The authors calculate groups of data by `dgcat` and `Country` and then calculate average growth rates. That means that for instance France receives one average growth rate for each of the three lowest debt categories (not in any year did it exceed the 90% threshold) and Germany receives an average growth for the two lowest debt categories (as it never exceeded the 60% threshold in the sample period). Then the country averages in each category are averaged again.
 
-This may seem totally arbitrary and indeed the justification provided by Reinhard and Rogoff seems to be, at best, deficient. Having said that, it is not unreasonable to think carefully about the weighting> previously we saw that there is a lot of persistence in the data. This may be a reason for perhaps not weighting every year as its own, equally weighted, observation.
+This may seem totally arbitrary and indeed the justification provided by Reinhard and Rogoff seems to be, at best, deficient. Having said that, it is not unreasonable to think carefully about the weighting. Previously we saw that there is a lot of persistence in the data. This may be a reason for perhaps not weighting every year as its own, equally weighted, observation. 
+
+You may also think about weighting country observations differently according to say population. Why should Finland obtain the same weight as the United States, the latter having a population more than 60 times larger than Finland. Economists and statisticians can have a great time discussing the merits of different weighting schemes, but if your results are crucially dependent on choosing a particular scheme then this should be clearly discussed.
+
+# Summary
+
+In this piece you were guided through some of the controversy surrounding Carmen Reinhard's and Ken Rogoff's influential work on GDP growth and debt levels that put an important stamp on the discussion of austerity policies following the Great Finacial crisis.
+
+The message you should draw from this is two-fold
+
+1. Working in a software like R where your code automatically documents what you do has great advantages and will help you to identify potential issues with your process.
+1. When you do empirical work there are many decisions you have to take, like here what observations should be excluded from the analysis and how to weigh observations. When you present conclusions from your work you should communicate whether your conclusions are robust to the particular choices you took. Economists call this robustness analysis.
 

@@ -246,10 +246,25 @@ This very clearly illustrates that, at the time, black players predominantly pla
 
 ## Other graphs
 
-In the above you really only scratched the surface of what `ggplot` can do. Another very common type of graph is a time-series plot. The Basketball data do not have any time dimension such that there is no obvious use for a time-series plot. However, it will be constructed in a very similar way, just using the `geom_line()` option. Explore the possibilities in [hadley Wickham's book](https://ggplot2-book.org/).
+In the above you really only scratched the surface of what `ggplot` can do. Another very common type of graph is a time-series plot. The Basketball data do not have any time dimension such that there is no obvious use for a time-series plot. However, it will be constructed in a very similar way, just using the `geom_line()` option. Explore the possibilities in [Hadley Wickham's book](https://ggplot2-book.org/).
 
 # Saving graphs
 
+The following is a fairly straightforward way to save graphs as an image. You can then import that image into any software you wish, such as Microsoft Word. Let's say you wish to include the graph we saved in `g9` into another document. 
+
+```{r}
+ggsave("baseball.png", g9)
+```
+
+This will create "baseball.png" in your working directory from where you can load it to wherever you want to use it. Use the help function (`?ggsave`) in the console to find out what options you have. For instance you could, instead of the square image saved on this occasion, save a wide format picture.
+
+```{r}
+ggsave("baseball_wide.png", width = 15, height = 9, g9)
+```
+
+This very useful function but only works for plots produced with `ggplot`. If you want to save any other plot you can produce that plot in the console. Then you will see it in the "Plots" window in RStudio, and from there you can save it using the "Export" button.
+
+![](images/Plot_export.PNG)
 
 
 # Summary

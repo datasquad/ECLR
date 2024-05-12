@@ -372,9 +372,7 @@ library(stargazer)    # to produce nice results tables</code></pre>
 <p>We will also use one function saved in a .r file. The function in
 this file will be explained below. This file is available for download
 from here: <a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/docs/stargazer_HC.R">stargazer_HC.R</a>.
-When you get to that page you will see a download button.</p>
-<p><img src="images/GitHubdownload.png" /></p>
+href="https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HC.R">stargazer_HC.R</a>.</p>
 <p>You should save this files into your working directory. You can then
 this functions available to your code using this line.</p>
 <pre class="r"><code>source(&quot;stargazer_HC.r&quot;)  # includes the robust regression display</code></pre>
@@ -386,7 +384,8 @@ href="https://www.core-econ.org/doing-economics/book/text/08-01.html">CORE
 - Doing Economics resource</a>. In particular we are using Project 8
 which deals with international data on well-being. The data represent
 several waves of data from the European Value Study (EVS). A wave means
-that the same survey is repeated at regular intervals (waves).</p>
+that the same survey is repeated at regular intervals (waves). You will
+learn more about the variables included in that dataset below.</p>
 </div>
 <div id="importing-data" class="section level1">
 <h1>Importing Data</h1>
@@ -418,11 +417,10 @@ str(wb_data)  # prints some basic info on variables</code></pre>
 ##  $ Education_2: chr [1:129515] NA NA NA NA ...
 ##  $ X028       : chr [1:129515] &quot;Full time&quot; &quot;Full time&quot; &quot;Unemployed&quot; &quot;Housewife&quot; ...
 ##  $ X047D      : num [1:129515] NA NA NA NA NA NA NA NA NA NA ...</code></pre>
-<blockquote>
-<p>You can create <code>.RData</code> objects by saving your
+<p>You can create <code>.RData</code> objects yourselves by saving your
 Environment. In this case all the objects in your environment will be
-saved and you can re-upload them as above using the load function.</p>
-</blockquote>
+saved and you can re-upload them as above using the load function. This
+is how this datafile has been created.</p>
 <p>Checking your environment you will see two objects. Along the proper
 datafile (<code>wb_data</code>) you will find <code>wb_data_Des</code>
 which contains some information for each of the variables. It will help
@@ -472,9 +470,8 @@ us to navigate the obscure variable names.</p>
 dataset. These questions will allow us to investigate whether attitudes
 to work differ between coountries and whether such differences correlate
 to different levels of self-reported happiness/life satisfaction.</p>
-<p>Details on the variables are avialable from <a
-href="https://dbk.gesis.org/EVS/Variables/compview.asp">here</a> (chose
-EVS Longitudinal Data Files 1981-2008).</p>
+<p>Details on the variables are available from <a
+href="https://europeanvaluesstudy.eu/methodology-data-documentation/previous-surveys-1981-2008/">here</a>.</p>
 </div>
 <div id="initial-data-analysis-and-summary-statistics"
 class="section level1">
@@ -483,7 +480,7 @@ class="section level1">
 analysis, understand your data. Let us investigate some of the features
 of this dataset. It has 129515 observations and 19 variables. Let’s see
 which countries are represented in our dataset.</p>
-<pre class="r"><code>unique(wb_data$S003)   # unque finds all the different values in a variable</code></pre>
+<pre class="r"><code>unique(wb_data$S003)   # unique finds all the different values in a variable</code></pre>
 <pre><code>##  [1] &quot;Belgium&quot;            &quot;Canada&quot;             &quot;Denmark&quot;           
 ##  [4] &quot;France&quot;             &quot;Germany&quot;            &quot;Iceland&quot;           
 ##  [7] &quot;Ireland&quot;            &quot;Italy&quot;              &quot;Malta&quot;             
