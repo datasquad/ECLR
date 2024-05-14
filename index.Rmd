@@ -53,7 +53,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 
 # Examples
 
-On the Examples section of this page we collate empirical examples which can be used to help students understand a range of statistical and econometric techniques. This page benefits from a range of empirical examples which have been implemented in a range of books.
+On the [Examples section](https://datasquad.github.io/ECLR/examples.html) of this page we collate empirical examples which can be used to help students understand a range of statistical and econometric techniques. This page benefits from a range of empirical examples which have been implemented in a range of books.
 
 - [The Art of Statistics](https://dspiegel29.github.io/ArtofStatistics/) by David Speigelhalter
 - [Mastering Metrics](https://www.masteringmetrics.com/) by Joshua Angrist and J&ouml;rn-Steffen Pischke
