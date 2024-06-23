@@ -11,7 +11,7 @@
 
 
 
-<title>Econom(etr)ic Computing Learning Resource</title>
+<title>Using Packages</title>
 
 <script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -342,221 +342,125 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Econom(etr)ic Computing Learning
-Resource</h1>
+<h1 class="title toc-ignore">Using Packages</h1>
 
 </div>
 
 
-<hr />
-<div id="how-to-learn-coding-for-economists" class="section level1">
-<h1>How to learn coding for economists</h1>
-<p>As an empirical economist you will have to implement statistical
-techniques. There are many different programmes that can support you in
-this. Some of these (like STATA) are very specialised to economics. Two
-very popular programming languages that are used in this field are R and
-Python.</p>
-<p>Learning any programming language can only be done by doing. Here we
-are not exposing you to a bottom-up introduction of R, but we are
-immediately exposing you to the exciting possibilities of R and the
-beauty and excitement of working with real-life data. As we do so we
-expose you to the basic tools of working with data in R and help you to
-learn these.</p>
-<p>However, you have to accept from the outset that this is going to be
-a bumby raod! The most crucial skill you will have to embrace and
-develop is that of finding solutions to problems. You will, as any
-programmer, yes, even the most experienced ones, search the internet for
-solutions to your problem. Don’t think that you can remember all the
-important commands from the top of your mind.</p>
-<p>Whenever we introduce a new R functionality we will briefly explain
-it, but importantly we will also give you links to further resources
-where you can find more usage examples and details. Also do not forget
-to use the build-in help function in R (type <code>?FUNCTIONNAME</code>
-into the Console and press Enter). This is important as it is the help
-that will be available offline as well.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Here you will learn what packages are and how to use them. R is an
+open source software and provides a lot of functionality. But as it is
+an open source software it is designed such that people can add
+functionality to the basic functionality. You will find that you will
+almost always use such extra functionality. This is delivered through
+packages.</p>
+<p>There are packages for easy data manipulation
+(<code>tidyverse</code>), for producing nice graphics
+(<code>ggplot2</code>), for loading data from a variety of data formats
+(<code>haven</code>) and for many other specific purposes. Each package
+includes a collection of functions which can eventually be used like any
+function in R.</p>
+<p>To use these functions you will have to do the following. Identify
+which package will help you in your project, find the package and
+download it to your computer. All of this you will only have to do once.
+But then you will have to load the package everytime you wish to
+actually use it in a project.</p>
 </div>
-<div id="basic-techniques" class="section level1">
-<h1>Basic techniques</h1>
-<p>In the following a few basic data techniques are introduced. Where
-you need to download csv files you will be guided to a github page from
-where you can download the respective csv file.</p>
-<table style="width:100%;">
-<colgroup>
-<col width="36%" />
-<col width="31%" />
-<col width="31%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Topic</th>
-<th align="left">Workthrough</th>
-<th align="left">Data used</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Installing R and RStudio</td>
-<td align="left"><a
-href="https://youtu.be/0HzKf-StvOE?si=obnXCLWVP7sIsDy4">Video</a></td>
-<td align="left">none</td>
-</tr>
-<tr class="even">
-<td align="left">First Steps</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_FirstSteps.html">Workthrough in
-R</a>, <a href="https://youtu.be/fPRcu9g7ZTQ">Video</a></td>
-<td align="left"><a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/data/STATS19_GM_AccData.csv">STATS19_GM_AccData.csv</a></td>
-</tr>
-<tr class="odd">
-<td align="left">Using Packages/Libraries</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_Packages.html">Workthrough in
-R</a></td>
-<td align="left">none</td>
-</tr>
-<tr class="even">
-<td align="left">Loading Data</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_DataDownload.html">Workthrough
-in R</a></td>
-<td align="left"><a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv">mroz.csv</a>,
-<a
-href="https://github.com/datasquad/ECLR/raw/gh-pages/data/Mroz.xlsx">mroz.xlsx</a></td>
-</tr>
-<tr class="odd">
-<td align="left">Basic Data Analysis</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html">Workthrough
-in R</a></td>
-<td align="left"><a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv">mroz.csv</a></td>
-</tr>
-<tr class="even">
-<td align="left">Basic Data Analysis (Tidyverse)</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html">Workthrough
-in R</a></td>
-<td align="left"><a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv">mlb1.csv</a></td>
-</tr>
-<tr class="odd">
-<td align="left">Basic Data Visualisation (ggplot)</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_GraphIntro.html">Workthrough in
-R</a></td>
-<td align="left"><a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv">mlb1.csv</a></td>
-</tr>
-</tbody>
-</table>
+<div id="which-package-and-where-to-find-it" class="section level1">
+<h1>Which package and where to find it</h1>
+<p>When you know that you wish to do a particular type of analysis, say
+estimate a vector error-correction model (VECM), you will first have to
+identify which package will support this best. In fact there will be
+many packages that will estimate VECM models. A good starting point is
+to go to your favorite internet search engine and search for something
+like “R estimating VECM which package”. You will find links to resources
+that will not only point you to particular packages but quite likely
+also to some sources that help you with the implementation. For VECM you
+will quickly find that <code>tsDyn</code> is a package that supports
+this.</p>
+<p>Another excellent starting point is the consult <a
+href="https://cran.r-project.org/">CRAN</a>. CRAN stands for “The
+Comprehensive R Archive Network” and is a place where most useful R
+packages are stored and can be dowmloaded from. On that webpage you will
+find the incredibly useful “Task Views”. These are short articles that
+introduce useful packages for a large number of areas such as databases,
+econometrics, finance and many more. One of them is called “Time Series”
+in which you will find links to useful packages for time series
+modelling and you will find that this also points to
+<code>tsDyn</code>.</p>
 </div>
-<div id="regression-models-and-related-techniques"
-class="section level1">
-<h1>Regression models and related techniques</h1>
-<table style="width:100%;">
-<colgroup>
-<col width="36%" />
-<col width="31%" />
-<col width="31%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Topic</th>
-<th align="left">Workthrough</th>
-<th align="left">Data used</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Basic regression models</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_RegressionIntro.html">Workthrough
-in R</a></td>
-<td align="left"><a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/data/WBdata.Rdata">WBdata.Rdata</a></td>
-</tr>
-<tr class="even">
-<td align="left">Predicting from a Regrssion</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html">Workthrough
-in R</a></td>
-<td align="left"><a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv">mroz.csv</a></td>
-</tr>
-</tbody>
-</table>
-<div id="dealing-with-time-series-variables" class="section level2">
-<h2>Dealing with Time-Series variables</h2>
-<table style="width:100%;">
-<colgroup>
-<col width="36%" />
-<col width="31%" />
-<col width="31%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Topic</th>
-<th align="left">Workthrough</th>
-<th align="left">Data used</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Basic TS modeling</td>
-<td align="left"><a
-href="https://datasquad.github.io/ECLR/R_TS_Modelling.html">Workthrough
-in R</a></td>
-<td align="left"><a
-href="https://github.com/datasquad/ECLR/blob/gh-pages/data/EUROSTATtimeseries.csv">EUROSTATtimeseries.csv</a></td>
-</tr>
-</tbody>
-</table>
+<div id="download-and-install-packages" class="section level1">
+<h1>Download and install packages</h1>
+<p>Now that you know which package you want, you need to download and
+install it to your computer. This only needs to be done once. But if you
+work on different computers you may have to do that multiple times. Some
+very common packages are actually already downloaded automatically, so
+it is worth checking whether the package is already installed. Find the
+Packages tab in your RStudio interface. Here you will find a list of
+packages already installed.</p>
+<div class="float">
+<img src="images/PackageTab.png" style="width:50.0%"
+alt="RStudio Package Tab" />
+<div class="figcaption">RStudio Package Tab</div>
 </div>
-<div id="special-topics" class="section level2">
-<h2>Special topics</h2>
-<table>
-<thead>
-<tr class="header">
-<th align="left">Topic</th>
-<th align="left">Workthrough</th>
-<th align="left">Data used</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Accessing nightlight data</td>
-<td align="left"><a href="">Workthrough in R</a></td>
-<td align="left"></td>
-</tr>
-</tbody>
-</table>
+<p>As there is no <code>tsDyn</code> package you will need to download
+and install it. Downloading and installing is, in R, one step. You can
+click on the “install” button and then type the name of the package you
+wish to install (see green highlight). You can see that the default is
+that RStudio looks for the package in CRAN.</p>
+<div class="float">
+<img src="images/PackageInstall.png" style="width:40.0%"
+alt="RStudio Package Installation menu." />
+<div class="figcaption">RStudio Package Installation menu.</div>
 </div>
+<p>You then click install.</p>
+<p>An alternative is to use a command line in the Console</p>
+<pre class="r"><code>install.packages(&quot;tsDyn&quot;)</code></pre>
+<p>After pressing the “install” button above or after executing the
+command line you will see a good number of output lines scrolling
+through the Console. At the end you should see something like the
+following:</p>
+<div class="float">
+<img src="images/PackageSuccess.png" style="width:50.0%"
+alt="Output for successful package installation." />
+<div class="figcaption">Output for successful package
+installation.</div>
 </div>
-<div id="examples" class="section level1">
-<h1>Examples</h1>
-<p>On the <a
-href="https://datasquad.github.io/ECLR/examples.html">Examples
-section</a> of this page we collate empirical examples which can be used
-to help students understand a range of statistical and econometric
-techniques. This page benefits from a range of empirical examples which
-have been implemented in a range of books.</p>
-<ul>
-<li><a href="https://dspiegel29.github.io/ArtofStatistics/">The Art of
-Statistics</a> by David Speigelhalter</li>
-<li><a href="https://www.masteringmetrics.com/">Mastering Metrics</a> by
-Joshua Angrist and Jörn-Steffen Pischke</li>
-<li><a href="https://economics.mit.edu/faculty/angrist/data1/mhe">Mostly
-Harmless Econometrics</a> by Joshua Angrist and Jörn-Steffen
-Pischke</li>
-</ul>
-<p>The examples from these books and others have been amended or
-re-written such that students can either use them directly or to
-facilitate adoption by lecturers.</p>
-<p>You can find <a
-href="https://datasquad.github.io/ECLR/resources.html">further resources
-here</a>.</p>
+<p>You can see that RStudio has not only downloaded the
+<code>tsDyn</code> package, but also other packages like the
+<code>foreach</code> and <code>vars</code> package. They are called
+dependencies. Packages that are used by the <code>tsDyn</code> package
+and if they are not already installed, RStudio will install them
+automatically.</p>
+</div>
+<div id="load-packages" class="section level1">
+<h1>Load packages</h1>
+<p>Once a package is installed you can use it. So lets say you are
+writing your script file with your code. It is good practice to start
+your scriptfile not only with setting your working directory but also by
+loading all packes that are being used in your script. This is done
+using the <code>library</code> function.</p>
+<pre class="r"><code>setwd(&quot;PATH TO YOUR WORKING DIRECTORY&quot;)
+
+library(tidyverse)  # package for datahandling
+library(ggplot2)    # package for graphics
+library(tsDyn)      # package for TS modelling incl. VECM</code></pre>
+<p>Should you get an error message like “Error in library(ggplot2) :
+there is no package called ‘ggplot2’”, then R is telling you that you
+have not yet installed the <code>ggplot2</code> package.</p>
+<p>Now you are really in a position to use the functionality of the
+<code>tsDyn</code> package. For instance the <code>VECM</code> function
+which allows you to estimate a vector error correction model. Use
+<code>?VECM</code> to see the help function.</p>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>Using packages is really a core skill for any R user. Most of the
+functionality you will use as a data analyst or econometrician will come
+through packages. Most packages are available from CRAN but sometimes
+you may have to install a package from github. Typically you will then
+be given instructions of how to install the package.</p>
 </div>
 
 

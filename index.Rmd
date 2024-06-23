@@ -26,6 +26,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 |:------|:-----|:-----|
 | Installing R and RStudio |  [Video](https://youtu.be/0HzKf-StvOE?si=obnXCLWVP7sIsDy4) | none
 | First Steps |  [Workthrough in R](https://datasquad.github.io/ECLR/R_FirstSteps.html), [Video](https://youtu.be/fPRcu9g7ZTQ) | [STATS19_GM_AccData.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/STATS19_GM_AccData.csv)
+| Using Packages/Libraries | [Workthrough in R](https://datasquad.github.io/ECLR/R_Packages.html) | none
 | Loading Data | [Workthrough in R](https://datasquad.github.io/ECLR/R_DataDownload.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv), [mroz.xlsx](https://github.com/datasquad/ECLR/raw/gh-pages/data/Mroz.xlsx)
 | Basic Data Analysis | [Workthrough in R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv) 
 | Basic Data Analysis (Tidyverse) | [Workthrough in R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
@@ -36,6 +37,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
 | Basic regression models | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [WBdata.Rdata](https://github.com/datasquad/ECLR/blob/gh-pages/data/WBdata.Rdata) 
+| Predicting from a Regrssion | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
 
 ## Dealing with Time-Series variables
 

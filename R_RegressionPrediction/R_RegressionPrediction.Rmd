@@ -1,0 +1,149 @@
+---
+title: "R: Predicting from a regression"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(webexercises)
+```
+
+
+```{r, echo = FALSE, results='asis'}
+# Uncomment to change widget colours:
+#style_widgets(incorrect = "goldenrod", correct = "purple")
+```
+
+# Introduction and Data Upload
+
+Here we will be using the Women's Wages dataset (mroz) which is made available [here](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv). Set your working directory and load data
+
+```{r, echo = FALSE}
+
+mydata <- read.csv("../data/Mroz.csv",na.strings = ".")  # Opens Mroz.csv from working directory
+```
+
+
+```{r, eval = FALSE}
+setwd("PATH TO YOUR WORKING DIRECTORY")   # This sets the working directory, ensure data file is in here
+
+mydata <- read.csv("Mroz.csv",na.strings = ".")  # Opens Mroz.csv from working directory
+```
+
+
+Let's look at the `wage` variable ([Variable Descriptions](http://fmwww.bc.edu/ec-p/data/wooldridge/mroz.des)):
+
+```{r}
+summary(mydata$wage)
+```
+
+In our dataset we have 325 observations that have no wage information. You will have to be clear what the reason for this is. Are they not working, or are these genuinely missing observations? The clue here is in the `inlf` variable which indicates whether a particular women is in the labour force (inlf = 1) or not (inlf = 0). All those observations for which the wage is missing coincide with (inlf = 0). You can see that from the spreadsheet or by checking
+
+```{r}
+mydata$inlf[is.na(mydata$wage)]
+```
+
+The `is.na( )` function is a very useful one. It checks whether the elements in `mydata$wage` are missing or not. It returns values of either "TRUE" if they are missing or "FALSE" for observations where the wage is not missing. When you put this function into square brackets after `mydata$inlf` then R will only return those values of the `inlf` variable where the corresponding value for the `wage` was missing (as this would produce a "TRUE" from the `is.na( )` function.) 
+
+What we are about to do is the following. We shall first estimate the following regression model: 
+
+$wage_i = \alpha_0 + \alpha_1 age_i + \alpha_2 educ_i + eps_i$
+
+on the basis of all data have wage information. Then, subsequently we shall use the estimated model to predict the wages of those who are not currently working. I.e. we'd be answering the question of how much they should expect to earn (on the basis of their age and education).
+
+Before we do this, there are two reasons of why we should look at this analysis with a pinch of salt
+
+1) Including the education variable in such an analysis is likely to be problematic as it is likely to be correlated with the error terms. This will produce biased coefficient estimates (an issue you would want to address for instance vy using an instrumental variables estimation)
+
+2) The reason why the women is not working is most likely not a random decision and therefore they are not a randomly selected subset. Therefore it may well be that the relationship we estimated between wage and the explanatory variables on the basis of those women who do work may not be the same for women who do not work.
+
+# Regression and Prediction
+
+Despite these reservations we shall use this example to demonstrate how we use R to produce predictions. Let's start by splitting our dataframe into the two subgroups (those for whom we do have wages and those for whom we don't). We shall again use the `is.na( )` function together with the `subset` function.
+
+```{r}
+mydata_est <- subset(mydata, is.na(wage) == FALSE)
+mydata_pred <- subset(mydata, is.na(wage) == TRUE)
+```
+
+Those observations for which wage is missing go into the `mydata_pred` dataframe and all others into `mydata_est`.
+
+We now run our regresison on the data in the `mydata_est` dataframe
+
+```{r}
+lm1 <- lm(wage~age+educ, data=mydata_est)
+```
+
+All the results are in `lm1`. we now use this estimated model to produce predicted wages for all those observations that are in `mydata_pred`. To do this we use the `predict()`function. We need to hand in the estimated model `lm1` and then the dataframe to which we want to apply the estimated model to produce forecasts (`mydata_pred`). This, of course, requires that this dataframe also has an `age` and `educ` variable as the `lm1` object will be looking for these variables.
+
+```{r}
+pr1 <- predict(lm1,mydata_pred)
+```
+
+Check out the new object `pr1`. It is a vector with 325 predictions for the 325 observations in `mydata_pred`. You can add this prediction to the `mydata_pred` dataframe as a `wagehat` variable using `mydata_pred$wagehat <- pr1` if that helped you for your further work.
+
+## New data
+
+Sometimes you don't have actual observations for which you want to produce forecast, but rather you have a set of conditioning values at which you want to calculate predictions. You have to create this set of `age` and `education` combinations yourself. If there was just an easy way to do that?
+
+This is not a task you are likely to do very often and therefore this is unlikely to be a memory item. So you should go to your favourite search engine and search for something like "R create combinations of two variables". You are likely to find some advice that refers to a `expand.grid` function which does appear to offer the functionality to create a dataframe with all possible combinations of two (or more) variables. Your next step could be to load the help function `?expand.grid`.
+
+It will often be useful to go to the examples in a help function and there you will find the following example.
+
+```{r, eval = FALSE}
+expand.grid(height = seq(60, 80, 5), weight = seq(100, 300, 50),
+            sex = c("Male","Female"))
+```
+
+Can you adjust this to create all possible combinations of an age variable that can take any ages between 20 and 55 and an education variable that takes values, 8, 10, 12 or 14. Save this as a dataframe called `new_df` with these two variables. If you have done this correctly you should get a dataframe with 144 observations and 2 variables
+
+
+```{r, eval = TRUE, webex.hide="Click here to see the solution"}
+new_df <- expand.grid(age = seq(20, 55, 1), educ = seq(8,14,2))
+```
+
+
+And now we apply the estimated model `lm1` to this new dataset.
+
+```{r}
+pr2 <- predict(lm1,new_df)
+```
+
+The `predict( )` function has a few extra bells and whistles you could use. You know well (or at least you should) that when we make predictions using a linear regression model we get the conditional expectation, but there will be uncertainty around this expectation. One of the options of the `predict` function allows you to get confidence intervals.
+
+Let's try the following:
+
+```{r}
+pr3 <- predict(lm1,new_df, level = 0.99, interval = "prediction")
+```
+
+here we set the confidence `level` to 0.99 (if you don't set it explicitly R will use a default of 0.95) and ask R to produce prediction intervals. Look at the resulting `pr3` object, it now has three columns. Let's look at the 1st row of `new_df` and `pr3`
+
+```{r}
+new_df[1,]
+pr3[1,]
+```
+
+The 1st of our new cases is for someone with age 20 and 8 years of education. The forecast we produced is 1.40 with lower confidence interval boundary at -6.79 and the upper boundary at 9.58. So the model tells us that there is a 99% probability that a women aged 20 with 8 years of education would earn something between -6.79 and 9.58 dollars per hour. Clearly this is a huge confidence interval and in fact it reaches into negative hourly wages which don't really make sense. There are three reasons for this. 
+
+1) We set a high level of confidence, resulting in a very wide interval
+2) Our conditioning values were at the lower range of observed ages and education levels. If we had used conditioning values closer to the respective averages we would get a narrower interval (try it!)
+3) We asked R to get us an interval for an individual by using `interval = "prediction"` which means that R also factors is the observed level of error variance.
+
+The last point is important as it allows us to distinguish this from a slightly different type of confidence interval: 
+
+
+```{r}
+pr4 <- predict(lm1,new_df, level = 0.99, interval = "confidence")
+```
+
+All that has changed is the type of interval we asked for, `interval = "confidence"`. Before discussing what the difference is, let's see how the result changes
+
+```{r}
+new_df[1,]
+pr4[1,]
+```
+
+We can see that the confidence interval is now much narrower, although we still have the same expected value of 1.40. The question this type of interval asks is the following. Assume you have many women aged 20 and with 8 years of education. What should you expect the average wage of these many women to be. Answer: With 99% probability, the model tells us, this value should be between -0.06 and 2.85.
+
+Why does predicting an average produce such a narrower prediction interval. As you are calculating averages you are averaging out individual variation and hence we don't need to take that into account. This tends to massively reduce the width of the confidence interval.

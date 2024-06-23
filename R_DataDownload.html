@@ -537,7 +537,7 @@ series has ID <code>l550</code>. Then you can download these data as
 follows:</p>
 <pre class="r"><code>ons_data &lt;- pdfetch_ONS(&quot;l55o&quot;,&quot;mm23&quot;)
 periodicity(ons_data)</code></pre>
-<pre><code>## Monthly periodicity from 1989-01-31 to 2024-03-31</code></pre>
+<pre><code>## Monthly periodicity from 1989-01-31 to 2024-05-31</code></pre>
 <p>If you are looking for a particular series you will have to go to the
 ONS homepage and search for the database and series ID information you
 need. In the helo for the <code>pdfetch_ONS</code> function you will
@@ -546,7 +546,7 @@ find a link which you can use to find the necessary information.</p>
 href="https://fred.stlouisfed.org">FRED</a> database:</p>
 <pre class="r"><code>fred_data &lt;- pdfetch_FRED(c(&quot;GFDEBTN&quot;))
 periodicity(fred_data)</code></pre>
-<pre><code>## Quarterly periodicity from 1966-01-01 to 2023-10-01</code></pre>
+<pre><code>## Quarterly periodicity from 1966-01-01 to 2024-01-01</code></pre>
 <p>The data we downloaded here is the size of the <a
 href="https://fred.stlouisfed.org/series/GFDEBTN">US public debt</a>.
 The series ID of this series is “GFDEBTN”. If you are looking for any
