@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>R, Regression Inference</title>
+
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="Datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+<li>
+  <a href="Author.html">Author</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">R, Regression Inference</h1>
+
+</div>
+
+
+<div id="standard-inference" class="section level1">
+<h1>Standard Inference</h1>
+<p>On this page you will learn how to implement regression inference
+procedures. We start by loading some relevant packages.</p>
+<pre class="r"><code>library(tidyverse)  #  for general data handling
+library(stargazer)  # package for nicer regression output
+library(AER)        # include the ARE package</code></pre>
+<p>We will use the Women’s Wages dataset (<a
+href="https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv">mroz.csv</a>).</p>
+<p>Let’s first import the data</p>
+<pre class="r"><code>setwd(&quot;YOUR/DIRECTORY/PATH&quot;)              # This sets the working directory
+mydata &lt;- read.csv(&quot;mroz.csv&quot;, na.strings = &quot;.&quot;)  # Opens mroz.csv from working directory</code></pre>
+<p>Let’s remove all observations with missing wages from the
+dataframe</p>
+<pre class="r"><code>mydata &lt;- subset(mydata, is.na(wage) == FALSE)   # remove observations with missing wages from dataset</code></pre>
+<p>or if you wish to use the <code>tidyverse</code> methodology</p>
+<pre class="r"><code>mydata &lt;- mydata %&gt;%  filter(!is.na(wage))</code></pre>
+<p>An extremely simple model would be to estimate the following OLS
+regression which models <code>lwage</code> as a function of a constant
+and experience and the log of the husband’s wage
+(<code>log(huswage)</code>).</p>
+<p><span class="math display">\[\begin{equation}
+lwage_i = \beta_0 + \beta_1 exper_i + \beta_2 log(huswage_i) + u_i
+\end{equation}\]</span></p>
+<p>This is how we estimate this model:</p>
+<pre class="r"><code>reg_ex1 &lt;- lm(lwage~exper+log(huswage),data=mydata)</code></pre>
+<p>We will introduce inference in this model.</p>
+<div id="single-coefficient-hypotheses-t-tests" class="section level2">
+<h2>Single coefficient hypotheses, t-tests</h2>
+<p>We use t-tests to test simple coefficient restrictions on regression
+coefficients. Let’s initially have a look at our regression output:</p>
+<pre class="r"><code>stargazer(reg_ex1, type = &quot;text&quot;)</code></pre>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                                lwage           
+## -----------------------------------------------
+## exper                        0.017***          
+##                               (0.004)          
+##                                                
+## log(huswage)                 0.240***          
+##                               (0.064)          
+##                                                
+## Constant                     0.540***          
+##                               (0.140)          
+##                                                
+## -----------------------------------------------
+## Observations                    428            
+## R2                             0.059           
+## Adjusted R2                    0.055           
+## Residual Std. Error      0.700 (df = 425)      
+## F Statistic           13.000*** (df = 2; 425)  
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>As you can see, this output contains t-statistics and their
+associated p-values. These test statistics and their p-values are all
+associate to the following hypothesis test: <span
+class="math inline">\(H_0:\beta_i=0;H_A:\beta_i\neq 0\)</span>. Here
+<span class="math inline">\(beta_i\)</span> represents the <span
+class="math inline">\(i\)</span>th unknown population parameter. If you
+want to test any other hypothesis (rather than the two-sided, equal to 0
+hypothesis) you will need to access the regression output in order to
+calculate this test statistic. For the moment let us think about the
+following</p>
+<p><span class="math display">\[\begin{equation}
+H_0: \beta_{exper} = 0.01; H_A: \beta_{exper} \gt  0.01
+\end{equation}\]</span></p>
+<p>We then need to calculate the test statistics</p>
+<p><span class="math display">\[\begin{equation}
+t-stat = \frac{\widehat{\beta}_{i} - 0.01}{se_{\widehat{\beta}_{i}}}
+\end{equation}\]</span></p>
+<p>We start by saving the regression summary</p>
+<pre class="r"><code>reg_ex1_sm &lt;- summary(reg_ex1)</code></pre>
+<p>This will save a lot of summary statistics in
+<code>reg_ex1_sm</code>, such as the <span
+class="math inline">\(R^2\)</span>, <span
+class="math inline">\(F-Statistic\)</span> and, importantly, the
+standard errors for the coefficient estimates. You can get to the
+regression coefficients and the associated standard errors as
+follows:</p>
+<pre class="r"><code>reg_ex1_sm$coefficients</code></pre>
+<pre><code>##              Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept)     0.535     0.1391     3.8 0.000139
+## exper           0.017     0.0042     3.9 0.000098
+## log(huswage)    0.236     0.0637     3.7 0.000232</code></pre>
+<p>Noting that the results for the <code>exper</code> variables are in
+the 2nd row we can calculate the relevant test statistic according
+to:</p>
+<pre class="r"><code>t_test = (reg_ex1_sm$coefficients[2,1]-0.01)/reg_ex1_sm$coefficients[2,2]</code></pre>
+<p>where we recognise that that the experience coefficient is saved in
+the 2nd row of coefficients. As it turns out the value of this t-test is
+1.5755. Sometime, especially if you have many explanatory variables, it
+can be awkward to have to count in which row the relevant coefficients
+are. But you can also use the name of the relevant variable as
+follows:</p>
+<pre class="r"><code>t_test = (reg_ex1_sm$coefficients[&quot;exper&quot;,1]-0.01)/reg_ex1_sm$coefficients[&quot;exper&quot;,2]</code></pre>
+<p>We do not know the p-value for this particular test yet. We will turn
+to this shortly.</p>
+</div>
+<div id="multiple-coefficient-hypotheses-f-tests"
+class="section level2">
+<h2>Multiple coefficient hypotheses, F-tests</h2>
+<p>Let’s say we are interested whether two additional variables age and
+educ should be included into the model. As a good econometrics student,
+or even master, you know that these type of statistics are calculated
+using a F test and to calculate a F-test you need residual sum of
+squares from a restricted model (that is model reg_ex1) and an
+unrestricted model. The latter we estimate here:</p>
+<pre class="r"><code>reg_ex2 &lt;- lm(lwage~exper+log(huswage)+age+educ,data=mydata)</code></pre>
+<p>You could now use output from both these regressions to calculate the
+appropriate F-test as you have both, the resricted and the unrestricted
+model. However, let’s make out live a little easier using the
+<code>lht</code> (short for linear hypothesis test).</p>
+<pre class="r"><code>lht(reg_ex2, c(&quot;age = 0&quot;,&quot; educ = 0&quot;))</code></pre>
+<pre><code>## Linear hypothesis test
+## 
+## Hypothesis:
+## age = 0
+## educ = 0
+## 
+## Model 1: restricted model
+## Model 2: lwage ~ exper + log(huswage) + age + educ
+## 
+##   Res.Df RSS Df Sum of Sq    F         Pr(&gt;F)    
+## 1    425 210                                     
+## 2    423 188  2        22 24.7 0.000000000069 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>This requires as input the unrestricted model, (here
+<code>reg_ex2</code>) and the restrictions. Here we have two
+restrictions, i.e. that the coefficients to the two variables
+<code>age</code> and <code>educ</code> are 0 and hence both variables
+are irrelevant. You could add more restrictions by adding them into the
+list <code>c( )</code>. But everything else remains unchanged.</p>
+<p>Here we find that the null hypothesis of both these variables being
+irrelevant (their parameters being equal to 0) is clearly rejected. The
+p-value is very small.</p>
+<p>The <code>lht</code> function is very convenient to use for testing
+purposes, as you will only need the unrestricted model and then add the
+restriction. Internally the function will then estimate the restricted
+model, but you as the user will not see it.</p>
+</div>
+<div id="calculating-p-values" class="section level2">
+<h2>Calculating p-values</h2>
+<p>Often you will want to calculate p-values for test statistics. We did
+that above for the t-test we calculated manually. You need a number of
+ingredients to do that:</p>
+<ul>
+<li>You need to know the value of a calculated test statistic</li>
+<li>You need to know what the distribution of the test statistic is
+(assuming that the null hypothesis is true) - this includes knowledge of
+degrees of freedom parameters if these are required for your
+distribution.</li>
+<li>You need to know whether you are working with a two-tailed,
+left-tailed or right-tailed test.</li>
+</ul>
+<p>Once you know all these ingredients you can use some R internal
+functions to get p-values.</p>
+<p>Let’s go to the t-test we calculated earlier (and saved in t_test) to
+test</p>
+<p><span class="math display">\[\begin{equation}
+H_0: \beta_{exper} = 0.01; H_A: \beta_{exper} \gt  0.01
+\end{equation}\]</span></p>
+<p>To get the p-value here (right-tailed area) we can call on the
+function <code>pt</code>, which calculates probabilities from a t
+distribution (probability under the t-distribution with 425 degrees of
+freedom to the left of the test-statistic <code>t_test</code>). The
+degrees of freedom is the number of observations minus the number of
+estimated regression coefficients (here 428-3 = 425), but we can read
+that directly from the regression output
+(<code>reg_ex1$df.residual</code>).</p>
+<pre class="r"><code>pt(t_test, reg_ex1$df.residual, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.058</code></pre>
+<p>The option <code>lower.tail = FALSE</code> ensured that we were
+looking at an upper tail probability.</p>
+<p>Of course different test statistics require different distributions.
+But the principle is the same. The relevant function to get p-values for
+a F-test is <code>pf</code>. Type <code>?pf</code> into R to get to the
+help function where you can see how to use it exactly.</p>
+<p>These probability functions exist for a range of common
+distributions. For a list see <a
+href="https://stat.ethz.ch/R-manual/R-patched/library/stats/html/Distributions.html">here</a>.</p>
+</div>
+</div>
+<div id="robust-inference" class="section level1">
+<h1>Robust inference</h1>
+<p>The t-tests and the F-tests calculated above typically are build on a
+number of assumptions (no details here, refer to your econometrics notes
+or textbook). One of these assumptions is a homoskedasticity assumption,
+assuming that error terms <span class="math inline">\(u_i\)</span> have
+a constant variance across all observations.</p>
+<p>This is an assumption that is often not justified. If that is the
+case, then the standard way of calculating standard errors needs to be
+adjusted to allow for the heteroskedasticity. If that does not happen,
+then the inference we performed above will be incorrect.</p>
+<p>The <code>AER</code> package we loaded initially will provide the
+functionality we require to adjust the inference.</p>
+<div id="heteroskedasticity-robust-t-tests" class="section level2">
+<h2>Heteroskedasticity Robust t-tests</h2>
+<p>The function needed to calculate heteroskedasticity robust standard
+errors is the <code>vconHC</code> function. This really comes from the
+<code>sandwich</code> package which is automatically loaded by the
+<code>AER</code> package.</p>
+<pre class="r"><code>vcvHC &lt;- vcovHC(reg_ex1, type = &quot;HC1&quot;)
+# the type option in this function indicates that there are several options (actually &quot;HC0&quot; to &quot;HC4&quot;). 
+# Using &quot;HC1&quot; will replicate the robust standard errors you would obtain using STATA 
+# and is a sort of industry standard </code></pre>
+<p>This saves the heteroscedastic robust standard error in vcv. In this
+case this is actually a <span class="math inline">\(3 \times 3\)</span>
+matrix which also contains covariances between the three estimated
+coefficients.</p>
+<p>Now you can calculate robust t-tests by using the estimated
+coefficients and the new standard errors (square roots of the diagonal
+elements on <code>vcvHC</code>). But note that inference using these
+standard errors is only valid for sufficiently large sample sizes
+(asymptotically normally distributed t-tests).</p>
+<p>You could manually calculate t-tests (as above) but The
+<code>coeftest</code> function provides an easier way to do that.</p>
+<pre class="r"><code>coeftest(reg_ex1, vcvHC)</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   0.53487    0.14423    3.71  0.00024 ***
+## exper         0.01668    0.00429    3.89  0.00011 ***
+## log(huswage)  0.23647    0.06540    3.62  0.00034 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>You will find the (unchanged) regression coefficients along with
+their new standard errors, t-stats and p-values.</p>
+<p>Often you may wish to produce the standard regression output (as
+above coming from the <code>stargazer</code> function), but including
+the robust standard errors. You can use the <code>stargazer_HC</code>
+function which you can import into your working directory. This file is
+available for download from here: <a
+href="https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HC.R">stargazer_HC.R</a>.
+You should save this file into your working directory. You can then make
+this functions available to your code using this line.</p>
+<pre class="r"><code>source(&quot;stargazer_HC.r&quot;)  # includes the robust regression display</code></pre>
+<p>Once you have done that you can call</p>
+<pre class="r"><code>stargazer_HC(reg_ex1, type_out = &quot;text&quot;)</code></pre>
+<pre><code>## 
+## =========================================================
+##                              Dependent variable:         
+##                     -------------------------------------
+##                                     lwage                
+## ---------------------------------------------------------
+## exper                             0.017***               
+##                                    (0.004)               
+##                                                          
+## log(huswage)                      0.240***               
+##                                    (0.065)               
+##                                                          
+## Constant                          0.540***               
+##                                    (0.140)               
+##                                                          
+## ---------------------------------------------------------
+## Observations                         428                 
+## R2                                  0.059                
+## Adjusted R2                         0.055                
+## Residual Std. Error           0.700 (df = 425)           
+## F Statistic                13.000*** (df = 2; 425)       
+## =========================================================
+## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Robust standard errors in parenthesis</code></pre>
+<p>and you can see that the standard error in parenthesis report the
+same standard errors as calculated in <code>vcv</code>.</p>
+<p>In fact you can achieve the same directly using the
+<code>stargazer</code> function in combination with the previously
+calculated <code>vcvHC</code>.</p>
+<pre class="r"><code>stargazer(reg_ex1, type=&quot;text&quot;, se=list(sqrt(diag(vcvHC))))</code></pre>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                                lwage           
+## -----------------------------------------------
+## exper                        0.017***          
+##                               (0.004)          
+##                                                
+## log(huswage)                 0.240***          
+##                               (0.065)          
+##                                                
+## Constant                     0.540***          
+##                               (0.140)          
+##                                                
+## -----------------------------------------------
+## Observations                    428            
+## R2                             0.059           
+## Adjusted R2                    0.055           
+## Residual Std. Error      0.700 (df = 425)      
+## F Statistic           13.000*** (df = 2; 425)  
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>So, if calculating heteroskedasticity robust standard errors is
+something you do frequently it is best to use the
+<code>stargazer_HC</code> function.</p>
+</div>
+<div id="heteroskedasticity-and-autocorrelation-robust-t-tests"
+class="section level2">
+<h2>Heteroskedasticity and autocorrelation Robust t-tests</h2>
+<p>When the error terms are autocorrelated (and potentially
+heteroskedastic) all of the above applies and we need to use yet another
+estimator for the coefficient estimate standard errors, sometimes called
+the Newey-West estimators. The function from the <code>sandwich</code>
+package that you want to use is called <code>vcovHAC()</code> and you
+use it as follows:</p>
+<pre class="r"><code>vcvHAC &lt;- vcovHAC(reg_ex1)</code></pre>
+<p>Everything is as for heteroskedastic error terms. I.e. you would
+print these standard errors along with the coefficient estimates,
+t-statistics and p-values from:</p>
+<pre class="r"><code>coeftest(reg_ex1, vcov = vcvHAC)</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   0.53487    0.14652    3.65  0.00029 ***
+## exper         0.01668    0.00421    3.96 0.000087 ***
+## log(huswage)  0.23647    0.06899    3.43  0.00067 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>or use them as part of a <code>stargazer</code> display:</p>
+<pre class="r"><code>stargazer(reg_ex1, type=&quot;text&quot;, se=list(sqrt(diag(vcvHAC))))</code></pre>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                                lwage           
+## -----------------------------------------------
+## exper                        0.017***          
+##                               (0.004)          
+##                                                
+## log(huswage)                 0.240***          
+##                               (0.069)          
+##                                                
+## Constant                     0.540***          
+##                               (0.150)          
+##                                                
+## -----------------------------------------------
+## Observations                    428            
+## R2                             0.059           
+## Adjusted R2                    0.055           
+## Residual Std. Error      0.700 (df = 425)      
+## F Statistic           13.000*** (df = 2; 425)  
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
+<p>Again you could also used the specifically written function
+<code>stargazer_HAC</code> which you can download from here: <a
+href="https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HAC.R">stargazer_HAC.R</a>.
+You should save this file into your working directory. You can then make
+this functions available to your code using the <code>source</code>
+function as used above.</p>
+<pre class="r"><code>source(&quot;stargazer_HAC.r&quot;)  # includes the robust regression display</code></pre>
+<p>And once you have done that you can call <code>stargazer_HAC</code>
+to generate the usual regression output but with autocorrelation- and
+heteroskedasticity-robust standard errors (aka newey-West standard
+errors).</p>
+<pre class="r"><code>stargazer_HAC(reg_ex1, type_out = &quot;text&quot;)</code></pre>
+<pre><code>## 
+## =============================================================
+##                                Dependent variable:           
+##                     -----------------------------------------
+##                                       lwage                  
+## -------------------------------------------------------------
+## exper                               0.017***                 
+##                                      (0.004)                 
+##                                                              
+## log(huswage)                        0.240***                 
+##                                      (0.069)                 
+##                                                              
+## Constant                            0.540***                 
+##                                      (0.150)                 
+##                                                              
+## -------------------------------------------------------------
+## Observations                           428                   
+## R2                                    0.059                  
+## Adjusted R2                           0.055                  
+## Residual Std. Error             0.700 (df = 425)             
+## F Statistic                  13.000*** (df = 2; 425)         
+## =============================================================
+## Note:                             *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Newey-West standard errors in parenthesis</code></pre>
+<p>Of, course, on this occasion, using an example with cross-sectional
+data, it is impossible to have autocorrelated standard errors. But R
+does not know this and hence just does as instructed.</p>
+</div>
+<div id="robust-f-tests" class="section level2">
+<h2>Robust F-tests</h2>
+<p>F-tests are also based on a homoskedasticity assumption. Fortunately,
+allowing for error heteroskedasticity works in exactly the same manner
+as above.</p>
+<p>We begin by specifying the same larger model as used in the standard
+inference section.</p>
+<pre class="r"><code>reg_ex2 &lt;- lm(lwage~exper+log(huswage)+age+educ,data=mydata)</code></pre>
+<p>At the core of tackling the heteroskedasticity issue is again the
+calculation of the correct variance-covariance matrix, which is then fed
+into the <code>lht</code> function via the <code>vcov</code> option.</p>
+<pre class="r"><code>vcvHC &lt;- vcovHC(reg_ex2, type = &quot;HC1&quot;)
+lht(reg_ex2, c(&quot;age = 0&quot;,&quot; educ = 0&quot;), vcov = vcvHC)</code></pre>
+<pre><code>## Linear hypothesis test
+## 
+## Hypothesis:
+## age = 0
+## educ = 0
+## 
+## Model 1: restricted model
+## Model 2: lwage ~ exper + log(huswage) + age + educ
+## 
+## Note: Coefficient covariance matrix supplied.
+## 
+##   Res.Df Df    F           Pr(&gt;F)    
+## 1    425                             
+## 2    423  2 29.6 0.00000000000096 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>The result remains unchanged, an overwhelming rejection of the null
+hypothesis that both <code>age</code> and <code>educ</code> are
+irrelevant.</p>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

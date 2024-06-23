@@ -37,7 +37,9 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
 | Basic regression models | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [WBdata.Rdata](https://github.com/datasquad/ECLR/blob/gh-pages/data/WBdata.Rdata) 
-| Predicting from a Regrssion | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
+| Predicting from a Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
+| Regression Inference | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionInference.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
+| IV Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIV.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
 
 ## Dealing with Time-Series variables
 

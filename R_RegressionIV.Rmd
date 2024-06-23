@@ -1,0 +1,185 @@
+---
+title: "R, Instrumental Variables Estimations"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+# Introduction
+
+In this Section we will demonstrate how to use instrumental variables (IV) estimation (or better Two-Stage-Least Squares, 2SLS) to estimate the parameters in a linear regression model. If you want some more theoretical background on why we may need to use these techniques you may want to refer to any decent Econometrics textbook.
+
+Here we will be very short on the problem setup and big on the implementation! When you estimate a linear regression model, say
+
+$y = \alpha_0 + \alpha_1 x_1 + \alpha_2 x_2 + \alpha_3 x_3 + u$
+
+the most crucial of all assumptions you got to make is that the explanatory variables $x_1$ to $x_3$ are uncorrelated to the error term $u$. Of course, the error term $u$ is unobservable and hence it is impossible to empirically test this assumption (notwithstanding a related test introduced below) and you ought to think very carefully whether there may be any reason that makes it likely that this assumption might be breached. Seasoned econometricians would immediately rattle down simultaneity bias, measurement error and omitted relevant variables as the three causes for this to happen.
+
+In some such situations you can actually fix the problem, e.g. by including additional explanatory variables into the model, but in others that is impossible and you need to accept that there is a high probability that, say, $x_3$ is correlated with $u$. We would then call $x_3$ an endogenous variable and all those explanatory variables that do not have that issue are called exogenous. If you still persist with estimating that model by Ordinary Least Squares (OLS) you will have to accept that your estimated coefficients come from a random distribution that on average will not produce the correct (yet unknown) value, in technical lingo, the estimators are biased.
+
+To the rescue come instrumental variables (IV) estimation. What we need to use this technique is what is called an instrumental variable. And if only $x_3$ is potentially correlated with the error term we need at least one such variable, but more could be useful as well. You always need at least as many instruments as you have endogenous variables. These instruments need to have the following crucial properties, they need to be correlated to the endogenous variable, uncorrelated to the error term and shouldn't be part of the model explaining the dependent variable $y$.
+
+# The basic idea of IV/2SLS
+
+Here is a brief outline of what happens when you use IV, in the form of a TSLS regression.
+
+1. Take all of your endogenous variables and run regressions with these as the dependent variable and all other exogenous and all instrumental variables as explanatory variables. From these regressions you get the predicted values for all your endogenous variables, e.g. $\hat{x}_3$. These regression(s) are called first stage regressions. The idea is that, as all explanatory variables in this first stage regression are assumed to be uncorrelated with the error term, the variable $\hat{x}_3$ is also uncorrelated with the unobserved error term $u$. All variation in $x_3$ that was correlated with the error term $u$ must have ended up in the error term of this auxilliary regression.
+1. In the second stage of the procedure we return to our original regression model and replace $x_3$ with $\hat{x}_3$ and then estimate values for the parameters $\alpha_0$ to $\alpha_3$ by OLS. These estimators, at least for sufficiently large samples and sufficiently large correlation of the instruments with endogenous variables, will deliver unbiased estimates (technical lingo: consistent).
+
+This sounds pretty easy. There is a slight complication, the standard errors that the second stage OLS regression delivers are incorrect and we need to calculate different standard errors. But that will happen automatically in the procedure below.
+
+# Implementation in R
+
+The R Package needed is the AER package which is a package also recommended for use in the context of estimating robust standard errors. Included in that package is a function called ivreg which we will use. We explain how to use it by walking through an example.
+
+If you use IV a lot in your work, you may well want to pack all of the following into one convenient function (just as Alan Fernihough has done [here](https://diffuseprior.wordpress.com/2012/05/03/an-ivreg2-function-for-r/). But if you are applying IV for the first time it is actually very instructive to go through some of the steps in a bit more detail. It is is also good to see that really there is not a lot of technical magic ... just a great idea!
+
+
+```{r}
+library(tidyverse)  #  for general data handling
+library(stargazer)  # package for nicer regression output
+library(AER)        # include the ARE package
+```
+
+## Example 
+
+We will use the Women's Wages dataset to illustrate the use of the IV regression ([mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)). The dependent variable which we use here is the log wage `lwage` and we are interested in whether the years of education (`educ`) has a positive influence on this log wage (here we mirror the analysis in Wooldridge's Example 15.1 in his Introductory Econometrics textbook).
+
+Let's first import the data
+
+```{r, echo = FALSE}
+mydata <- read.csv("data/mroz.csv", na.strings = ".")  # Opens mroz.csv from working directory
+```
+
+
+```{r, eval = FALSE}
+setwd("YOUR/DIRECTORY/PATH")              # This sets the working directory
+mydata <- read.csv("mroz.csv", na.strings = ".")  # Opens mroz.csv from working directory
+```
+
+And also let's remove all observations with missing wages from the dataframe
+
+```{r}
+mydata <- subset(mydata, is.na(wage) == FALSE)   # remove observations with missing wages from dataset
+```
+
+or if you wish to use the `tidyverse` methodology
+
+```{r}
+mydata <- mydata %>%  filter(!is.na(wage))
+```
+
+An extremely simple model would be to estimate the following OLS regression which models lwage as a function of a constant and educ.
+
+```{r}
+reg_ex0 <- lm(lwage~educ,data=mydata)
+stargazer(reg_ex0, type = "text", title = "OLS estimation")
+```
+
+This seems to indicate that every additional year of education increases the wage by almost 11% (recall the interpretation of a coefficient in a log-lin model!). The issue with this sort of model is that education is most likely to be correlated with individual characteristics that are important for the person's wage, but not modeled (and hence captured by the error term).
+
+What we need is an instrument that meets the conditions outlined above and here and as in Wooldridge's example we use the father's education as an instrument. The way to do this is as follows:
+
+```{r}
+reg_iv0 <- ivreg(lwage~educ|fatheduc,data=mydata)
+stargazer(reg_iv0, type = "text", title = "IV estimation")
+```
+
+The `ivreg` function works very similar to the `lm` function (as usual use `?ivreg` to get more detailed help). In fact the only difference is the specification of the instrument `|fatheduc`. The instruments follow the model specification. Behind the vertical lines we find the instrument used to instrument the educ variable (The order of the variables after the vertical line doesn't matter).
+
+Clearly, the effect of an additional year of education, has significantly dropped and is now only marginally significant. It is, of course, often a feature of IV estimation that the estimated standard errors are significantly larger than those of the OLS estimators. The size of the standard error depends a lot on the strength of the relation between the endogenous explanatory variables which we can be checked by looking at the Rsquared of the regression of educ on fatheduc (Which turns out to be 0.1958 if you check it.).
+
+In order to illustrate the full functionality of the ivreg procedure we re-estimate the model with extra explanatory variables and more instruments than endogenous variables which means that really we are applying a 2SLS estimation (This is the example estimated in Wooldridge's Example 15.5). Let's start by estimating this model by OLS (as we need this result later, but result not shown here).
+
+```{r}
+reg_1 <- lm(lwage~educ+age+exper+expersq, data=mydata) # OLS estimation
+stargazer(reg_1, type = "text", title = "OLS estimation")
+```
+
+The estimated coefficient for educ is 0.108 with standard error 0.014 (the rest of the results are not shown). Then we estimate the TSLS regression with `fatheduc` and `matheduc` as instruments.
+
+```{r}
+reg_iv1 <- ivreg(lwage~educ+age+exper+expersq|fatheduc+motheduc+age+exper+expersq,data=mydata)
+stargazer(reg_1, reg_iv1, type = "text", title = "OLS and IV estimation")
+```
+
+Before the vertical line we can see the model that is to be estimeted, `lwage~educ+age+exper+expersq`. All the action is after the vertical line. First we see the instrumental variables used to instrument educ, `fatheduc+motheduc`; this is followed by all the explanatory variables that are considered exogenous, `age+exper+expersq`.
+
+When you have a model with a lot of variables this way of calling an IV estimation can be quite unwieldy as you have to replicate all the exogenous variables. A slightly different, more economical way of asking R to do the same thing is as follows
+
+```{r}
+reg_iv1b <- ivreg(lwage~educ+age+exper+expersq|.-educ+fatheduc+motheduc,data=mydata)
+```
+
+After the vertical line you are basically telling R which variable to remove from the instrument set (the endogenous variable, `.-educ`) and which to add (`+fatheduc+motheduc`). Make sure you don't forget the decimal point straight after the vertical line when you use this way of specifying the instruments. The results in `reg_iv1` and `reg_ivb` are identical.
+
+# IV related Testing procedures
+
+One feature of IV estimations is that in general it is an inferior estimator of $\beta$ if all explanatory variables are exogenous. In that case, assuming that all other Gauss-Markov assumptions are met, the OLS estimator is the BLUE estimator. In other words, IV estimators have larger standard errors for the coefficient estimates. Therefore, one would really like to avoid having to rely on IV estimators, unless, of course, they are the only estimators that deliver consistent estimates.
+
+So there are usually three tests one performs in this context. Firstly a test to examine that the chosen instruments are indeed sufficiently strong correlated to the endogenous variable (Instrument relevance); whether the potentially endogenous variable is indeed endogenous (Testing for exogeneity) and finally that the instruments are indeed exogenous.
+
+## Instrument relevance
+
+The entire 2SLS procedure hinges on the instruments chosen being useful instruments. Useful here means that they are sufficiently strongly correlated to the endogenous variable.
+
+We can use the first stage regression (described in the Introduction) to test whether that is indeed the case. So here is the first stage regression:
+
+```{r}
+# First Stage
+reg_fs1 <- lm(educ~age+exper+expersq+fatheduc+motheduc,data=mydata)
+```
+
+What we now need to know is whether the instruments `fatheduc` and `motheduc` explain a sufficient amount of variation in `educ`. We can use a standard F-test to test this. Here is the easiest way to implement this using the `lht` (short for linear hypothesis testing) function. We are basically testing the null hypothesis that the coefficients to `fatheduc` and `motheduc` are equal to 0.
+
+```{r}
+lht(reg_fs1, c("fatheduc = 0"," motheduc = 0"))
+```
+
+The value of the F_test is 54.943 with an extremely low p-value. So in this case we can clearly reject the null hypothesis that the instruments are irrelevant.
+
+## Testing for exogeneity
+
+You really only want to use IV/TSLS if you are really dealing with endogenous explanatory variables. If the variable you suspected wasn't endogenous, then IV only has disadvantages compared to OLS. Most crucially it will deliver much larger standard errors. For this reason you really want to make sure that you do have an endogeneity problem.
+
+The celebrated test to use in this case is the Hausman test. Here we use a slightly different implementation to the original Hausman test, the so-called Hausman-Wu test.
+
+In the end it is pretty straighforward and you only need simple regressions to implement it. In a first step you run the first step regression(s) of the TSLS procedure, which we did earlier and saved the results in `reg_fs1`. In a second step you add the residual(s) from this first step into the original model:
+
+```{r}
+reg_HSW1 <- lm(lwage~educ+age+exper+expersq+reg_fs1$residuals,data=mydata)
+```
+
+Now we need to compare this result to the one we got from the original model reg_2. If the educ is indeed endogenous, then the first stage regression should have isolated the variation of `educ` that was correlated with error term in the residual of the first stage regression. In that case the included `reg_fs1$residuals` should be relevant. As there may potentially be more than one endogenous variable and hence more than one first stage residual we use an F-test to test the null hypothesis that these residuals are irrelevant (and hence endogeneity not being a problem).
+
+```{r}
+lht(reg_HSW1, c("reg_fs1$residuals = 0"))
+```
+
+The result is a p-value of 0.094. So at an $\alpha = 0.05$ we just fail to reject the null of $educ$ being exogenous, however, at an $\alpha = 0.10$ we would reject endogeneity of `educ`. So the case for using IV or OLS is not clearcut here. 
+
+### Sargan test for instrument validity
+
+One crucial property of instruments is that they ought to be uncorrelated to the regression error terms $u$. Instrument exogeneity is set as the null hypothesis of this following test with the alternative hypothesis being that the instruments are endogenous. This test can only be applied if you have more instruments than endogenous variables. It is therefore sometimes also called the test for overidentifying restrictions.
+
+The test is rather simple to implement. Take the residuals from the 2SLS regression `reg_iv1$residuals` and use them as the dependent variable in a new regression in which you regress them on all exogenous explanatory variables and all instruments.
+
+```{r}
+reg_sargan1 <- lm(reg_iv1$residuals~age+exper+expersq+fatheduc+motheduc,data=mydata)
+reg_sargan_sm <- summary(reg_sargan1)
+```
+
+If the instruments are valid (null hypothesis), they should be uncorrelated to these residuals and hence we apply the following $\chi^2$ test. We use the $R^2$ of this regression and calculate $n*R^2$.
+
+```{r}
+Sargan_test <- reg_sargan_sm$r.squared*nrow(mydata)
+print(Sargan_test)
+print(1-pchisq(Sargan_test,1))  # prints p-value
+```
+
+We find that the p-value of this test is 0.5260 and hence we do not reject the null hypothesis of instrument validity. The p-value was obtained from a $\chi^2$ distribution with one degree of freedom. That was one here as we had two instruments for one endogenous variable (2-1) or one overidentifying restriction.

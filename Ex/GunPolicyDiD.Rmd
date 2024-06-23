@@ -38,7 +38,7 @@ library(coefplot)     # to create coefficient plots
 library(AER)          # to use lht
 ```
 
-We will later apply regression analysis in order to implement the Difference-in-Difference method. Here we will use the standard regression function in R, the `lm` function, but to implement the proper inference procedure (heteroskedasticity robust standard errors) we will display the regression results with the `stargazer_hc` function. This is an amended form of the `stargazer` function. The `stargazer_hc` function can be downloaded from here. Save it into your working directory such that you can load it using the following command:
+We will later apply regression analysis in order to implement the Difference-in-Difference method. Here we will use the standard regression function in R, the `lm` function, but to implement the proper inference procedure (heteroskedasticity robust standard errors) we will display the regression results with the `stargazer_hc` function. This is an amended form of the `stargazer` function. The `stargazer_hc` function can be downloaded from [here](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HC.R). Save it into your working directory such that you can load it using the following command:
 
 ```{r}
 source("Stargazer_HC.R")

@@ -4,6 +4,9 @@ stargazer_HC <- function(..., type_out = "text", type_HC = "HC1",omit.stat = NUL
   # type_HC carries through tothe vcovHC function, default: "HC1" (or Stata equivalent)
   # omit_stat (default = NULL) will be handed through to stargazer, specify which stats you 
   #      don't want to see. see ?stargazer help for more help
+  # Author: Ralf Becker, based on Marek Hlavac's stargazer package
+  # https://CRAN.R-project.org/package=stargazer
+  # 
   mod_all <- list(...)  # model collection should be a list of models
   n_mod <- length(mod_all)
   rep_se <- list(NULL)  # use this to replace se

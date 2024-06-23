@@ -620,26 +620,26 @@ heteroskedasticity and autocorrelation robust standard errors,
 <pre class="r"><code>mod1 &lt;- lm(ur_female.Close~real.GDP,data = reg_data)
 stargazer_HAC(mod1)</code></pre>
 <pre><code>## 
-## =========================================================
-##                              Dependent variable:         
-##                     -------------------------------------
-##                                ur_female.Close           
-## ---------------------------------------------------------
-## real.GDP                         -0.00001***             
-##                                   (0.00000)              
-##                                                          
-## Constant                          9.700***               
-##                                    (0.620)               
-##                                                          
-## ---------------------------------------------------------
-## Observations                         123                 
-## R2                                  0.270                
-## Adjusted R2                         0.270                
-## Residual Std. Error           1.100 (df = 121)           
-## F Statistic                46.000*** (df = 1; 121)       
-## =========================================================
-## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                     Robust standard errors in parenthesis</code></pre>
+## =============================================================
+##                                Dependent variable:           
+##                     -----------------------------------------
+##                                  ur_female.Close             
+## -------------------------------------------------------------
+## real.GDP                           -0.00001***               
+##                                     (0.00000)                
+##                                                              
+## Constant                            9.700***                 
+##                                      (0.640)                 
+##                                                              
+## -------------------------------------------------------------
+## Observations                           123                   
+## R2                                    0.270                  
+## Adjusted R2                           0.270                  
+## Residual Std. Error             1.100 (df = 121)             
+## F Statistic                  46.000*** (df = 1; 121)         
+## =============================================================
+## Note:                             *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Newey-West standard errors in parenthesis</code></pre>
 <p>This seems to suggest that higher GDP, significantly, reduces the
 unemployment rate.</p>
 <p>Let’s have a look at the residuals.</p>
@@ -687,26 +687,26 @@ reg_data$d_lur &lt;- 100*diff(log(reg_data$ur_female.Close)) </code></pre>
 <pre class="r"><code>mod4 &lt;- lm(d_lur~d_lgdp,data = reg_data)
 stargazer_HAC(mod4)</code></pre>
 <pre><code>## 
-## =========================================================
-##                              Dependent variable:         
-##                     -------------------------------------
-##                                     d_lur                
-## ---------------------------------------------------------
-## d_lgdp                             -0.220                
-##                                    (0.140)               
-##                                                          
-## Constant                           -0.450                
-##                                    (0.380)               
-##                                                          
-## ---------------------------------------------------------
-## Observations                         122                 
-## R2                                  0.019                
-## Adjusted R2                         0.011                
-## Residual Std. Error           4.100 (df = 120)           
-## F Statistic                  2.400 (df = 1; 120)         
-## =========================================================
-## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                     Robust standard errors in parenthesis</code></pre>
+## =============================================================
+##                                Dependent variable:           
+##                     -----------------------------------------
+##                                       d_lur                  
+## -------------------------------------------------------------
+## d_lgdp                               -0.220                  
+##                                      (0.240)                 
+##                                                              
+## Constant                             -0.450                  
+##                                      (0.430)                 
+##                                                              
+## -------------------------------------------------------------
+## Observations                           122                   
+## R2                                    0.019                  
+## Adjusted R2                           0.011                  
+## Residual Std. Error             4.100 (df = 120)             
+## F Statistic                    2.400 (df = 1; 120)           
+## =============================================================
+## Note:                             *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Newey-West standard errors in parenthesis</code></pre>
 <p>There is no more statistically significant relationship between GDP
 growth and the growth in the unemployment rate.</p>
 <p>Let’s have a look at the residuals.</p>
@@ -780,7 +780,7 @@ stargazer_HAC(mod5)</code></pre>
 ## F Statistic         530,858,649,264,012,816,464,000,622,642,648.000*** (df = 2; 119)
 ## ====================================================================================
 ## Note:                                                    *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                                                Robust standard errors in parenthesis</code></pre>
+##                                            Newey-West standard errors in parenthesis</code></pre>
 <pre class="r"><code>par(mfrow=c(1,2))
 plot(mod5$residuals, type = &quot;l&quot;,main = &quot;mod5 - Residuals&quot;)
 acf(mod5$residuals)</code></pre>
@@ -829,7 +829,7 @@ stargazer_HAC(mod6)</code></pre>
 ## F Statistic         530,858,649,264,012,816,464,000,622,642,648.000*** (df = 2; 119)
 ## ====================================================================================
 ## Note:                                                    *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                                                Robust standard errors in parenthesis</code></pre>
+##                                            Newey-West standard errors in parenthesis</code></pre>
 <pre class="r"><code>par(mfrow=c(1,2))
 plot(mod6$residuals, type = &quot;l&quot;,main = &quot;mod6 - Residuals&quot;)
 acf(mod6$residuals)</code></pre>
@@ -871,7 +871,7 @@ stargazer_HAC(mod7)</code></pre>
 ## F Statistic         1,070,617,863,298,088,691,546,248,426,880,480.000*** (df = 1; 120)
 ## ======================================================================================
 ## Note:                                                      *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                                                  Robust standard errors in parenthesis</code></pre>
+##                                              Newey-West standard errors in parenthesis</code></pre>
 <pre class="r"><code>par(mfrow=c(1,2))
 plot(mod7$residuals, type = &quot;l&quot;,main = &quot;mod7 - Residuals&quot;)
 acf(mod7$residuals)</code></pre>
@@ -1051,26 +1051,26 @@ us run a regression between two of the clearly nonstationary series:</p>
 <pre class="r"><code>mod_sr &lt;- lm(Ene.Cons.PO~Organic.Farming.GE, data = data_sr)
 stargazer_HAC(mod_sr)</code></pre>
 <pre><code>## 
-## =========================================================
-##                              Dependent variable:         
-##                     -------------------------------------
-##                                  Ene.Cons.PO             
-## ---------------------------------------------------------
-## Organic.Farming.GE                2.900***               
-##                                    (0.410)               
-##                                                          
-## Constant                          76.000***              
-##                                    (2.500)               
-##                                                          
-## ---------------------------------------------------------
-## Observations                         22                  
-## R2                                  0.710                
-## Adjusted R2                         0.690                
-## Residual Std. Error            3.200 (df = 20)           
-## F Statistic                49.000*** (df = 1; 20)        
-## =========================================================
-## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                     Robust standard errors in parenthesis</code></pre>
+## =============================================================
+##                                Dependent variable:           
+##                     -----------------------------------------
+##                                    Ene.Cons.PO               
+## -------------------------------------------------------------
+## Organic.Farming.GE                  2.900***                 
+##                                      (0.480)                 
+##                                                              
+## Constant                            76.000***                
+##                                      (2.500)                 
+##                                                              
+## -------------------------------------------------------------
+## Observations                           22                    
+## R2                                    0.710                  
+## Adjusted R2                           0.690                  
+## Residual Std. Error              3.200 (df = 20)             
+## F Statistic                  49.000*** (df = 1; 20)          
+## =============================================================
+## Note:                             *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Newey-West standard errors in parenthesis</code></pre>
 <p>On the face of it, there seems to be a clear, statistically
 significant relationship between these series. This is a spurious
 regression. One way how you can unmask the spuriousness, if both series
@@ -1078,28 +1078,28 @@ are trending is to include a time trend</p>
 <pre class="r"><code>mod_sr2 &lt;- lm(Ene.Cons.PO~Organic.Farming.GE+index(data_sr), data = data_sr)
 stargazer_HAC(mod_sr2,type_out = &quot;text&quot;, omit.stat = &quot;f&quot;)</code></pre>
 <pre><code>## 
-## =========================================================
-##                              Dependent variable:         
-##                     -------------------------------------
-##                                  Ene.Cons.PO             
-## ---------------------------------------------------------
-## Organic.Farming.GE                  1.100                
-##                                    (1.300)               
-##                                                          
-## index(data_sr)                      0.001                
-##                                    (0.001)               
-##                                                          
-## Constant                          67.000***              
-##                                    (7.000)               
-##                                                          
-## ---------------------------------------------------------
-## Observations                         22                  
-## R2                                  0.740                
-## Adjusted R2                         0.710                
-## Residual Std. Error            3.100 (df = 19)           
-## =========================================================
-## Note:                         *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
-##                     Robust standard errors in parenthesis</code></pre>
+## =============================================================
+##                                Dependent variable:           
+##                     -----------------------------------------
+##                                    Ene.Cons.PO               
+## -------------------------------------------------------------
+## Organic.Farming.GE                    1.100                  
+##                                      (1.900)                 
+##                                                              
+## index(data_sr)                        0.001                  
+##                                      (0.001)                 
+##                                                              
+## Constant                            67.000***                
+##                                     (10.000)                 
+##                                                              
+## -------------------------------------------------------------
+## Observations                           22                    
+## R2                                    0.740                  
+## Adjusted R2                           0.710                  
+## Residual Std. Error              3.100 (df = 19)             
+## =============================================================
+## Note:                             *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+##                     Newey-West standard errors in parenthesis</code></pre>
 <p>Now we can see that the obvious relationship between the two
 variables has disappeared (as it should be).</p>
 <p>We may also want to look at running a model in the differences of

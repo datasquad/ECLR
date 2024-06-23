@@ -1,0 +1,277 @@
+---
+title: "R, Regression Inference"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, messages = FALSE)
+```
+
+# Standard Inference
+
+On this page you will learn how to implement regression inference procedures. We start by loading some relevant packages.
+
+```{r}
+library(tidyverse)  #  for general data handling
+library(stargazer)  # package for nicer regression output
+library(AER)        # include the ARE package
+```
+
+We will use the Women's Wages dataset ([mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)). 
+
+Let's first import the data
+
+```{r, echo = FALSE}
+mydata <- read.csv("data/mroz.csv", na.strings = ".")  # Opens mroz.csv from working directory
+```
+
+
+```{r, eval = FALSE}
+setwd("YOUR/DIRECTORY/PATH")              # This sets the working directory
+mydata <- read.csv("mroz.csv", na.strings = ".")  # Opens mroz.csv from working directory
+```
+
+Let's remove all observations with missing wages from the dataframe
+
+```{r}
+mydata <- subset(mydata, is.na(wage) == FALSE)   # remove observations with missing wages from dataset
+```
+
+or if you wish to use the `tidyverse` methodology
+
+```{r}
+mydata <- mydata %>%  filter(!is.na(wage))
+```
+
+An extremely simple model would be to estimate the following OLS regression which models `lwage` as a function of a constant and experience and the log of the husband's wage (`log(huswage)`).
+
+\begin{equation}
+lwage_i = \beta_0 + \beta_1 exper_i + \beta_2 log(huswage_i) + u_i
+\end{equation}
+
+This is how we estimate this model:
+
+```{r}
+reg_ex1 <- lm(lwage~exper+log(huswage),data=mydata)
+```
+
+We will introduce inference in this model.
+
+## Single coefficient hypotheses, t-tests
+
+We use t-tests to test simple coefficient restrictions on regression coefficients. Let's initially have a look at our regression output:
+
+```{r}
+stargazer(reg_ex1, type = "text")
+```
+
+As you can see, this output contains t-statistics and their associated p-values. These test statistics and their p-values are all associate to the following hypothesis test: $H_0:\beta_i=0;H_A:\beta_i\neq 0$. Here $beta_i$ represents the $i$th unknown population parameter. If you want to test any other hypothesis (rather than the two-sided, equal to 0 hypothesis) you will need to access the regression output in order to calculate this test statistic. For the moment let us think about the following
+
+\begin{equation}
+H_0: \beta_{exper} = 0.01; H_A: \beta_{exper} \gt  0.01
+\end{equation}
+
+We then need to calculate the test statistics
+
+\begin{equation}
+t-stat = \frac{\widehat{\beta}_{i} - 0.01}{se_{\widehat{\beta}_{i}}}
+\end{equation}
+
+We start by saving the regression summary
+
+```{r}
+reg_ex1_sm <- summary(reg_ex1)
+```
+
+This will save a lot of summary statistics in `reg_ex1_sm`, such as the $R^2$, $F-Statistic$ and, importantly, the standard errors for the coefficient estimates. You can get to the regression coefficients and the associated standard errors as follows:
+
+```{r}
+reg_ex1_sm$coefficients
+```
+
+Noting that the results for the `exper` variables are in the 2nd row we can calculate the relevant test statistic according to:
+
+```{r}
+t_test = (reg_ex1_sm$coefficients[2,1]-0.01)/reg_ex1_sm$coefficients[2,2]
+```
+
+where we recognise that that the experience coefficient is saved in the 2nd row of coefficients. As it turns out the value of this t-test is 1.5755. Sometime, especially if you have many explanatory variables, it can be awkward to have to count in which row the relevant coefficients are. But you can also use the name of the relevant variable as follows:
+
+```{r}
+t_test = (reg_ex1_sm$coefficients["exper",1]-0.01)/reg_ex1_sm$coefficients["exper",2]
+```
+
+We do not know the p-value for this particular  test yet. We will turn to this shortly.
+
+
+## Multiple coefficient hypotheses, F-tests
+
+Let's say we are interested whether two additional variables age and educ should be included into the model. As a good econometrics student, or even master, you know that these type of statistics are calculated using a F test and to calculate a F-test you need residual sum of squares from a restricted model (that is model reg_ex1) and an unrestricted model. The latter we estimate here:
+
+
+```{r}
+reg_ex2 <- lm(lwage~exper+log(huswage)+age+educ,data=mydata)
+```
+
+You could now use output from both these regressions to calculate the appropriate F-test as you have both, the resricted and the unrestricted model. However, let's make out live a little easier using the `lht` (short for linear hypothesis test).
+
+```{r}
+lht(reg_ex2, c("age = 0"," educ = 0"))
+```
+
+This requires as input the unrestricted model, (here `reg_ex2`) and the restrictions. Here we have two restrictions, i.e. that the coefficients to the two variables `age` and `educ` are 0 and hence both variables are irrelevant. You could add more restrictions by adding them into the list `c( )`.  But everything else remains unchanged.
+
+Here we find that the null hypothesis of both these variables being irrelevant (their parameters being equal to 0) is clearly rejected. The p-value is very small.
+
+The `lht` function is very convenient to use for testing purposes, as you will only need the unrestricted model and then add the restriction. Internally the function will then estimate the restricted model, but you as the user will not see it.
+
+## Calculating p-values
+
+Often you will want to calculate p-values for test statistics. We did that above for the t-test we calculated manually. You need a number of ingredients to do that:
+
+* You need to know the value of a calculated test statistic
+* You need to know what the distribution of the test statistic is (assuming that the null hypothesis is true) - this includes knowledge of degrees of freedom parameters if these are required for your distribution.
+* You need to know whether you are working with a two-tailed, left-tailed or right-tailed test.
+
+Once you know all these ingredients you can use some R internal functions to get p-values. 
+
+Let's go to the t-test we calculated earlier (and saved in t_test) to test 
+
+\begin{equation}
+H_0: \beta_{exper} = 0.01; H_A: \beta_{exper} \gt  0.01
+\end{equation}
+
+To get the p-value here (right-tailed area) we can call on the function `pt`, which calculates probabilities from a t distribution (probability under the t-distribution with 425 degrees of freedom to the left of the test-statistic `t_test`). The degrees of freedom is the number of observations minus the number of estimated regression coefficients (here 428-3 = 425), but we can read that directly from the regression output (`reg_ex1$df.residual`).
+
+
+```{r}
+pt(t_test, reg_ex1$df.residual, lower.tail = FALSE)
+```
+
+The option `lower.tail = FALSE` ensured that we were looking at an upper tail probability.
+
+Of course different test statistics require different distributions. But the principle is the same. The relevant function to get p-values for a F-test is `pf`. Type `?pf` into R to get to the help function where you can see how to use it exactly.
+
+These probability functions exist for a range of common distributions. For a list see [here](https://stat.ethz.ch/R-manual/R-patched/library/stats/html/Distributions.html).
+
+# Robust inference
+
+The t-tests and the F-tests calculated above typically are build on a number of assumptions (no details here, refer to your econometrics notes or textbook). One of these assumptions is a homoskedasticity assumption, assuming that error terms $u_i$ have a constant variance across all observations.
+
+This is an assumption that is often not justified. If that is the case, then the standard way of calculating standard errors needs to be adjusted to allow for the heteroskedasticity. If that does not happen, then the inference we performed above will be incorrect.
+
+The `AER` package we loaded initially will provide the functionality we require to adjust the inference.
+
+
+## Heteroskedasticity Robust t-tests
+
+
+The function needed to calculate heteroskedasticity robust standard errors is the `vconHC` function. This really comes from the `sandwich` package which is automatically loaded by the `AER` package.
+
+```{r}
+vcvHC <- vcovHC(reg_ex1, type = "HC1")
+# the type option in this function indicates that there are several options (actually "HC0" to "HC4"). 
+# Using "HC1" will replicate the robust standard errors you would obtain using STATA 
+# and is a sort of industry standard 
+```
+
+This saves the heteroscedastic robust standard error in vcv. In this case this is actually a $3 \times 3$ matrix which also contains covariances between the three estimated coefficients.
+
+Now you can calculate robust t-tests by using the estimated coefficients and the new standard errors (square roots of the diagonal elements on `vcvHC`). But note that inference using these standard errors is only valid for sufficiently large sample sizes (asymptotically normally distributed t-tests). 
+
+You could manually calculate t-tests (as above) but The `coeftest` function provides an easier way to do that.
+
+```{r}
+coeftest(reg_ex1, vcvHC)
+```
+
+You will find the (unchanged) regression coefficients along with their new standard errors, t-stats and p-values.
+
+Often you may wish to produce the standard regression output (as above coming from the `stargazer` function), but including the robust standard errors. You can use the `stargazer_HC` function which you can import into your working directory. This file is available for download from here: [stargazer_HC.R](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HC.R). You should save this file into your working directory. You can then make this functions available to your code using this line.
+
+```{r, echo = FALSE}
+source("docs/stargazer_HC.r")  # includes the robust regression display
+```
+
+```{r, eval = FALSE}
+source("stargazer_HC.r")  # includes the robust regression display
+```
+
+Once you have done that you can call
+
+```{r}
+stargazer_HC(reg_ex1, type_out = "text")
+```
+
+and you can see that the standard error in parenthesis report the same standard errors as calculated in `vcv`.
+
+In fact you can achieve the same directly using the `stargazer` function in combination with the previously calculated `vcvHC`.
+
+```{r}
+stargazer(reg_ex1, type="text", se=list(sqrt(diag(vcvHC))))
+```
+
+So, if calculating heteroskedasticity robust standard errors is something you do frequently it is best to use the `stargazer_HC` function.
+
+## Heteroskedasticity and autocorrelation Robust t-tests
+
+When the error terms are autocorrelated (and potentially heteroskedastic) all of the above applies and we need to use yet another estimator for the coefficient estimate standard errors, sometimes called the Newey-West estimators. The function from the `sandwich` package that you want to use is called `vcovHAC()` and you use it as follows:
+
+```{r}
+vcvHAC <- vcovHAC(reg_ex1)
+```
+
+Everything is as for heteroskedastic error terms. I.e. you would print these standard errors along with the coefficient estimates, t-statistics and p-values from:
+
+```{r}
+coeftest(reg_ex1, vcov = vcvHAC)
+```
+
+or use them as part of a `stargazer` display:
+
+```{r}
+stargazer(reg_ex1, type="text", se=list(sqrt(diag(vcvHAC))))
+```
+
+Again you could also used the specifically written function `stargazer_HAC` which you can download from here: [stargazer_HAC.R](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HAC.R). You should save this file into your working directory. You can then make this functions available to your code using the `source` function as used above.
+
+
+```{r, echo = FALSE}
+source("docs/stargazer_HAC.r")  # includes the robust regression display
+```
+
+```{r, eval = FALSE}
+source("stargazer_HAC.r")  # includes the robust regression display
+```
+
+And once you have done that you can call `stargazer_HAC` to generate the usual regression output but with autocorrelation- and heteroskedasticity-robust standard errors (aka newey-West standard errors). 
+
+```{r}
+stargazer_HAC(reg_ex1, type_out = "text")
+```
+Of, course, on this occasion, using an example with cross-sectional data, it is impossible to have autocorrelated standard errors. But R does not know this and hence just does as instructed.
+
+## Robust F-tests 
+
+F-tests are also based on a homoskedasticity assumption. Fortunately, allowing for error heteroskedasticity works in exactly the same manner as above. 
+
+We begin by specifying the same larger model as used in the standard inference section.
+
+```{r}
+reg_ex2 <- lm(lwage~exper+log(huswage)+age+educ,data=mydata)
+```
+
+At the core of tackling the heteroskedasticity issue is again the calculation of the correct variance-covariance matrix, which is then fed into the `lht` function via the `vcov` option.
+
+```{r}
+vcvHC <- vcovHC(reg_ex2, type = "HC1")
+lht(reg_ex2, c("age = 0"," educ = 0"), vcov = vcvHC)
+```
+
+The result remains unchanged, an overwhelming rejection of the null hypothesis that both `age` and `educ` are irrelevant.
+
+
+
