@@ -190,7 +190,7 @@ coeftest(reg_ex1, vcvHC)
 
 You will find the (unchanged) regression coefficients along with their new standard errors, t-stats and p-values.
 
-Often you may wish to produce the standard regression output (as above coming from the `stargazer` function), but including the robust standard errors. You can use the `stargazer_HC` function which you can import into your working directory. This file is available for download from here: [stargazer_HC.R](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HC.R). You should save this file into your working directory. You can then make this functions available to your code using this line.
+Often you may wish to produce the standard regression output (as above coming from the `stargazer` function), but including the robust standard errors. You can use the `stargazer_HC` function which you can import into your working directory. This file is available for download from here: [stargazer_HC.R](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/docs/stargazer_HC.R). You should save this file into your working directory. You can then make this functions available to your code using this line.
 
 ```{r, echo = FALSE}
 source("docs/stargazer_HC.r")  # includes the robust regression display
@@ -236,7 +236,7 @@ or use them as part of a `stargazer` display:
 stargazer(reg_ex1, type="text", se=list(sqrt(diag(vcvHAC))))
 ```
 
-Again you could also used the specifically written function `stargazer_HAC` which you can download from here: [stargazer_HAC.R](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/Ex/stargazer_HAC.R). You should save this file into your working directory. You can then make this functions available to your code using the `source` function as used above.
+Again you could also used the specifically written function `stargazer_HAC` which you can download from here: [stargazer_HAC.R](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/docs/stargazer_HAC.R). You should save this file into your working directory. You can then make this functions available to your code using the `source` function as used above.
 
 
 ```{r, echo = FALSE}
