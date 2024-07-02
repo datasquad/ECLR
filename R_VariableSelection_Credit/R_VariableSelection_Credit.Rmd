@@ -1,0 +1,438 @@
+---
+title: "Variable Selection - Credit Data"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(webexercises)
+```
+
+
+```{r, echo = FALSE, results='asis'}
+# Uncomment to change widget colours:
+#style_widgets(incorrect = "goldenrod", correct = "purple")
+```
+
+# Introduction and Learning Outcomes
+
+In this workthrough you will explore methods which are useful to support your variable selection. 
+
+The dataset we will use is the `credit` dataset which comes with the resources provided by James at al in their textbook An Introduction to Statistical Learning (ISL).
+
+
+# Load data and prepare workspace
+
+We start by loading some packages we will need
+
+```{r}
+library(ISLR2)  # Resources for Introduction to Statistical Learning by James et al
+library(leaps)  # package to support subsampleing
+library(tidyverse) # for easy data handling
+library(ggplot2)   # for nice graphs
+library(stargazer) # for nice regression outputs
+```
+
+Then we load the data
+
+```{r}
+data_credit <- Credit  # this loads the credit dataset from ISLR2
+```
+
+These are **simulated** data for 400 customers of a financial institution. Let's look at the variables we can find in this dataset.
+
+```{r}
+names(data_credit)
+```
+What data types are the following variables?
+
+* `Cards`: `r mcq(c(answer = "num", "Factor", "chr"))` 
+* `Region`: `r mcq(c( "num", answer ="Factor", "chr"))` 
+
+`r hide("I need a hint to find data types")`
+
+To find datatypes of the variables you could use the `str()` function.
+
+`r unhide()`
+
+All variables are in the data types we would expect them to be, `num` for numeric variables and `Factor` for categorical variables. Let's look at a particular observation to understand the data
+
+```{r}
+data_credit[1,]
+```
+
+Remember thart the data are simulated. The variable `Balance` is the amount of credit card debt (a positive number being a debt). `Education` is measured in years of completed education, `Cards` is the number of credit cards owned by an individual, `Limit` is the credit card limit for the individual and `Income` is the annual income in thousands of dollars by the individual. 
+
+Let's produce a scatter plot for the variables `Income` and `Age`.
+
+```{r}
+p1 <- ggplot(data_credit, aes(x=Age, y = Income)) + geom_point()
+p1
+```
+
+The plot revels that there is a weak positive correlation between these variables.
+
+The `Rating` is a credit rating for an individual. One could think of many different ways a credit rating variable could be defined. Without any further definitions available you will need to use the data to establish whether a higher number in the `Ratings` variable means a better or a worse credit rating.
+
+Higher numbers of the `Rating` variable indicate a `r mcq(c( "worse", answer ="better"))` rating.
+
+`r hide("I need a hint")`
+
+You could for instance create a scatter plot between `Rating` and `Income`. There you will find a clearly positive correlation indicating that higher ratings relate to better credit worthiness.
+
+`r unhide()`
+
+
+Let's calculate some summary statistics for `Balance`, `Rating` and `Region`:
+
+```{r}
+summary(data_credit[c("Balance","Rating","Region")])
+```
+
+You can see that there are three regions.
+
+# Modelling credit balances
+
+Let's consider whether variation in credit balances can be modeled using a linear regresison model. For instance we can estimate the following model:
+
+\begin{equation}
+balances_i = \beta_0 + \beta_1~rating_i + \beta_2~cards_i + \epsilon_i
+\end{equation}
+
+```{r}
+mod1 <- lm(Balance~Rating+Cards, data= data_credit)
+stargazer(mod1, type = "text")
+```
+
+Here we chose two particular explanatory variables to explain the credit card debt (`Balance`). But could it be that choosing other and/or more variables would explain more of the variation the credit card dept?
+
+In fact, how would you be able to maximise the $R^2$? 
+
+By `r mcq(c( "including the most impotant variable only", answer ="including all possible explanatory variables", "including the variable with the largest variance", "including the variable with the lowest variance", "including all variables with a t-test larger than 2"))`.
+
+Maximising the $R^2$, however, is not the best strategy as it may produce a model that does not have the optimal `r mcq(c( answer = "forecast performance", "in-sample fit", "error variance"))`.
+
+Information criteria are used to find the best trade-off between fit and number of variables.
+
+## Optimal variable choice
+
+Here you will explore four possible ways to chose the optimal set of explanatory variables.
+
+* Best Subset Selection
+* Forward Selection
+* Backward Selection
+
+### Best Subset Selection
+
+The function `regsubsets` finds the best model for any number of explanatory variables. Here we have up to 10 explanatory variables and hence the method will find the best model with one explanatory variable, the best model with two explanatory variables and so forth up to the best model with 10 explanatory variables (`nvmax = 10`).
+
+```{r}
+regfit.full=regsubsets(Balance~.,data=data_credit,nvmax=10,method="exhaustive")
+summary(regfit.full)
+```
+
+You can see that the best model with one explanatory variable includes the `Rating` variable. The best model with three variables includes `Income`, `Rating` and `StudentYes`, the latter being a dummy variable which takes the value 1 for individuals that are students. The best model with four variables actually drops the `Rating` variable and includes two new variables, `Limit` and `Cards`. 
+
+Also note that the `Region` variable, that can take three possible values in our dataset, can generate two dummy variables `RegionSouth` and `RegionWest` with the East being the base category.
+
+This function does not tell you which of these models is best, meaning it does not decide on the fit v. number of variables trade-off. This is to be done by you the applied researcher for instance based on the Schwartz information criterion (BIC). So let's save that as well as the $R^2$ from all possible methods.  
+
+```{r}
+full.summary = summary(regfit.full)
+rsq_full <- full.summary$rsq
+bic_full <- full.summary$bic
+```
+
+`r hide("Hint")`
+
+Use `names(full.summary)` to see which statistics you could save from the functions results.
+
+`r unhide()`
+
+In `bic_full` we have now saved all the BICs for the best models with 1 to 11 explanatory variables. We will get back to that trade-off after looking at the other selection methods.
+
+### Forward Stepwise Selection
+
+The same function (`regsubsets`) can be used for forward selection 
+
+```{r}
+regfit.forw = regsubsets(Balance~.,data=data_credit,nvmax=10,method="forward")
+summary(regfit.forw)
+```
+
+This method has a smaller search space, as it, for instance after deciding what the best three variable model is (here the same as in the full subsample selection method), only needs to decide which variable to add to that model.
+
+In the above method we saw that from model 3 to 4, the `Rating` variable was dropped. This cannot happen here and the forward method adds the `Limit` variable to the previous model.
+
+Let's save the $R^2$ and the BIC.
+
+```{r}
+forw.summary = summary(regfit.forw)
+rsq_forw <- forw.summary$rsq
+bic_forw <- forw.summary$bic
+```
+
+### Backward Stepwise Selection
+
+The backward method starts from the full model with all possible explanatory variables and then step-by-step drops one extra variable. This is also implementable with the `regsubsets` function. Implement this (again with `nvmax = 10`) and save the $R^2$ and the BIC for models with 1 to 10 explanatory variables in `rsq_back` and `bic_back`.
+
+`r hide("I need a Hint")`
+
+Check `?regsubsets` from the Console to figure out what input to change in order to implement the backward selection. Then apply the same steps as above.
+
+`r unhide()`
+
+
+```{r, echo = FALSE}
+regfit.back = regsubsets(Balance~.,data=data_credit,nvmax=10,method="backward")
+back.summary=summary(regfit.back)
+rsq_back <- back.summary$rsq
+bic_back <- back.summary$bic
+```
+
+The best models with one variable are the same for the forward and backward selection methods: `r torf(FALSE)`
+
+### Select the best model
+
+You have implemented three methods to find the best models with a particular number of explanatory variables. How are you to decide, for any of these methods, which of these to select?
+
+It will turn out to be beneficial to save the reults in a results dataframe:
+
+```{r}
+res_sel <- data.frame(vars = seq(1,10), bic = bic_full, rsq = rsq_full, method = "Full")
+res_sel <- rbind(res_sel, data.frame(vars = seq(1,10), bic = bic_forw, rsq = rsq_forw, method = "Forward"))
+res_sel <- rbind(res_sel, data.frame(vars = seq(1,10), bic = bic_back, rsq = rsq_back, method = "Backward"))
+```
+
+Look at the resulting dataframe to understand its structure. Now we can easily plot the results.
+
+
+```{r}
+ggplot(res_sel, aes(x = vars, y = bic, color = method)) + geom_line()
+```
+
+If you wish to find which model sizes deliver the minimum BIC you ca do that as follows:
+
+```{r}
+res_sel %>% group_by(method) %>% summarise(test = which.min(bic))
+```
+
+
+## Validation set and Cross validation approach
+
+The reason why you would not want to select the model with the best in-sample fit, for instance measured by $R^2$, is that, when we wish to build a model for forecasting purposes, we are not concerned about fitting the data we use to estimate the model, but rather we are concerned about best fitting some new data. Cross-validation is a method to emulate this situation only using the data we have available for estimating the model.
+
+The basic principle of using validation sets and cross-validation is that you split the data you have available for estimating the model into a estimation sample and a hold-out sample. Then you estimate the model on the former and test how it fits/predicts the hold-out, test or validation sample. 
+
+In the cross-validation approach you will do this multiple times for different data splits and test which model does, on average, best in terms of predicting the hold-out samples.
+
+
+### Helper function 
+
+To make this process efficient, we wish to make predicting from a regression model as easy as possible. As you can see in the [ECLR - Regression Prediction page](https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html), predicting from standard regression models (using the `lm` function) is straightforward using the `predict` method. What we need is `predict` method for the `regsubsets` function.
+
+This is provided here. Run this code and this will make a `predict` method available.
+
+```{r}
+predict.regsubsets = function(object,newdata,id,...){
+  form = as.formula(object$call[[2]]) # Extract the formula used when we called regsubsets()
+  mat = model.matrix(form,newdata)    # Build the model matrix
+  coefi = coef(object,id=id)          # Extract the coefficiants of the ith model
+  xvars = names(coefi)                # Pull out the names of the predictors used in the ith model
+  mat[,xvars]%*%coefi               # Make predictions using matrix multiplication
+}
+```
+
+
+### Validation set approach
+
+First we randomly allocate each observation either to the training (`train` or estimation) set or the validation (`test`) set.
+
+```{r}
+set.seed(1)
+train <- sample(c(TRUE,FALSE), nrow(data_credit), rep = TRUE)
+test=(!train)
+```
+
+
+`r hide("What does the seed function do?")`
+The subsequent `sample` function uses a "pseudo" random number generator. By setting the seed you ensure that the subsequent random draws are always the same. Execute the following sequence of commands in your console to understand what this does.
+
+```{r, eval = FALSE}
+set.seed(1)
+sample(seq(1,10000), 1, rep = TRUE)
+sample(seq(1,10000), 1, rep = TRUE)
+sample(seq(1,10000), 1, rep = TRUE)
+
+set.seed(1)
+sample(seq(1,10000), 1, rep = TRUE)
+sample(seq(1,10000), 1, rep = TRUE)
+
+set.seed(55)
+sample(seq(1,10000), 1, rep = TRUE)
+sample(seq(1,10000), 1, rep = TRUE)
+sample(seq(1,10000), 1, rep = TRUE)
+
+set.seed(55)
+sample(seq(1,10000), 1, rep = TRUE)
+sample(seq(1,10000), 1, rep = TRUE)
+```
+
+`r unhide()`
+
+`r hide("What does the sample function do?")`
+It takes its argument, here the list of the two values of `TRUE` and `FALSE`, and randomly draws 400 values from that, always replacing the drawn value (`rep = TRUE`). The result is a vector of 400 randomly drawn values of either TRUE or FALSE, approximately equally likely.
+`r unhide()`
+
+How would you change the above line `train <- ...` if you wanted 75% of observations to go into the `train` set and the remaining 25% into the `test` set?
+
+`r hide("Solution")`
+There are always multiple ways to achieve this, but perhaps the simplest is to adjust the list of values from which to draw to include 3 TRUE and only one FALSE:
+
+`train <- sample(c(TRUE,TRUE,TRUE,FALSE), nrow(data_credit), rep = TRUE)`
+`r unhide()`
+
+
+Then we find a best model for the `train` dataset:
+
+```{r}
+full.train = regsubsets(Balance~., data_credit[train,],nvmax =10, method="exhaustive")
+full.train.summary=summary(full.train)
+```
+
+Recall that this will save the models that are best for 1, 2 to 10 explanatory variables. This means that we need to check how well each of these different models does in predicting the `test` data.
+Now we
+
+```{r}
+val.errors=rep(NA,10)
+for (i in 1:10) {
+  pred=predict.regsubsets(full.train,data_credit[test,],id=i)
+  val.errors[i]=mean((data_credit$Balance[test]-pred)^2)
+}
+```
+
+What values can you find in `val.errors`?
+`r mcq(c("The $R^2$ at each model size", "The average prediction error in the train data set", "The average prediction error in the test data set","The average square prediction error in the train data set", answer = "The average square prediction error in the test data set"))`.
+
+
+`r hide("I need a hint")`
+You need to able to interpret code you are given. The key here is to understand what is being saved here `val.errors[i]=mean((data_credit$Balance[test]-pred)^2)`. This is the mean of the squared difference between the actual balances in the test set and the prediction.
+`r unhide()`
+
+Let's figure out which model is the best.
+
+```{r}
+val.errors
+which.min(val.errors)
+```
+
+
+How sure are you about 7 being the optimal model size? Try and set a different random seed above (e.g. `set.seed(2)`) and see whether you get the same optimal model size. 
+
+
+### k-fold cross validation
+
+In the above exercise you split the data in one way, approximately 50% of the data into `train` and the remaining 50% into `test`. You could have change the percentages of course.
+
+What cross-validation does is to basically repeat this process several times and then check which model size does best on average across the multiple data splits. TO be precise we split the sample into `k` (below we use `k` = 5) bins. Then each observation is randomly allocated to one of these bins or folds.
+
+
+```{r}
+k <- 5
+n <- nrow (Credit)
+set.seed (1)
+folds <- sample ( rep (1: k , length = n))
+cv.errors <- matrix (NA , k , 10 ,
+                         dimnames = list ( NULL , paste (1:10) ))
+```
+
+The last line creates a matrix, `cv.errors` in which we will store the results.
+
+Now we write a for loop that performs cross-validation. In the $j$th fold, the elements of folds that equal $j$ are in the test set, and the remainder are in the training set. We make our predictions for each model size (using our predict() method), compute the test errors on the appropriate subset, and store them in the appropriate slot in the matrix cv.errors.
+
+```{r}
+for (j in 1:k) {
+  best.fitkfold <- regsubsets(Balance ~ ., data = data_credit[ folds!= j ,] ,
+                             nvmax = 10)
+  for (i in 1:10) {
+    pred <- predict(best.fitkfold, data_credit[folds == j,] , id = i)
+    cv.errors [j,i] <- mean (( data_credit$Balance[folds == j] - pred )^2)
+  }
+}
+```
+
+
+This has given us a 5×10 matrix, of which the $(j, i)$th element corresponds to the test MSE for the jth cross-validation fold for the best i-variable model. We use the apply() function to average over the columns of this apply() matrix in order to obtain a vector for which the ith element is the cross-validation error for the i-variable model.
+
+```{r}
+mean.cv.errors <- apply(cv.errors, 2 ,mean)
+mean.cv.errors
+```
+
+We see that cross-validation selects a 4-variable model. This is different to the 
+
+## Estimate the best model
+
+Let's say you rely on the cross-validation set approach to identify 4 as the optimal model size when it come to optimising the out-of-sample predictive performance (as measured in terms of squared prediction errors). 
+
+You now want to continue and use a model of that size to predict some credit card balances for observations outside of the 400 observations you have available here. The first step to do is to actually estimate a model of that size on the basis of the entire dataset. Of course we have done that already and the results are saved in 
+
+```{r}
+full.summary
+```
+
+You may wonder, didn't we previously decide that 4 was the optimal model size when based on the full 400 observations? Yes, but the fact that cross-validation gave us the same result is really by accident. We can trust the cross-validation result more as it actually emulated the process of out-of sample prediction and found 4 to be the best model size. 
+
+From the above you can see that the variables included in the best model using 4 explanatory variables are `Income`, `Limit`, `Cards` and `StudentYes`. If this is the model you wish to estimate you could do this with the standard `lm` function
+
+```{r}
+mod1a <- lm(Balance ~ Income+Limit+Cards+Student, data = data_credit)
+stargazer(mod1a,type = "text")
+```
+
+If you did this for a model with a large number of selected variables this would be just a little too tedious. When we coded up the `predict` method for `regsubsets` we already used a generic way to do that. Let us use the same approach here. First we create a model matrix. This basically creates a matrix of numeric only variables from our dataset which are used as explanatory variables.
+
+```{r}
+X = model.matrix(Balance ~ .,data = data_credit)    # Build the model matrix
+```
+
+Look at the dimension of this matrix. It has 400 rows, which is exactly as we would expect as there are 400 observations. It also has 12 columns. Our dataset has 11 variables, one is the dependent variable (`Balance`) and the other are potential explanatory variables.
+
+Why has `X` 12 columns?
+`r mcq(c("X also includes a constant", "X includes two additional randomly generated variables", "X includes the constant and the dependent variable", answer = "X also includes a constant and two dummy variables for the Region information"))`
+
+We can then pick the variables selected in the best four variable model:
+
+```{r}
+selvars <- full.summary$which[4,]
+Xsel. <- X[,selvars]
+mod1b <- lm(data_credit$Balance ~ Xsel.)
+stargazer(mod1b,type = "text")
+```
+
+`r hide("What happened here?")`
+
+To understand the mechanics of the previous lines, have a look at the result if `selvars`. It is a vector with a TRUE or FALSE associated to all variable names in `X` and this is then used to define `Xsel.`. As now the `Balance` variable and `Xsel.` are not in the same dataframe any longer we are not using the `data =` option in `lm` but rather address the dependent variable directly as `data_credit$Balance` and the entire matrix `Xsel.` containing all explanatory variables.
+
+`r unhide()`
+
+
+## Summary
+
+So let's summarise what you achieved here. You learned how to 
+
+* use the `regsubsets` function to find the best models of with different numbers of variables
+* select the best model using information criteria
+* apply a validation set and cross-validation approach to decide on the optimal model size for forecasting purposes
+
+# Extension
+
+These are credit data from [Kaggle](https://www.kaggle.com/datasets/parisrohan/credit-score-classification). Repeat the above analysis with this new, but similar dataset. Download the dataset and load it.
+
+```{r}
+# Ensure you create the 
+Kaggle_credit_test <- read.csv("../data/Kaggle_credit_test.csv")
+```
+
+Now apply a similar analysis to find the optimal model. Here we have 4 observations for each of the 12,500 customers. Each customer, identified by their unique `Customer_ID` has four months of observations. Select the data relating to `Month == "September"` and perform a similar analysis to the above to explain variation in the credit card balance variable, `Outstanding_Dept`.
+
