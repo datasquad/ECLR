@@ -1,0 +1,378 @@
+---
+title: "R Variable Selection, Lasso and Ridge Regression"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(webexercises)
+```
+
+
+```{r, echo = FALSE, results='asis'}
+# Uncomment to change widget colours:
+#style_widgets(incorrect = "goldenrod", correct = "purple")
+```
+
+# Introduction
+
+Here we will demonstrate the use of LASSO and Ridge regressions to deal with situations in which you estimate a regression model that contains a large amount of potential explanatory variables
+
+```{r}
+# load packages
+library(car)
+#library(carData,curl)
+library(AER)
+library(glmnet)
+library(hdm)
+library(stats)
+require(graphics)
+library(leaps)
+library(tidyverse)
+library(haven)
+library(stargazer)
+library(ggplot2)
+library(sandwich)
+library(coefplot)
+```
+
+Let's load the dataset which contains an extract from the Panel Study of Income Dynamics (PSID). The datafile here is saved as a text file which can be imported using the `read.delim` function.
+
+```{r}
+## load data set 
+PSID1 <- read.delim("../data/PSIDsmall.txt",header=TRUE)
+```
+
+Let's see what variables are contained in this dataset.
+
+```{r}
+names(PSID1)
+```
+```{r}
+summary(PSID1)
+```
+
+Let's look at the distribution of wages (measured as hourly wages).
+
+```{r}
+phist <- ggplot(PSID1, aes(x=WAGE)) + geom_histogram()
+phist
+```
+
+You can see that there are a few individuals with very large hourly wages. Let us exclude wages that are larger than USD200 per hour and have another look at the wage distribution.
+
+```{r}
+PSID <- PSID1 %>% filter(WAGE <200)
+phist <- ggplot(PSID, aes(x=WAGE)) + geom_histogram()
+phist
+
+```
+
+# Exploring the variables
+
+These are observations from the PSID and to  do serious work with this dataset we need to understand the variables. The PSID surveys household on their income but also a number of household and personal characteristics. The following [variable search page](https://simba.isr.umich.edu/DC/s.aspx) can be useful here. The main person interviewed is the household head, if there is a couple this was typically the man. You will see some variables which exist in two versions, for instance `AGE` and `AGEW`. The former refers to the household head and the latter to the wife's age. You can tell that this labeling is the result of patriarchal thinking. In later versions of the PSID this labeling has changed to household head and (where appropriate) the spouse.
+
+Variable Name | Definition
+------------- | -------------
+WAGE | Hourly wage of household head
+AGE | Age of household (HH) head
+AGE2 | Squared Age of HH head
+AGEW | Age of wife (0 if no wife/spouse)
+AGEY | Age of youngest child (0 if no child, children aged 0 and 1 will have an entry of "1")
+CHILDREN | number of children
+DEGREE |
+DEGREEW |
+FEDUCA |
+FEDUCH |
+MEDUCA |
+MEDUCH |
+GRADCOLL | Graduated from college (1 = Yes, 5 = no, 0 = not applicable)
+GRADCOLLW | Graduated from college (1 = Yes, 5 = no, 0 = not applicable or no wife/spouse)
+GRADHS | HH head graduate from High School (1 = Graduated, 2 = General Educational Diploma, 3 = Neither, 4 = not applicable)
+GRADHSW | Wife graduate from High School (1 = Graduated, 2 = General Educational Diploma, 3 = Neither, 4 = not applicable or no wife/spouse)
+HAPPINESS | During the past 30 days, how much of the time did you feel extremely happy (1 = All of the time to 5 = None of the time)
+MARRIED | 1 = Married, 2 = Never Married, 3 = Widowed, 4 = Divorced, 5 = Separated
+SEX | 1 = Male, 2 = Female
+YEARSCOLL | Highest year of college completed
+STATE | [State identifier](https://en.wikipedia.org/wiki/List_of_U.S._state_and_territory_abbreviations), e.g. 5 = Arkansas
+
+# Modeling wage variation
+
+Let us start by running a simple regression of wages against the `GRADCOLL` variable
+
+```{r}
+OLS1<-lm(WAGE~GRADCOLL, data = PSID)
+stargazer(OLS1, type = "text")
+```
+
+```{r}
+ggplot(PSID, aes(x = GRADCOLL, y = WAGE)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+GRADCOLL does not appear to explain the variation in wages (it appears as statistically insignificant). But the plot above also reveals another aspect of the data. There are only three possible values (0,1 and 5) for the `GRADCOLL` variable. It is defined as as a numeric variable, but really is a categorical variable (see the above table). If we treat it as numeric, as we have done above, we assume that a response of 1 (did receive a college degree is one unit better or worse than a response of 0 (inapplicable question) and a response of 5 (no college degree) is five times as good or bad as a response of 1. That doesn't make sense as the question is really a categorical variable.
+
+Let's define the variables as categorical variable
+
+```{r}
+PSID$GRADCOLL <- as.factor(PSID$GRADCOLL)
+```
+
+Now, let's re-run the regression with `GRADCOLL` as a categorical variable:
+
+
+```{r}
+OLS1b<-lm(WAGE~GRADCOLL, data = PSID)
+stargazer(OLS1b, type = "text")
+```
+
+What this regression has done is to create a dummy variable for all possible outcome values of the `GRADCOLL` variable, other than for a bas group, here `GRADCOLL=0`. Now we can see that there is a positive effect of having a college degree, but also that not having one has a positive effect relative to the reference group which are individuals where the question was not applicable. One would really have to understand what the composition of this reference group is. It may for instance include immigrants.
+
+Let's look at other variables which we may have to convert to categorical variables.
+
+Which of the following variables should really be defined as categorical?
+
+`r mcq(c( "AGE", answer ="gradhs", "WAGE"))` 
+
+So, let's turn the following variables into factors.
+
+```{r}
+cols <- c("DEGREE","DEGREEW", "FEDUCA", "FEDUCH", "GRADCOLLW","GRADHS","GRADHSW","MARRIED","MEDUCA","MEDUCH","SEX","STATE")
+PSID <- PSID %>% mutate_at(cols, factor)
+```
+
+In fact, you also need to carefully think about how to code, say the age of the spouse `AGEW`. To understand this it is useful to look at which values this variable takes.
+
+```{r}
+table(PSID$AGEW)
+```
+
+As you can see there are 1355 responses where the age of the wife/spouse is coded as "0". This indicates that there are 1355 households where there is no wife or spouse. If we were to use the `AGEW` variable as a numeric variable (which it is coded as) then R would take the value of "0" literally. To avoid this we may want to create a new variable which indicates whether there is a spouse in the housefold (`SPOUSE`). That variable will be TRUE if `AGEW>17`.
+
+```{r}
+PSID <- PSID %>% mutate(SPOUSE = (AGEW>17))
+```
+
+A similar story applies to the `AGEW` variable which indicates the age of the youngest child. We can look at a table indicating how often we get certain combinations of the `AGEY` and `CHILDREN` variable.
+
+```{r}
+table(PSID$AGEY,PSID$CHILDREN, dnn = c("Age of youngest child","Number of children"))
+```
+You can see that `AGEY=0` corresponds to no child being in the household. We therefore define the variable `CHILD` as follows
+
+```{r}
+PSID <- PSID %>% mutate(CHILD = (CHILDREN>1))
+```
+
+Now we can include course there are many other variables that may help explain variation in wages, such as AGE, MARRIED etc. Therefore define the model with all controls.
+
+```{r, results='hide'}
+reg_wage_all_control <- WAGE~AGE+AGE2+AGEW+AGEY+CHILDREN+DEGREE+DEGREEW+
+  FEDUCA+FEDUCH+GRADHS+GRADHSW+HAPPINESS+MARRIED+MEDUCA+
+  MEDUCH+SEX+STATE+YEARSCOLL
+# does not use GRADCOLL and GRADCOLLW as that info is colinear with DEGREE and DEGREEW
+# check table(PSID$GRADCOLL,PSID$DEGREE) to see why
+# run multiple linear regression
+OLS2<-lm(reg_wage_all_control, data = PSID)
+stargazer(OLS2, type = "text")
+```
+
+Why did the above regression exclude the `GRADCOLL` and `GRADCOLLW` variable?
+
+`r mcq(c( answer = "As GRADCOLL1 = DEGREE1 + ... + DEGREE6", "As GRADCOLL1 = DEGREE1", "As GRADCOLL5 = DEGREE1 + ... + DEGREE6", "As GRADCOLL5 = DEGREE5"))` 
+
+The regression output is not shown here as the regression contains more than 200 coefficients. Recall that dummy variables are created for all possible outcomes for each factor variable, so as there 52 possible outcomes for the variable `STATE` there are 52-1 variables included for the `STATE` variable alone.
+
+Of course there are many of these variables that are not significant. For instance, let's test whether the coefficients relating to the `MEDUCH` variable are statistically significantly different from 0.
+
+```{r}
+test0 <- names(coef(OLS2)) # get all coefficient names
+test0 <- test0[grepl("MEDUCH", test0)]
+lht(OLS2, test0)
+```
+The p-value is larger than 0.8 and hence the null hypothesis that these coefficients are 0 cannot be rejected.
+
+# Variable Selection
+
+The mechanics of the forward, backward and best subset selection methods are described in more detail [here](https://datasquad.github.io/ECLR/R_VariableSelection_Credit/R_VariableSelection_Credit.html).
+
+## Forward stepwise selection
+
+```{r}
+PSID_reg <- PSID %>% select(-c(GRADCOLL,GRADCOLLW))  # to exclude the colinear variables
+regfit.forw = regsubsets(WAGE~.,data=PSID_reg,nvmax=40,method="forward")
+forw.summary = summary(regfit.forw)
+rsq_forw <- forw.summary$rsq
+bic_forw <- forw.summary$bic
+```
+## Backward stepwise selection
+
+```{r}
+regfit.back = regsubsets(WAGE~.,data=PSID_reg,nvmax=40,method="backward")
+back.summary = summary(regfit.back)
+rsq_back <- back.summary$rsq
+bic_back <- back.summary$bic
+```
+## Best Subset selection 
+
+This would be a possibility, but with over 130 possible variables, this leaves too many possibilities. The code would run for a long time, even for the modest number of observations
+
+```{r, eval = FALSE}
+regfit.back = regsubsets(WAGE~.,data=PSID_reg,nvmax=40,really.big = TRUE, method="exhaustive")
+full.summary = summary(regfit.forw)
+rsq_full <- full.summary$rsq
+bic_full <- full.summary$bic
+```
+
+
+```{r}
+res_sel <- data.frame(vars = seq(1,40), bic = bic_forw, rsq = rsq_forw, method = "Forward")
+res_sel <- rbind(res_sel, data.frame(vars = seq(1,40), bic = bic_back, rsq = rsq_back, method = "Backward"))
+```
+
+Look at the resulting dataframe to understand its structure. Now we can easily plot the results.
+
+
+```{r}
+ggplot(res_sel, aes(x = vars, y = bic, color = method)) + 
+  geom_line() +
+  labs(title = "BIC for forward and backward selection")
+
+res_sel %>% group_by(method) %>% summarise(test = which.min(bic))
+```
+
+The different methods select slightly different numbers of optimal variables. Let's check which variables were selected.
+
+```{r}
+PSIDX = model.matrix(WAGE ~ .,data = PSID_reg)    # Build the model matrix
+print("Selected variables from forward procedure")
+selvars.forw <- forw.summary$which[21,]
+names(selvars.forw[selvars.forw==TRUE])
+print("")
+print("Selected variables from backward procedure")
+selvars.back <- back.summary$which[19,]
+names(selvars.back[selvars.back==TRUE])
+```
+
+From these lists you can see that the two lists are very similar. They only differ in two state dummies.
+
+## LASSO
+
+The previous variable selection methods estimated a lot of different models to then compare these
+
+#-------------------------------------------------------------------------#
+# variable selection using LASSO  (using the glmnet package)
+#-------------------------------------------------------------------------#
+
+
+y=as.matrix(PSID[,1])
+x=as.matrix(PSID[,2:21])
+
+# In glmnet we need to let alpha=1 to ensure we apply LASSO
+# we standardize the regressors
+
+lasso=glmnet(x,y,family="gaussian",alpha=1,standardize=TRUE,intercept=TRUE) 
+par(mfrow=c(1,1))
+plot(lasso,main="Lasso and coefficients path")
+
+lasso25=glmnet(x,y,family="gaussian",alpha=1,lambda=lasso$lambda[25])
+lasso50=glmnet(x,y,family="gaussian",alpha=1,lambda=lasso$lambda[50])
+lasso75=glmnet(x,y,family="gaussian",alpha=1,lambda=lasso$lambda[75])
+
+dev.off()
+coefplot(lasso75,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="LASSO Coefficient Plot (small lambda)")
+coefplot(lasso50,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="LASSO Coefficient Plot (mid lambda)")
+coefplot(lasso25,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="LASSO Coefficient Plot (large lambda)")
+rm(lasso25,lasso50,lasso75)
+
+# We can choose lambda by cross-validation using cv.glmnet
+# by default it uses a 10-fold cross validation and a grid of 100 lambda values
+# lambda.min: the value that gives the min CV criterion
+# lambda.1se, the largest value of lambda such that the error is within 
+#      1 standard dev from the minimum  CV criterion
+
+set.seed(1)
+cv_lasso=cv.glmnet(x,y,family="gaussian",nfolds=10,alpha=1)
+# Plot CV criterion
+par(mfrow=c(1,1))
+plot(cv_lasso,main="Lasso and CV criterion")
+
+# list estimated coefficients with lambda.min
+cv_lasso$lambda.min
+lasso.coef.lambda.min=predict(cv_lasso, x, type="coeff",s=cv_lasso$lambda.min)[1:21,]
+lasso.coef.lambda.min
+
+# list estimated coefficients with lambda.1se
+cv_lasso$lambda.1se
+lasso.coef.lambda.1se=predict(cv_lasso, x, type="coeff",s=cv_lasso$lambda.1se)[1:21,]
+lasso.coef.lambda.1se
+
+
+#-------------------------------------------------------------------------#
+# RIDGE shrinks parameters rather than selecting them (LASSO)
+#-------------------------------------------------------------------------#
+
+# In glmnet setting alpha=0 ensures we apply RIDGE
+
+ridge=glmnet(x,y,family="gaussian",alpha=0)
+plot(ridge,main="Ridge and coefficients path")
+
+ridge25=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[25])
+ridge50=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[50])
+ridge75=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[75])
+
+coefplot(ridge75,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (small lambda)")
+coefplot(ridge50,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (mid lambda)")
+coefplot(ridge25,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (large lambda)")
+rm(ridge25,ridge50,ridge75)
+
+set.seed(1)
+cvridge=cv.glmnet(x,y,family="gaussian",alpha=0)
+plot(cvridge,main="Ridge and CV criterion")
+
+# list estimated coefficients with lambda.min
+cvridge$lambda.min
+ridge.coef.lambda.min=predict(cvridge, x, type="coeff",s=cvridge$lambda.min)[1:21,]
+ridge.coef.lambda.min
+
+# list estimated coefficients with lambda.1se
+cvridge$lambda.1se
+ridge.coef.lambda.1se=predict(cvridge, x, type="coeff",s=cvridge$lambda.1se)[1:21,]
+ridge.coef.lambda.1se
+
+
+#-------------------------------------------------------------------------#
+# variable selection using LASSO  (using the hdm package)
+#-------------------------------------------------------------------------#
+
+y=as.matrix(PSID[,1])
+x=as.matrix(PSID[,2:21])
+
+ylasso <- rlasso(y=y,x=x,post=TRUE)
+# ylasso <- rlasso(y=y,x=x,post=TRUE,intercept=TRUE,
+#              penalty = list(homoscedastic=FALSE,X.dependent.lambda = FALSE, 
+#                             Lambda.start = NULL, c=1.1, gamma = 0.1/log(n)),
+#              control = list(numIter=15, tol = 10^-5, threshold = NULL))
+
+# index indicating selected variables
+Iy=ylasso$index
+# coefficients obtained by lasso
+ylasso$coefficients
+
+# Note: these results are very similar to lasso.coef.lambda.1se
+# Need to still see how to change the automated selection of lambda here  
+
+
+
+#---------------------------------------------------------------------------------#
+# clearly in this model, we are in particular interested in estimating and 
+# performing inference on the variable GRADCOLL that accounts for all confounders
+#---------------------------------------------------------------------------------#
+
+lasso_effect_p = rlassoEffects(x=x,y=y,index=c(19),method="partialling out",I3=NULL,post=TRUE)
+summary(lasso_effect_p)
+lasso_effect_d = rlassoEffects(x=x,y=y,index=c(19),method="double selection",I3=NULL,post=TRUE)
+summary(lasso_effect_d)
+
+```
