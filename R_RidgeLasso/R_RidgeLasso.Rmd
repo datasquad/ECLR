@@ -4,7 +4,7 @@ output: webexercises::webexercises_default
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(webexercises)
 ```
 
@@ -216,7 +216,7 @@ bic_back <- back.summary$bic
 ```
 ## Best Subset selection 
 
-This would be a possibility, but with over 130 possible variables, this leaves too many possibilities. The code would run for a long time, even for the modest number of observations
+This would, in principle, be a possibility, but with over 130 possible variables, this leaves too many possibilities. The code would run for a long time, even for the modest number of observations
 
 ```{r, eval = FALSE}
 regfit.back = regsubsets(WAGE~.,data=PSID_reg,nvmax=40,really.big = TRUE, method="exhaustive")
@@ -232,7 +232,6 @@ res_sel <- rbind(res_sel, data.frame(vars = seq(1,40), bic = bic_back, rsq = rsq
 ```
 
 Look at the resulting dataframe to understand its structure. Now we can easily plot the results.
-
 
 ```{r}
 ggplot(res_sel, aes(x = vars, y = bic, color = method)) + 
@@ -257,17 +256,88 @@ names(selvars.back[selvars.back==TRUE])
 
 From these lists you can see that the two lists are very similar. They only differ in two state dummies.
 
+## Ridge Regression
+
+The previous variable selection methods estimated a lot of different models to then compare these using information criteria. Ridge regression will estimate one model only (not by OLS any longer) but will penalise coefficients in a way to "bend" them towards 0. 
+
+To apply this method we need to define a vector `y` to contain the dependent variable and a matrix `x` which contains all possible variables in the columns. So let's define these two variables.
+
+```{r}
+y <- PSID_reg$WAGE
+x <- model.matrix(WAGE~.,data = PSID_reg)[,-1]
+```
+
+The `model.matrix` function is useful as it creates a matrix of all the explanatory variables of a model that models the dependent variable (here `WAGE`) on all other variables in the specified dataset (here `PSID_reg`). The important role this function has is to convert all categorical variables into numerical dummy variables. The `glmnet` function we are using to estimate ridge and LASSO regressions can only deal with numeric variables. The `[,-1]` at the end actually deletes the first column which is the constant.
+
+How many rows and columns does the `x` matrix have?
+
+rows: `r fitb(dim(x)[1])`
+columns: `r fitb(dim(x)[2])`
+
+`r hide("I need a hint")`
+
+You can use the command  `dim(x)` to get rows and columns numbers of a matrix.
+
+`r unhide()`
+
+you will now use the `glmnet` function to estimate a ridge regression. While we will not go through the technical details of ridge regressions it is worthwhile to restate the optimisation problem solved by ridge regressions. We are estimating the parameters in the  following regression model
+
+\begin{equation}
+y_i = \beta_0 + \sum^p_{j=1} \beta_j x_{ij} + u_i
+\end{equation}
+
+where the regression model contains all $p$ regressors included in the matrix `x` we defined above. The parameters are estimated by minimizing
+
+\begin{equation}
+\sum^n_{i=1} \left( y_i - \beta_0 - \sum^p_{j=1} \beta_j x_{ij}\right)^2 + \lambda \sum^p_{j=1} \left| \beta_j\right|
+\end{equation}
+
+
+#-------------------------------------------------------------------------#
+# RIDGE shrinks parameters rather than selecting them (LASSO)
+#-------------------------------------------------------------------------#
+
+# In glmnet setting alpha=0 ensures we apply RIDGE
+
+ridge=glmnet(x,y,family="gaussian",alpha=0)
+plot(ridge,main="Ridge and coefficients path")
+
+ridge25=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[25])
+ridge50=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[50])
+ridge75=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[75])
+
+coefplot(ridge75,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (small lambda)")
+coefplot(ridge50,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (mid lambda)")
+coefplot(ridge25,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (large lambda)")
+rm(ridge25,ridge50,ridge75)
+
+set.seed(1)
+cvridge=cv.glmnet(x,y,family="gaussian",alpha=0)
+plot(cvridge,main="Ridge and CV criterion")
+
+# list estimated coefficients with lambda.min
+cvridge$lambda.min
+ridge.coef.lambda.min=predict(cvridge, x, type="coeff",s=cvridge$lambda.min)[1:21,]
+ridge.coef.lambda.min
+
+# list estimated coefficients with lambda.1se
+cvridge$lambda.1se
+ridge.coef.lambda.1se=predict(cvridge, x, type="coeff",s=cvridge$lambda.1se)[1:21,]
+ridge.coef.lambda.1se
+
+
+
+
+
+
+
 ## LASSO
 
-The previous variable selection methods estimated a lot of different models to then compare these
+
 
 #-------------------------------------------------------------------------#
 # variable selection using LASSO  (using the glmnet package)
 #-------------------------------------------------------------------------#
-
-
-y=as.matrix(PSID[,1])
-x=as.matrix(PSID[,2:21])
 
 # In glmnet we need to let alpha=1 to ensure we apply LASSO
 # we standardize the regressors
