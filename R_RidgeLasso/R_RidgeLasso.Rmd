@@ -289,9 +289,17 @@ y_i = \beta_0 + \sum^p_{j=1} \beta_j x_{ij} + u_i
 where the regression model contains all $p$ regressors included in the matrix `x` we defined above. The parameters are estimated by minimizing
 
 \begin{equation}
-\sum^n_{i=1} \left( y_i - \beta_0 - \sum^p_{j=1} \beta_j x_{ij}\right)^2 + \lambda \sum^p_{j=1} \left| \beta_j\right|
+\sum^n_{i=1} \left( y_i - \beta_0 - \sum^p_{j=1} \beta_j x_{ij}\right)^2 + \lambda \sum^p_{j=1}  \beta_j^2 = RSS + + \lambda \sum^p_{j=1}  \beta_j^2 
 \end{equation}
 
+This is the standard residual sum of squares (RSS) plus a penalty term which penalises against large parameter values. The parameter $\lambda$ will have to be chosen by you the empirical researcher. More on that soon.
+
+Before you apply the following function you should briefly browse through the help (`?glmnet`) of this function to understand some of the main features. There you will learn that the input option `alpha = 0` instructs the function to implement a ridge regression.
+
+```{r}
+ridge=glmnet(x,y,family="gaussian",alpha=0)
+plot(ridge,main="Ridge and coefficients path")
+```
 
 #-------------------------------------------------------------------------#
 # RIDGE shrinks parameters rather than selecting them (LASSO)
