@@ -127,7 +127,7 @@ OLS1b<-lm(WAGE~GRADCOLL, data = PSID)
 stargazer(OLS1b, type = "text")
 ```
 
-What this regression has done is to create a dummy variable for all possible outcome values of the `GRADCOLL` variable, other than for a bas group, here `GRADCOLL=0`. Now we can see that there is a positive effect of having a college degree, but also that not having one has a positive effect relative to the reference group which are individuals where the question was not applicable. One would really have to understand what the composition of this reference group is. It may for instance include immigrants.
+What this regression has done is to create a dummy variable for all possible outcome values of the `GRADCOLL` variable, other than for a base group, here `GRADCOLL=0`. Now we can see that there is a positive effect of having a college degree, but also that not having one has a positive effect relative to the reference group which are individuals where the question was not applicable. One would really have to understand what the composition of this reference group is. It may for instance include immigrants.
 
 Let's look at other variables which we may have to convert to categorical variables.
 
@@ -154,7 +154,7 @@ As you can see there are 1355 responses where the age of the wife/spouse is code
 PSID <- PSID %>% mutate(SPOUSE = (AGEW>17))
 ```
 
-A similar story applies to the `AGEW` variable which indicates the age of the youngest child. We can look at a table indicating how often we get certain combinations of the `AGEY` and `CHILDREN` variable.
+A similar story applies to the `AGEY` variable which indicates the age of the youngest child. We can look at a table indicating how often we get certain combinations of the `AGEY` and `CHILDREN` variable.
 
 ```{r}
 table(PSID$AGEY,PSID$CHILDREN, dnn = c("Age of youngest child","Number of children"))
@@ -165,7 +165,7 @@ You can see that `AGEY=0` corresponds to no child being in the household. We the
 PSID <- PSID %>% mutate(CHILD = (CHILDREN>1))
 ```
 
-Now we can include course there are many other variables that may help explain variation in wages, such as AGE, MARRIED etc. Therefore define the model with all controls.
+Now we can include multiple variables that may help explain variation in wages, such as AGE, MARRIED etc. Therefore define the model with all controls.
 
 ```{r, results='hide'}
 reg_wage_all_control <- WAGE~AGE+AGE2+AGEW+AGEY+CHILDREN+DEGREE+DEGREEW+
@@ -206,6 +206,7 @@ forw.summary = summary(regfit.forw)
 rsq_forw <- forw.summary$rsq
 bic_forw <- forw.summary$bic
 ```
+
 ## Backward stepwise selection
 
 ```{r}
@@ -214,6 +215,7 @@ back.summary = summary(regfit.back)
 rsq_back <- back.summary$rsq
 bic_back <- back.summary$bic
 ```
+
 ## Best Subset selection 
 
 This would, in principle, be a possibility, but with over 130 possible variables, this leaves too many possibilities. The code would run for a long time, even for the modest number of observations
@@ -289,12 +291,12 @@ y_i = \beta_0 + \sum^p_{j=1} \beta_j x_{ij} + u_i
 where the regression model contains all $p$ regressors included in the matrix `x` we defined above. The parameters are estimated by minimizing
 
 \begin{equation}
-\sum^n_{i=1} \left( y_i - \beta_0 - \sum^p_{j=1} \beta_j x_{ij}\right)^2 + \lambda \sum^p_{j=1}  \beta_j^2 = RSS + + \lambda \sum^p_{j=1}  \beta_j^2 
+\sum^n_{i=1} \left( y_i - \beta_0 - \sum^p_{j=1} \beta_j x_{ij}\right)^2 + \lambda \sum^p_{j=1}  \beta_j^2 = RSS + \lambda \sum^p_{j=1}  \beta_j^2 
 \end{equation}
 
 This is the standard residual sum of squares (RSS) plus a penalty term which penalises against large parameter values. The parameter $\lambda$ will have to be chosen by you the empirical researcher. More on that soon.
 
-Before you apply the following function you should briefly browse through the help (`?glmnet`) of this function to understand some of the main features. There you will learn that the input option `alpha = 0` instructs the function to implement a ridge regression.
+Before you apply the following function you should briefly browse through the help (`?glmnet`) of this function to understand some of the main features. There you will learn that the input option `alpha = 0` instructs the function to implement a ridge regression. This sets the penalty term to be equal to the above $\lambda \sum^p_{j=1}  \beta_j^2$.
 
 ```{r}
 ridge=glmnet(x,y,family="gaussian",alpha=0)
