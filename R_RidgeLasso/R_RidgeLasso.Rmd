@@ -80,12 +80,12 @@ AGE2 | Squared Age of HH head
 AGEW | Age of wife (0 if no wife/spouse)
 AGEY | Age of youngest child (0 if no child, children aged 0 and 1 will have an entry of "1")
 CHILDREN | number of children
-DEGREE |
-DEGREEW |
-FEDUCA |
-FEDUCH |
-MEDUCA |
-MEDUCH |
+DEGREE | highest degree earned (0 = not applicable, 1 = Associate, 2 = Bachelor, 3 = Master, 4 = PhD, 5 = Law, LLB, 6 = Medical, MD ), several reasons for 0, e.g. no college attendance GRADCOLL = 5
+DEGREEW | highest degree earned (0 = not applicable, 1 = Associate, 2 = Bachelor, 3 = Master, 4 = PhD, 5 = Law, LLB, 6 = Medical, MD ), several reasons for 0, e.g. no college attendance GRADCOLLW = 5 or no spouse
+FEDUCA | Years of foreign education of father, 0 if no education abroad
+FEDUCH | Father completed education in the US (1 = 0 to 5 grades, 2 = 6 to 8 grades, 3 = 9 to 11 grades, 4 = 12 grades, High School, 5 = HS plus further non-academic education, 6 = HS + some college but no completed degree, 7 = 15 to 16 years, College degree, 8 = 17+ years, higher than College degree, 0 not applicable)
+MEDUCA | Years of foreign education of mother, 0 if no education abroad
+MEDUCH | Mother completed education in the US (1 = 0 to 5 grades, 2 = 6 to 8 grades, 3 = 9 to 11 grades, 4 = 12 grades, High School, 5 = HS plus further non-academic education, 6 = HS + some college but no completed degree, 7 = 15 to 16 years, College degree, 8 = 17+ years, higher than College degree, 0 not applicable)
 GRADCOLL | Graduated from college (1 = Yes, 5 = no, 0 = not applicable)
 GRADCOLLW | Graduated from college (1 = Yes, 5 = no, 0 = not applicable or no wife/spouse)
 GRADHS | HH head graduate from High School (1 = Graduated, 2 = General Educational Diploma, 3 = Neither, 4 = not applicable)
@@ -148,7 +148,7 @@ In fact, you also need to carefully think about how to code, say the age of the 
 table(PSID$AGEW)
 ```
 
-As you can see there are 1355 responses where the age of the wife/spouse is coded as "0". This indicates that there are 1355 households where there is no wife or spouse. If we were to use the `AGEW` variable as a numeric variable (which it is coded as) then R would take the value of "0" literally. To avoid this we may want to create a new variable which indicates whether there is a spouse in the housefold (`SPOUSE`). That variable will be TRUE if `AGEW>17`.
+As you can see there are 1355 responses where the age of the wife/spouse is coded as "0". This indicates that there are 1355 households where there is no wife or spouse. If we were to use the `AGEW` variable as a numeric variable (which it is coded as) then R would take the value of "0" literally. To avoid this we may want to create a new variable which indicates whether there is a spouse in the household (`SPOUSE`). That variable will be TRUE if `AGEW>17`.
 
 ```{r}
 PSID <- PSID %>% mutate(SPOUSE = (AGEW>17))
@@ -298,8 +298,23 @@ This is the standard residual sum of squares (RSS) plus a penalty term which pen
 
 Before you apply the following function you should briefly browse through the help (`?glmnet`) of this function to understand some of the main features. There you will learn that the input option `alpha = 0` instructs the function to implement a ridge regression. This sets the penalty term to be equal to the above $\lambda \sum^p_{j=1}  \beta_j^2$.
 
+Let's estimate a ridge regression:
+
 ```{r}
 ridge=glmnet(x,y,family="gaussian",alpha=0)
+```
+
+Does the estimated ridge regression standardise the variables?
+
+`r hide("I need a hint")`
+
+You can use the help function  `?glmnet` to find information on the function's default choice.
+
+`r unhide()`
+
+`r mcq(c("no, neither y nor the variables in x", "only y", "only the variables in x", answer = "yes, both y and the variables in x"))` 
+
+```{r}
 plot(ridge,main="Ridge and coefficients path")
 ```
 
