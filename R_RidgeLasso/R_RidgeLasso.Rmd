@@ -314,47 +314,103 @@ You can use the help function  `?glmnet` to find information on the function's d
 
 `r mcq(c("no, neither y nor the variables in x", "only y", "only the variables in x", answer = "yes, both y and the variables in x"))` 
 
+The `glmnet` function automatically minimises the above objective function for a range of valued of $\lambda$. For each value of $\lambda$ the estimated coefficients are different. The larger the $\lambda$ the more large parameter values are penalised and therefore we will get smaller parameter estimates. 
+
+What is the meaning of the `family = "gaussian"` option inthe call to `glmnet`?
+
+`r hide("I need a hint")`
+
+Consult the help function. In the Details section you will find that using this option ensures that the optimisation minimises $(1/2 n) * RSS  + \lambda * penalty$. That is the optimisation function stated above. The difference is the factor $(1/2n)$ but as that is a constant this makes no difference to the optimised parameter values.  
+
+`r unhide()`
+
+The following plot shows these parameter estimates for large $\lambda$s on the left and small $\lambda$s on the right.
+
 ```{r}
-plot(ridge,main="Ridge and coefficients path")
+plot(ridge, main="Ridge and coefficients path")
 ```
 
-#-------------------------------------------------------------------------#
-# RIDGE shrinks parameters rather than selecting them (LASSO)
-#-------------------------------------------------------------------------#
+You can see one line for each of the 136 variables included in the model. An alternative way to see the parameters is the following. First re-estimate the model for particular values of $\lambda$.
 
-# In glmnet setting alpha=0 ensures we apply RIDGE
+```{r}
+paste("Large lambda:", ridge$lambda[25])
+paste("Medium lambda:", ridge$lambda[50])
+paste("Smalllambda:", ridge$lambda[75])
 
-ridge=glmnet(x,y,family="gaussian",alpha=0)
-plot(ridge,main="Ridge and coefficients path")
+ridge_lar=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[25])
+ridge_med=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[50])
+ridge_small=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[75])
+```
 
-ridge25=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[25])
-ridge50=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[50])
-ridge75=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[75])
+Now we use the `coefplot` function to plot the coefficients for each of these models.
 
-coefplot(ridge75,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (small lambda)")
-coefplot(ridge50,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (mid lambda)")
-coefplot(ridge25,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (large lambda)")
+```{r}
+coefplot(ridge_small,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (small lambda)")
+coefplot(ridge_med,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (mid lambda)")
+coefplot(ridge_lar,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (large lambda)")
 rm(ridge25,ridge50,ridge75)
+```
 
+When you compare the plots make sure you note the different scales on the horizontal axis. Larger $\lambdas$ result in smaller coefficient values. The vertical axis shows the associated variables, but there are too many to read these properly.
+
+### Choice of lambda
+
+The ridge regressions estimated above incorporate a trade-off. A $\lambda = 0$ would have delivered the best in-sample fit, however, this is unlikely to be the best choice when using the model for forecasting as it would over-fit the data used for estimation. Larger values of $\lambda$ will penalise against the in-sample over-fitting. But what is the best $\lambda$ to use?
+
+You will apply a cross validation approach to establish the best value of $\lambda$. The `glmnet` package we are using here to estimate Ridge (and Lasso) regressions has a function that makes this easy to apply. Here is the code:
+
+```{r}
 set.seed(1)
 cvridge=cv.glmnet(x,y,family="gaussian",alpha=0)
 plot(cvridge,main="Ridge and CV criterion")
+```
 
-# list estimated coefficients with lambda.min
+How many folds are used in the default setting for `cv.glmnet`?
+
+`r mcq(c( "5", answer ="10", "20", "100"))` 
+
+Why does `plot(cvridge,main="Ridge and CV criterion")` return the mean square error as the criterion of fit?  
+
+`r mcq(c( "cv.glmnet will always return MSE", "MSE is the only sensible measure of fit", answer ="This is the default when minimising RSS", "This is the default when maximising the log likelihood"))` 
+
+As you can see the `cv.glmnet` function returns estimation results for a range of possible $\lambda$ values. Let's see which is the optimal $\lambda$ by looking at `cvridge$lambda.min` which is where the $\lambda$ with the smallest MSE has been saved.
+
+```{r}
+
 cvridge$lambda.min
-ridge.coef.lambda.min=predict(cvridge, x, type="coeff",s=cvridge$lambda.min)[1:21,]
+```
+
+When calculating the natural log of that $\lambda$ you will find that to be `r log(cvridge$lambda.min)` which corresponds to the value where you can see the minimum MSE in the above plot (also signaled by the left dashed vertical line). 
+
+As you can see from the above plot MSE stays more or less the same even for somewhat larger values of $\lambda$ and often it is seen as advantageous to impose a somewhat larger penalty. The second vertical dashed line in the above plot indicates the value of $\lambda$ where the MSE is only one standard error larger than at `cvridge$lambda.min`. This is this value:
+
+```{r}
+cvridge$lambda.1se
+```
+
+Once you have chosen a $\lambda$ you can get the coefficients and predictions from that particular model. Here we look at the first 11 coefficients from the optimal model using both $\lambda_{min}$ and $\lambda_{1se}$. To do that we use the `predict` function using the `type="coeff"` option.
+
+```{r}
+# list estimated coefficients with lambda.min
+paste("lambda = ", cvridge$lambda.min)
+ridge.coef.lambda.min=predict(cvridge, x, type="coeff",s=cvridge$lambda.min)[1:11,]
 ridge.coef.lambda.min
 
 # list estimated coefficients with lambda.1se
-cvridge$lambda.1se
-ridge.coef.lambda.1se=predict(cvridge, x, type="coeff",s=cvridge$lambda.1se)[1:21,]
+paste("lambda = ", cvridge$lambda.1se)
+ridge.coef.lambda.1se=predict(cvridge, x, type="coeff",s=cvridge$lambda.1se)[1:11,]
 ridge.coef.lambda.1se
+```
 
+When re-running the above code for different random seeds the optimised parameters at any $\lambda$ will remain unchanged.
 
+`r torf(FALSE)`
 
+`r hide("Why is that so?")`
 
+The folds are created randomly. Everytime you divide the observations into the folds this allocation is random. For different such allocations you will find different optimised parameters. Only if you set the random seed to a particular value can you replicate results.
 
-
+`r unhide()`
 
 ## LASSO
 

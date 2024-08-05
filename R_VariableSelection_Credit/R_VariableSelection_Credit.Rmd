@@ -211,7 +211,7 @@ Look at the resulting dataframe to understand its structure. Now we can easily p
 ggplot(res_sel, aes(x = vars, y = bic, color = method)) + geom_line()
 ```
 
-If you wish to find which model sizes deliver the minimum BIC you ca do that as follows:
+If you wish to find which model sizes deliver the minimum BIC you can do that as follows:
 
 ```{r}
 res_sel %>% group_by(method) %>% summarise(test = which.min(bic))
@@ -301,7 +301,7 @@ full.train.summary=summary(full.train)
 ```
 
 Recall that this will save the models that are best for 1, 2 to 10 explanatory variables. This means that we need to check how well each of these different models does in predicting the `test` data.
-Now we
+Now we save some results from this estimation.
 
 ```{r}
 val.errors=rep(NA,10)
@@ -332,9 +332,9 @@ How sure are you about 7 being the optimal model size? Try and set a different r
 
 ### k-fold cross validation
 
-In the above exercise you split the data in one way, approximately 50% of the data into `train` and the remaining 50% into `test`. You could have change the percentages of course.
+In the above exercise you split the data in one way, approximately 50% of the data into `train` and the remaining 50% into `test`. You could, for example, use a different percentages.
 
-What cross-validation does is to basically repeat this process several times and then check which model size does best on average across the multiple data splits. TO be precise we split the sample into `k` (below we use `k` = 5) bins. Then each observation is randomly allocated to one of these bins or folds.
+What cross-validation does is to basically repeat this process several times and then check which model size does best on average across the multiple data splits. To be precise we split the sample into `k` (below we use `k` = 5) bins. Then each observation is randomly allocated to one of these bins or folds.
 
 
 ```{r}
@@ -348,7 +348,7 @@ cv.errors <- matrix (NA , k , 10 ,
 
 The last line creates a matrix, `cv.errors` in which we will store the results.
 
-Now we write a for loop that performs cross-validation. In the $j$th fold, the elements of folds that equal $j$ are in the test set, and the remainder are in the training set. We make our predictions for each model size (using our predict() method), compute the test errors on the appropriate subset, and store them in the appropriate slot in the matrix cv.errors.
+Now we write a `for` loop that performs cross-validation. In the $j$th fold, the elements of folds that equal $j$ are in the test set, and the remainder are in the training set. We make our predictions for each model size (using our predict() method), compute the test errors on the appropriate subset, and store them in the appropriate slot in the matrix cv.errors.
 
 ```{r}
 for (j in 1:k) {
@@ -369,7 +369,7 @@ mean.cv.errors <- apply(cv.errors, 2 ,mean)
 mean.cv.errors
 ```
 
-We see that cross-validation selects a 4-variable model. This is different to the 
+We see that cross-validation selects a 4-variable model. On this occasion that is the same model size we obtained when using the in-sample statistics on the full dataset. However, that is not necessarily the case.
 
 ## Estimate the best model
 
