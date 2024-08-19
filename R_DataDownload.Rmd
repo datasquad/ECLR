@@ -137,16 +137,9 @@ ons_data <- pdfetch_ONS("l55o","mm23")
 periodicity(ons_data)
 ```
 
-If you are looking for a particular series you will have to go to the ONS homepage and search for the database and series ID information you need. In the helo for the `pdfetch_ONS` function you will find a link which you can use to find the necessary information.
+If you are looking for a particular series you will have to go to the ONS homepage and search for the database and series ID information you need. In the help for the `pdfetch_ONS` function you will find a link which you can use to find the necessary information.
 
-Let's get some data from the [FRED](https://fred.stlouisfed.org) database:
-
-```{r}
-fred_data <- pdfetch_FRED(c("GFDEBTN"))
-periodicity(fred_data)
-```
-
-The data we downloaded here is the size of the [US public debt](https://fred.stlouisfed.org/series/GFDEBTN). The series ID of this series is "GFDEBTN". If you are looking for any particular series you should find it on the FRED website and identify its series ID.
+Check the `pdfetch` package information to see what other databases can be "tapped" with this package. 
 
 # Summary
 

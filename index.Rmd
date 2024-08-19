@@ -51,10 +51,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 
 ## Special topics
 
-| Topic | Workthrough | Data used |
-|:------|:-----|:-----|
-| Accessing nightlight data | [Workthrough in R]() |  
-
+to come
 
 # Examples
 

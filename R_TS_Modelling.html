@@ -472,7 +472,7 @@ format.</p>
 ur_female &lt;- pdfetch_ONS(&quot;YCPL&quot;,&quot;LMS&quot;)
 names(ur_female) &lt;- &quot;Unemp Rate (female)&quot;
 periodicity(ur_female)</code></pre>
-<pre><code>## Monthly periodicity from 1992-04-30 to 2024-03-31</code></pre>
+<pre><code>## Monthly periodicity from 1992-04-30 to 2024-05-31</code></pre>
 <pre class="r"><code># keep all the data including 2022-Jan
 # this was the last observation available at the time this was written
 # remove this line if you want to use updated data
@@ -487,7 +487,7 @@ names(ur_female_l)[3] &lt;- &quot;id&quot;
 infl &lt;- pdfetch_ONS(&quot;D7OE&quot;,&quot;MM23&quot;)
 names(infl) &lt;- &quot;CPI Inflation&quot;
 periodicity(infl)</code></pre>
-<pre><code>## Monthly periodicity from 1988-02-29 to 2024-05-31</code></pre>
+<pre><code>## Monthly periodicity from 1988-02-29 to 2024-07-31</code></pre>
 <pre class="r"><code># keep all the data including 2022-jan
 # this was the last observation available at the time this was written
 # remove this line if you want to use updated data
