@@ -538,7 +538,7 @@ There are three things we learn from this figure.
 
 From the F.B.I. website you can access the [Data Discovery Tool](https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/home) which is an interface which gives you access for a range of data. There are four categories of violent crime, homicide, rape, robbery and aggravated assault. Tick the last three and then download the data state by state for the years 2001 to 2021. ("add query" to add up to 5 states at a time, then submit, show the table and download; then reset query and chose the next 5 states).
 
-image: ![](FBI_CDT.jpg)
+image: ![](../images/FBI_CDT.jpg)
 
 While doing this for every state is a chore (although you can do it for 5 states at a time) it is ok as the resulting tables are all formatted identically and therefore it is fairly straightforward to get all data into one table.
 
