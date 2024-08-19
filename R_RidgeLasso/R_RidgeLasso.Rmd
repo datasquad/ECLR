@@ -412,9 +412,105 @@ The folds are created randomly. Everytime you divide the observations into the f
 
 `r unhide()`
 
+### Predicting from Ridge regression
+
+Once you have selected a model, for instance the model with  $\lambda_{1se}$, you can also use the `predict` function to use the estimated model to produce model forecasts. Typically you will have a new set of observations. Here we will produce forecasts for the observations which we did use for estimation. To produce forecasts you will need a matrix `x` which has the correct dimension. Recall what the dimension of the matrix `x` is
+
+How many rows and columns does the `x` matrix have?
+
+rows: `r fitb(dim(x)[1])`
+columns: `r fitb(dim(x)[2])`
+
+`r hide("I need a hint")`
+
+You can use the command  `dim(x)` to get rows and columns numbers of a matrix.
+
+`r unhide()`
+
+You can feed in any number of observations but you will need to ensure that the new input matrix has the same column structure (number of columns and same ordering of variables) as the `x` used in estimating the model. As we will ise `x` itself, this is trivially the case.
+
+```{r}
+ridge.predict.lambda.1se=predict(cvridge, x, type="response",s=cvridge$lambda.1se)
+```
+
+If you have a different set of observations you feed the respective matrix into `predict` instead of `x`. Here the result is a vector of `r dim(x)[1]` predictions which we can compare to the original observations of hourly wages which are stored in `y`.
+
+```{r}
+yp_ridge <- as.vector(ridge.predict.lambda.1se) # as vector makes a vector 
+temppred <- data.frame(y, yp_ridge )
+ggplot(temppred, aes(y = yp_ridge, x = y)) + 
+  geom_point() +
+  geom_abline(aes(intercept = 0, slope = 1)) +
+  labs(x = "Observed Wage", y = "Predicted wage",
+  title ="Predictions from Ridge regression")
+```
+
+As you can see, the model clearly is unable to predict very high wages well.
+
+
 ## LASSO
 
+Ridge regressions introduced a penalty to the least squares fit. This penalty penalised against large coefficient values and hence shrunk the coefficient values relative to the least squares fit, but importantly did shrink the parameter values towards 0, but not to 0. The LASSO introduces a different penalty, which will ensure that many coefficient parameters will be estimated to be 0.
 
+We are estimating the parameters in the following, unchanged, regression model
+
+\begin{equation}
+y_i = \beta_0 + \sum^p_{j=1} \beta_j x_{ij} + u_i
+\end{equation}
+
+where the regression model contains all $p$ regressors included in the matrix `x` we defined above. The parameters are estimated by minimizing
+
+\begin{equation}
+\sum^n_{i=1} \left( y_i - \beta_0 - \sum^p_{j=1} \beta_j x_{ij}\right)^2 + \lambda \sum^p_{j=1}  \beta_j^2 = RSS + \lambda \sum^p_{j=1}  |\beta_j| 
+\end{equation}
+
+Implementing the LASSO is done very similar to the Ridge regression. The `glmnet` function is used to estimate the LASSO, where we have to set the `alpha` parameter to `alpha = 1`.
+
+```{r}
+lasso=glmnet(x,y,family="gaussian",alpha=1)
+```
+
+As for the Ridge regression this function implements the optimisation for a range of different $\lambda$ values. 
+
+```{r}
+plot(lasso,main="Lasso and coefficients path")
+```
+
+We can see that larger $\lambda$ values (on the left) lead to parameter values which are 0. The smaller $\lambda$ the more parameters are estimated to be different from 0. This becomes more obvious if we look at the coefficient plot for a particular choice of $\lambda$.
+
+
+```{r}
+lasso25=glmnet(x,y,family="gaussian",alpha=1,lambda=lasso$lambda[25])
+coefplot(lasso25,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="LASSO Coefficient Plot (high lambda)")
+
+```
+
+The plot only shows the variables with coefficients that have been estimated to be unequal to 0. These are only 30 out of 136.
+
+As for the Ridge regression you will eventually have to chose a $\lambda$ value.
+
+### Choice of lambda
+
+The tool of choice is cross validation and this is implemented in a similar way as for the Ridge regression.
+
+```{r}
+set.seed(1)
+cv_lasso=cv.glmnet(x,y,family="gaussian",nfolds=10,alpha=1)
+# Plot CV criterion
+plot(cv_lasso,main="Lasso and CV criterion")
+```
+
+```{r}
+# list estimated coefficients with lambda.min
+cv_lasso$lambda.min
+lasso.coef.lambda.min=predict(cv_lasso, x, type="coeff",s=cv_lasso$lambda.min)[1:21,]
+lasso.coef.lambda.min
+
+# list estimated coefficients with lambda.1se
+cv_lasso$lambda.1se
+lasso.coef.lambda.1se=predict(cv_lasso, x, type="coeff",s=cv_lasso$lambda.1se)[1:21,]
+lasso.coef.lambda.1se
+```
 
 #-------------------------------------------------------------------------#
 # variable selection using LASSO  (using the glmnet package)

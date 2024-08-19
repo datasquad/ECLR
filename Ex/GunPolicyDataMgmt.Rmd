@@ -128,7 +128,7 @@ You will see that these indicate the "mechanism" of death, but do not indicate w
 
 When downloading the data from CDC website you can only download the data for one state at the time. Here are the filter settings used when downloading data from the WISQARS Fatal and Nonfatal Injury Reports.
 
-image: ![](images/WISQARSfilter.jpg)
+image: ![](../images/WISQARSfilter.jpg)
 
 After downloading these data you should have 51 such files, one for each state. This is the point where we have to do a bit of organising. Make sure that the files have a consistent and clear naming structure. Here we saved the files under the two letter abbreviation for each state, for instance "AL" for Alabama. At this stage you should make sure that you have a list of all the states and the associated abbreviations. You can get such a list from many places. Search the internet for something like "list of us states and abbreviations". 
 
