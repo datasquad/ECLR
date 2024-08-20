@@ -128,7 +128,7 @@ You will see that these indicate the "mechanism" of death, but do not indicate w
 
 When downloading the data from CDC website you can only download the data for one state at the time. Here are the filter settings used when downloading data from the WISQARS Fatal and Nonfatal Injury Reports.
 
-image: ![](../images/WISQARSfilter.jpg)
+image: ![](https://datasquad.github.io/ECLR/images/WISQARSfilter.jpg)
 
 After downloading these data you should have 51 such files, one for each state. This is the point where we have to do a bit of organising. Make sure that the files have a consistent and clear naming structure. Here we saved the files under the two letter abbreviation for each state, for instance "AL" for Alabama. At this stage you should make sure that you have a list of all the states and the associated abbreviations. You can get such a list from many places. Search the internet for something like "list of us states and abbreviations". 
 
@@ -538,7 +538,7 @@ There are three things we learn from this figure.
 
 From the F.B.I. website you can access the [Data Discovery Tool](https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/home) which is an interface which gives you access for a range of data. There are four categories of violent crime, homicide, rape, robbery and aggravated assault. Tick the last three and then download the data state by state for the years 2001 to 2021. ("add query" to add up to 5 states at a time, then submit, show the table and download; then reset query and chose the next 5 states).
 
-image: ![](../images/FBI_CDT.jpg)
+image: ![](https://datasquad.github.io/ECLR/images/FBI_CDT.jpg)
 
 While doing this for every state is a chore (although you can do it for 5 states at a time) it is ok as the resulting tables are all formatted identically and therefore it is fairly straightforward to get all data into one table.
 
