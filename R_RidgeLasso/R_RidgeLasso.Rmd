@@ -16,7 +16,9 @@ library(webexercises)
 
 # Introduction
 
-Here we will demonstrate the use of LASSO and Ridge regressions to deal with situations in which you estimate a regression model that contains a large amount of potential explanatory variables
+Here we will demonstrate the use of LASSO and Ridge regressions to deal with situations in which you estimate a regression model that contains a large amount of potential explanatory variables. These type of models will mainly be used for prediction purposes. The predictions may be the final aim of the work, or they may be used in some intermediate step in another analysis.
+
+We begin by loading a range of packages.
 
 ```{r}
 # load packages
@@ -34,6 +36,7 @@ library(stargazer)
 library(ggplot2)
 library(sandwich)
 library(coefplot)
+library(hdm)
 ```
 
 Let's load the dataset which contains an extract from the Panel Study of Income Dynamics (PSID). The datafile here is saved as a text file which can be imported using the `read.delim` function.
@@ -70,7 +73,7 @@ phist
 
 # Exploring the variables
 
-These are observations from the PSID and to  do serious work with this dataset we need to understand the variables. The PSID surveys household on their income but also a number of household and personal characteristics. The following [variable search page](https://simba.isr.umich.edu/DC/s.aspx) can be useful here. The main person interviewed is the household head, if there is a couple this was typically the man. You will see some variables which exist in two versions, for instance `AGE` and `AGEW`. The former refers to the household head and the latter to the wife's age. You can tell that this labeling is the result of patriarchal thinking. In later versions of the PSID this labeling has changed to household head and (where appropriate) the spouse.
+These are observations from the PSID and to do serious work with this dataset we need to understand the variables. The PSID surveys household on their income but also a number of household and personal characteristics. The following [variable search page](https://simba.isr.umich.edu/DC/s.aspx) can be useful here. The main person interviewed is the household head, if there is a couple this was typically the man. You will see some variables which exist in two versions, for instance `AGE` and `AGEW`. The former refers to the household head and the latter to the wife's age. You can tell that this labeling is the result of patriarchal thinking. In later versions of the PSID this labeling has changed to household head and (where appropriate) the spouse.
 
 Variable Name | Definition
 ------------- | -------------
@@ -96,24 +99,59 @@ SEX | 1 = Male, 2 = Female
 YEARSCOLL | Highest year of college completed
 STATE | [State identifier](https://en.wikipedia.org/wiki/List_of_U.S._state_and_territory_abbreviations), e.g. 5 = Arkansas
 
-# Modeling wage variation
+We will soon explore some aspects of these variables. But first we need to address a fundamental data structure question
 
-Let us start by running a simple regression of wages against the `GRADCOLL` variable
+# Data setup
+
+A fundamental problem in modern data science is that of over-fitting the data. The potential availability of many covariates (explanatory variables) and or the ability of fitting highly non-linear models (regression trees, random forests, neural networks to mention a few) leads to the possibility of fitting data very accurately. 
+
+However, fitting data accurately (in-sample) may not lead to ver good out-of sample predictions. What we mean here is predicting values for outcome variables for observations that were not involved in the estimation process. That, however, is usually the aim.
+
+To emulate this process we will separate the data into a base (or estimation or training) data set which we will use to estimate a model (`PSID_train`) and then a test dataset which is used to test the model on data that were not involved in the estimation process (`PSID_test`). 
+
+In real problems the latter may become available after the former has been used to estimate the model. Here we will set the testing dataset to be a randomly selected subset of our dataset, here approximately 30% of the data.
 
 ```{r}
-OLS1<-lm(WAGE~GRADCOLL, data = PSID)
+set.seed(1234) # We set the random seed to ensure that we always randomly select the same set of data
+test_prop = 0.3
+sel_test <- (runif(n=dim(PSID)[1], min=0, max=1) < test_prop)
+sel_train <- !sel_test
+```
+
+The two variables `sel_test` and `sel_train` are now two vectors which will help for the remainder of this project to select the training and testing dataset.
+
+What values do you find in the `sel_test` and `sel_train` vectors?
+
+`r mcq(c( "The values are 1 for when a row should be selected and 0 when it should not.", answer ="The values are TRUE for when a row should be selected and FALSE when it should not.", "The vector sel_test contains the row numbers that should belong to the test dataset and the vector sel_train the row numbers that belong to the training dataset."))` 
+
+`r hide("I need a hint to understand the structure of these selection variables.")`
+
+Both, `sel_test` and `sel_train`, contain as many elements as rows in PSID. Each element is either TRUE of FALSE. `sel_train` is defined as the opposite of `sel_test`, so when a row is TRUE in `sel_test` it is FALSE in `sel_train`. All rows that are TRUE in `sel_test` belong to the test dataset and all rows that are TRUE in `sel_train` belong tothe training dataset. `sel_test` was defined such that each element had a 30% probability to take the value TRUE.
+
+`r unhide()`
+
+Dealing with two datasets has an important complication, but one which carries an important lesson for empirical work. When we make changes to variables in the dataset we need to make them to all datasets. We therefore, keep all the data together in the `PSID` dataset and just select the respective rows when we need them for training or testing purposes.
+
+# Further data exploration
+
+We perform this data exploration on the training dataset only to emulate the process where you perform initial data analysis and model estimation on the training dataset only. The test dataset only comes in at the end as the data to which you want to apply the estimated model. 
+
+Let us start by running a simple regression of wages against the `GRADCOLL` variable.
+
+```{r}
+OLS1<-lm(WAGE~GRADCOLL, data = PSID[sel_train,])
 stargazer(OLS1, type = "text")
 ```
 
 ```{r}
-ggplot(PSID, aes(x = GRADCOLL, y = WAGE)) + 
+ggplot(PSID[sel_train,], aes(x = GRADCOLL, y = WAGE)) + 
   geom_point() +
   geom_smooth(method = "lm")
 ```
 
 GRADCOLL does not appear to explain the variation in wages (it appears as statistically insignificant). But the plot above also reveals another aspect of the data. There are only three possible values (0,1 and 5) for the `GRADCOLL` variable. It is defined as as a numeric variable, but really is a categorical variable (see the above table). If we treat it as numeric, as we have done above, we assume that a response of 1 (did receive a college degree is one unit better or worse than a response of 0 (inapplicable question) and a response of 5 (no college degree) is five times as good or bad as a response of 1. That doesn't make sense as the question is really a categorical variable.
 
-Let's define the variables as categorical variable
+Let's define the variables as categorical variable (in both datasets!).
 
 ```{r}
 PSID$GRADCOLL <- as.factor(PSID$GRADCOLL)
@@ -121,9 +159,8 @@ PSID$GRADCOLL <- as.factor(PSID$GRADCOLL)
 
 Now, let's re-run the regression with `GRADCOLL` as a categorical variable:
 
-
 ```{r}
-OLS1b<-lm(WAGE~GRADCOLL, data = PSID)
+OLS1b<-lm(WAGE~GRADCOLL, data = PSID[sel_train,])
 stargazer(OLS1b, type = "text")
 ```
 
@@ -133,22 +170,22 @@ Let's look at other variables which we may have to convert to categorical variab
 
 Which of the following variables should really be defined as categorical?
 
-`r mcq(c( "AGE", answer ="gradhs", "WAGE"))` 
+`r mcq(c( "AGE", answer ="GRADHS", "WAGE"))` 
 
 So, let's turn the following variables into factors.
 
 ```{r}
-cols <- c("DEGREE","DEGREEW", "FEDUCA", "FEDUCH", "GRADCOLLW","GRADHS","GRADHSW","MARRIED","MEDUCA","MEDUCH","SEX","STATE")
+cols <- c("DEGREE","DEGREEW", "FEDUCH", "GRADCOLLW","GRADHS","GRADHSW","MARRIED","MEDUCH","SEX","STATE")
 PSID <- PSID %>% mutate_at(cols, factor)
 ```
 
 In fact, you also need to carefully think about how to code, say the age of the spouse `AGEW`. To understand this it is useful to look at which values this variable takes.
 
 ```{r}
-table(PSID$AGEW)
+table(PSID[sel_train,]$AGEW)
 ```
 
-As you can see there are 1355 responses where the age of the wife/spouse is coded as "0". This indicates that there are 1355 households where there is no wife or spouse. If we were to use the `AGEW` variable as a numeric variable (which it is coded as) then R would take the value of "0" literally. To avoid this we may want to create a new variable which indicates whether there is a spouse in the household (`SPOUSE`). That variable will be TRUE if `AGEW>17`.
+As you can see there are 946 responses where the age of the wife/spouse is coded as "0". This indicates that there are 946 households where there is no wife or spouse. If we were to use the `AGEW` variable as a numeric variable (which it is coded as) then R would take the value of "0" literally. To avoid this we may want to create a new variable which indicates whether there is a spouse in the household (`SPOUSE`). That variable will be TRUE if `AGEW>17`.
 
 ```{r}
 PSID <- PSID %>% mutate(SPOUSE = (AGEW>17))
@@ -157,13 +194,15 @@ PSID <- PSID %>% mutate(SPOUSE = (AGEW>17))
 A similar story applies to the `AGEY` variable which indicates the age of the youngest child. We can look at a table indicating how often we get certain combinations of the `AGEY` and `CHILDREN` variable.
 
 ```{r}
-table(PSID$AGEY,PSID$CHILDREN, dnn = c("Age of youngest child","Number of children"))
+table(PSID[sel_train,]$AGEY,PSID[sel_train,]$CHILDREN, dnn = c("Age of youngest child","Number of children"))
 ```
 You can see that `AGEY=0` corresponds to no child being in the household. We therefore define the variable `CHILD` as follows
 
 ```{r}
 PSID <- PSID %>% mutate(CHILD = (CHILDREN>1))
 ```
+
+# Modeling wage variation
 
 Now we can include multiple variables that may help explain variation in wages, such as AGE, MARRIED etc. Therefore define the model with all controls.
 
@@ -174,7 +213,7 @@ reg_wage_all_control <- WAGE~AGE+AGE2+AGEW+AGEY+CHILDREN+DEGREE+DEGREEW+
 # does not use GRADCOLL and GRADCOLLW as that info is colinear with DEGREE and DEGREEW
 # check table(PSID$GRADCOLL,PSID$DEGREE) to see why
 # run multiple linear regression
-OLS2<-lm(reg_wage_all_control, data = PSID)
+OLS2<-lm(reg_wage_all_control, data = PSID[sel_train,])
 stargazer(OLS2, type = "text")
 ```
 
@@ -182,16 +221,16 @@ Why did the above regression exclude the `GRADCOLL` and `GRADCOLLW` variable?
 
 `r mcq(c( answer = "As GRADCOLL1 = DEGREE1 + ... + DEGREE6", "As GRADCOLL1 = DEGREE1", "As GRADCOLL5 = DEGREE1 + ... + DEGREE6", "As GRADCOLL5 = DEGREE5"))` 
 
-The regression output is not shown here as the regression contains more than 200 coefficients. Recall that dummy variables are created for all possible outcomes for each factor variable, so as there 52 possible outcomes for the variable `STATE` there are 52-1 variables included for the `STATE` variable alone.
+The regression output shows almost 100 coefficients. Recall that dummy variables are created for all possible outcomes for each factor variable, so as there 52 possible outcomes for the variable `STATE` there are 52-1 variables included for the `STATE` variable alone.
 
 Of course there are many of these variables that are not significant. For instance, let's test whether the coefficients relating to the `MEDUCH` variable are statistically significantly different from 0.
 
 ```{r}
 test0 <- names(coef(OLS2)) # get all coefficient names
-test0 <- test0[grepl("MEDUCH", test0)]
+test0 <- test0[grepl("MEDUCH", test0)] # keep the ones that contain "MEDUCH"
 lht(OLS2, test0)
 ```
-The p-value is larger than 0.8 and hence the null hypothesis that these coefficients are 0 cannot be rejected.
+The p-value is larger than 0.6 and hence the null hypothesis that these coefficients are 0 cannot be rejected.
 
 # Variable Selection
 
@@ -201,7 +240,8 @@ The mechanics of the forward, backward and best subset selection methods are des
 
 ```{r}
 PSID_reg <- PSID %>% select(-c(GRADCOLL,GRADCOLLW))  # to exclude the colinear variables
-regfit.forw = regsubsets(WAGE~.,data=PSID_reg,nvmax=40,method="forward")
+
+regfit.forw = regsubsets(WAGE~.,data=PSID_reg[sel_train,],nvmax=40,method="forward")
 forw.summary = summary(regfit.forw)
 rsq_forw <- forw.summary$rsq
 bic_forw <- forw.summary$bic
@@ -210,7 +250,7 @@ bic_forw <- forw.summary$bic
 ## Backward stepwise selection
 
 ```{r}
-regfit.back = regsubsets(WAGE~.,data=PSID_reg,nvmax=40,method="backward")
+regfit.back = regsubsets(WAGE~.,data=PSID_reg[sel_train,],nvmax=40,method="backward")
 back.summary = summary(regfit.back)
 rsq_back <- back.summary$rsq
 bic_back <- back.summary$bic
@@ -218,19 +258,20 @@ bic_back <- back.summary$bic
 
 ## Best Subset selection 
 
-This would, in principle, be a possibility, but with over 130 possible variables, this leaves too many possibilities. The code would run for a long time, even for the modest number of observations
+This would, in principle, be a possibility, but with around 100 possible variables, this leaves too many possibilities. The code would run for a long time, even for the modest number of observations. We therefore will not apply this.
 
 ```{r, eval = FALSE}
-regfit.back = regsubsets(WAGE~.,data=PSID_reg,nvmax=40,really.big = TRUE, method="exhaustive")
+regfit.back = regsubsets(WAGE~.,data=PSID_reg[sel_train,],nvmax=40,really.big = TRUE, method="exhaustive")
 full.summary = summary(regfit.forw)
 rsq_full <- full.summary$rsq
 bic_full <- full.summary$bic
 ```
 
+## Subset selection summary
 
 ```{r}
-res_sel <- data.frame(vars = seq(1,40), bic = bic_forw, rsq = rsq_forw, method = "Forward")
-res_sel <- rbind(res_sel, data.frame(vars = seq(1,40), bic = bic_back, rsq = rsq_back, method = "Backward"))
+res_sel <- data.frame(vars = seq(1,41), bic = bic_forw, rsq = rsq_forw, method = "Forward")
+res_sel <- rbind(res_sel, data.frame(vars = seq(1,41), bic = bic_back, rsq = rsq_back, method = "Backward"))
 ```
 
 Look at the resulting dataframe to understand its structure. Now we can easily plot the results.
@@ -246,19 +287,45 @@ res_sel %>% group_by(method) %>% summarise(test = which.min(bic))
 The different methods select slightly different numbers of optimal variables. Let's check which variables were selected.
 
 ```{r}
-PSIDX = model.matrix(WAGE ~ .,data = PSID_reg)    # Build the model matrix
 print("Selected variables from forward procedure")
-selvars.forw <- forw.summary$which[21,]
+selvars.forw <- forw.summary$which[18,]
 names(selvars.forw[selvars.forw==TRUE])
 print("")
 print("Selected variables from backward procedure")
-selvars.back <- back.summary$which[19,]
+selvars.back <- back.summary$which[13,]
 names(selvars.back[selvars.back==TRUE])
 ```
 
-From these lists you can see that the two lists are very similar. They only differ in two state dummies.
+From these lists you can see that the two lists contain common variables (like `FEDUCH8` or `GRADHS1`) but there are also some variables which only appear in one of the two selected models.
 
-## Ridge Regression
+## Out-of-sample performance
+
+We now apply the two models we estimated to the training dataset. As discussed in the exercise dedicated to the [subset selection methods](https://datasquad.github.io/ECLR/R_VariableSelection_Credit/R_VariableSelection_Credit.html), this is facilitated by this function.
+
+```{r}
+predict.regsubsets = function(object,newdata,id,...){
+  form = as.formula(object$call[[2]]) # Extract the formula used when we called regsubsets()
+  mat = model.matrix(form,newdata)    # Build the model matrix
+  coefi = coef(object,id=id)          # Extract the coefficiants of the ith model
+  xvars = names(coefi)                # Pull out the names of the predictors used in the ith model
+  mat[,xvars]%*%coefi               # Make predictions using matrix multiplication
+}
+```
+
+```{r}
+# Create model matrix - may not be needed
+#mat <- model.matrix(WAGE ~.,PSID)
+#mat_train <- mat[sel_train,]
+#mat_test <- mat[sel_test,]
+
+pred.forw=predict.regsubsets(regfit.forw,PSID_reg[sel_test,],id=18)
+val.errors.forw=mean((PSID_reg[sel_test,]$WAGE-pred.forw)^2)
+
+pred.back=predict.regsubsets(regfit.back,PSID_reg[sel_test,],id=13)
+val.errors.back=mean((PSID_reg[sel_test,]$WAGE-pred.back)^2)
+```
+
+# Ridge Regression
 
 The previous variable selection methods estimated a lot of different models to then compare these using information criteria. Ridge regression will estimate one model only (not by OLS any longer) but will penalise coefficients in a way to "bend" them towards 0. 
 
@@ -282,7 +349,9 @@ You can use the command  `dim(x)` to get rows and columns numbers of a matrix.
 
 `r unhide()`
 
-you will now use the `glmnet` function to estimate a ridge regression. While we will not go through the technical details of ridge regressions it is worthwhile to restate the optimisation problem solved by ridge regressions. We are estimating the parameters in the  following regression model
+Note that we did this on the entire datset (training and testing) to ensure that both datasets have the same structure.
+
+You will now use the `glmnet` function to estimate a ridge regression. While we will not go through the technical details of ridge regressions it is worthwhile to restate the optimisation problem solved by ridge regressions. We are estimating the parameters in the  following regression model
 
 \begin{equation}
 y_i = \beta_0 + \sum^p_{j=1} \beta_j x_{ij} + u_i
@@ -301,7 +370,7 @@ Before you apply the following function you should briefly browse through the he
 Let's estimate a ridge regression:
 
 ```{r}
-ridge=glmnet(x,y,family="gaussian",alpha=0)
+ridge=glmnet(x[sel_train,],y[sel_train],family="gaussian",alpha=0)
 ```
 
 Does the estimated ridge regression standardise the variables?
@@ -337,9 +406,9 @@ paste("Large lambda:", ridge$lambda[25])
 paste("Medium lambda:", ridge$lambda[50])
 paste("Smalllambda:", ridge$lambda[75])
 
-ridge_lar=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[25])
-ridge_med=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[50])
-ridge_small=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[75])
+ridge_lar=glmnet(x[sel_train,],y[sel_train],family="gaussian",alpha=0,lambda=ridge$lambda[25])
+ridge_med=glmnet(x[sel_train,],y[sel_train],family="gaussian",alpha=0,lambda=ridge$lambda[50])
+ridge_small=glmnet(x[sel_train,],y[sel_train],family="gaussian",alpha=0,lambda=ridge$lambda[75])
 ```
 
 Now we use the `coefplot` function to plot the coefficients for each of these models.
@@ -353,15 +422,15 @@ rm(ridge25,ridge50,ridge75)
 
 When you compare the plots make sure you note the different scales on the horizontal axis. Larger $\lambdas$ result in smaller coefficient values. The vertical axis shows the associated variables, but there are too many to read these properly.
 
-### Choice of lambda
+## Choice of lambda
 
 The ridge regressions estimated above incorporate a trade-off. A $\lambda = 0$ would have delivered the best in-sample fit, however, this is unlikely to be the best choice when using the model for forecasting as it would over-fit the data used for estimation. Larger values of $\lambda$ will penalise against the in-sample over-fitting. But what is the best $\lambda$ to use?
 
 You will apply a cross validation approach to establish the best value of $\lambda$. The `glmnet` package we are using here to estimate Ridge (and Lasso) regressions has a function that makes this easy to apply. Here is the code:
 
 ```{r}
-set.seed(1)
-cvridge=cv.glmnet(x,y,family="gaussian",alpha=0)
+set.seed(1) # chosing CV folds is random, this ensures that you get identical folds when re-running the code
+cvridge=cv.glmnet(x[sel_train,],y[sel_train],family="gaussian",alpha=0)
 plot(cvridge,main="Ridge and CV criterion")
 ```
 
@@ -376,7 +445,6 @@ Why does `plot(cvridge,main="Ridge and CV criterion")` return the mean square er
 As you can see the `cv.glmnet` function returns estimation results for a range of possible $\lambda$ values. Let's see which is the optimal $\lambda$ by looking at `cvridge$lambda.min` which is where the $\lambda$ with the smallest MSE has been saved.
 
 ```{r}
-
 cvridge$lambda.min
 ```
 
@@ -393,13 +461,13 @@ Once you have chosen a $\lambda$ you can get the coefficients and predictions fr
 ```{r}
 # list estimated coefficients with lambda.min
 paste("lambda = ", cvridge$lambda.min)
-ridge.coef.lambda.min=predict(cvridge, x, type="coeff",s=cvridge$lambda.min)[1:11,]
-ridge.coef.lambda.min
+c.min <- coef(cvridge, s = "lambda.min")
 
 # list estimated coefficients with lambda.1se
 paste("lambda = ", cvridge$lambda.1se)
-ridge.coef.lambda.1se=predict(cvridge, x, type="coeff",s=cvridge$lambda.1se)[1:11,]
-ridge.coef.lambda.1se
+c.1se <- coef(cvridge, s = "lambda.1se")
+
+cbind(c.min, c.1se)
 ```
 
 When re-running the above code for different random seeds the optimised parameters at any $\lambda$ will remain unchanged.
@@ -412,33 +480,33 @@ The folds are created randomly. Everytime you divide the observations into the f
 
 `r unhide()`
 
-### Predicting from Ridge regression
+## Predicting from Ridge regression
 
-Once you have selected a model, for instance the model with  $\lambda_{1se}$, you can also use the `predict` function to use the estimated model to produce model forecasts. Typically you will have a new set of observations. Here we will produce forecasts for the observations which we did use for estimation. To produce forecasts you will need a matrix `x` which has the correct dimension. Recall what the dimension of the matrix `x` is
+Once you have selected a model, for instance the model with  $\lambda_{1se}$, you can also use the `predict` function to use the estimated model to produce model forecasts. Typically you will have a new set of observations, as we have here using the information indexed by `sel_test` which were not used in the estimation process. To produce forecasts you will need a new matrix `x` which has the correct number of columns. Recall what the dimension of the matrix `x` is
 
-How many rows and columns does the `x` matrix have?
+How many columns does the `x` matrix have?
 
-rows: `r fitb(dim(x)[1])`
 columns: `r fitb(dim(x)[2])`
 
 `r hide("I need a hint")`
 
-You can use the command  `dim(x)` to get rows and columns numbers of a matrix.
+You can use the command  `dim(x)` to get rows and columns numbers of a matrix. You could also look at `dim(x[sel_train,])` which is the actual `x` matrix used for estimation. They will both have the same number of columns. 
 
 `r unhide()`
 
-You can feed in any number of observations but you will need to ensure that the new input matrix has the same column structure (number of columns and same ordering of variables) as the `x` used in estimating the model. As we will ise `x` itself, this is trivially the case.
+You can feed in any number of observations but you will need to ensure that the new input matrix has the same column structure (number of columns and same ordering of variables) as the `x` used in estimating the model. As we will use `x[sel_test,]`, this is the case by construction.
 
 ```{r}
-ridge.predict.lambda.1se=predict(cvridge, x, type="response",s=cvridge$lambda.1se)
+ridge.predict.lambda.1se <- predict(cvridge, x[sel_test,], type="response",s=cvridge$lambda.1se)
+ridge.predict.lambda.min <- predict(cvridge, x[sel_test,], type="response",s=cvridge$lambda.min)
 ```
 
-If you have a different set of observations you feed the respective matrix into `predict` instead of `x`. Here the result is a vector of `r dim(x)[1]` predictions which we can compare to the original observations of hourly wages which are stored in `y`.
+Here the result is a vector of `r dim(x)[1]` predictions which is the number of observations we set aside to be in our test dataset. We can compare to the original observations of hourly wages which are stored in `y`.
 
 ```{r}
 yp_ridge <- as.vector(ridge.predict.lambda.1se) # as vector makes a vector 
-temppred <- data.frame(y, yp_ridge )
-ggplot(temppred, aes(y = yp_ridge, x = y)) + 
+temppred <- data.frame(y = y[sel_test], yp.ridge = yp_ridge )
+ggplot(temppred, aes(y = yp.ridge, x = y)) + 
   geom_point() +
   geom_abline(aes(intercept = 0, slope = 1)) +
   labs(x = "Observed Wage", y = "Predicted wage",
@@ -448,7 +516,7 @@ ggplot(temppred, aes(y = yp_ridge, x = y)) +
 As you can see, the model clearly is unable to predict very high wages well.
 
 
-## LASSO
+# LASSO
 
 Ridge regressions introduced a penalty to the least squares fit. This penalty penalised against large coefficient values and hence shrunk the coefficient values relative to the least squares fit, but importantly did shrink the parameter values towards 0, but not to 0. The LASSO introduces a different penalty, which will ensure that many coefficient parameters will be estimated to be 0.
 
@@ -467,7 +535,7 @@ where the regression model contains all $p$ regressors included in the matrix `x
 Implementing the LASSO is done very similar to the Ridge regression. The `glmnet` function is used to estimate the LASSO, where we have to set the `alpha` parameter to `alpha = 1`.
 
 ```{r}
-lasso=glmnet(x,y,family="gaussian",alpha=1)
+lasso=glmnet(x[sel_train,],y[sel_train],family="gaussian",alpha=1)
 ```
 
 As for the Ridge regression this function implements the optimisation for a range of different $\lambda$ values. 
@@ -480,146 +548,160 @@ We can see that larger $\lambda$ values (on the left) lead to parameter values w
 
 
 ```{r}
-lasso25=glmnet(x,y,family="gaussian",alpha=1,lambda=lasso$lambda[25])
+lasso25=glmnet(x[sel_train,],y[sel_train],family="gaussian",alpha=1,lambda=lasso$lambda[25])
 coefplot(lasso25,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="LASSO Coefficient Plot (high lambda)")
 
 ```
 
-The plot only shows the variables with coefficients that have been estimated to be unequal to 0. These are only 30 out of 136.
+The plot only shows the variables with coefficients that have been estimated to be unequal to 0. These are only 23 out of 101 variables.
 
-As for the Ridge regression you will eventually have to chose a $\lambda$ value.
+Similar the Ridge regression you will eventually have to chose a $\lambda$ value.
 
-### Choice of lambda
+## Choice of lambda
 
 The tool of choice is cross validation and this is implemented in a similar way as for the Ridge regression.
 
 ```{r}
 set.seed(1)
-cv_lasso=cv.glmnet(x,y,family="gaussian",nfolds=10,alpha=1)
+cv_lasso=cv.glmnet(x[sel_train,],y[sel_train],family="gaussian",nfolds=10,alpha=1)
 # Plot CV criterion
 plot(cv_lasso,main="Lasso and CV criterion")
 ```
+
+You see from this plot that the minimum of the MSE criterion (average MSE over the 10 cross-validation folds) is where $log(\lambda)$ is about -1.5 (equivalent to $\lambda = $ `r cv_lasso$lambda.min`). This could be a $\lambda$ value to use. It is, in this literature, however common practice to chose (or at lest consider) a somewhat larger $\lambda$ implying even more regulisation. That is the $\lambda$ value associated to the second dashed line, around $log(\lambda)=0.17$ or $\lambda = $ `r cv_lasso$lambda.1se`.
+
+Let us  now check what parameters these different levels of regularisation imply:
 
 ```{r}
 # list estimated coefficients with lambda.min
-cv_lasso$lambda.min
-lasso.coef.lambda.min=predict(cv_lasso, x, type="coeff",s=cv_lasso$lambda.min)[1:21,]
-lasso.coef.lambda.min
+print(paste("lambda min = ", cv_lasso$lambda.min))
+print(paste("lambda +1s.e. = ", cv_lasso$lambda.1se))
 
-# list estimated coefficients with lambda.1se
-cv_lasso$lambda.1se
-lasso.coef.lambda.1se=predict(cv_lasso, x, type="coeff",s=cv_lasso$lambda.1se)[1:21,]
-lasso.coef.lambda.1se
+# get the coeficients using the predict function
+lasso.coef.lambda.min <- coef(cv_lasso, s = "lambda.min")
+lasso.coef.lambda.1se <- coef(cv_lasso, s = "lambda.1se")
+
+print(cbind(lasso.coef.lambda.min, lasso.coef.lambda.1se))
 ```
 
-#-------------------------------------------------------------------------#
-# variable selection using LASSO  (using the glmnet package)
-#-------------------------------------------------------------------------#
+You can see that the larger $\lambda$ value does deliver a much sparser model.
 
-# In glmnet we need to let alpha=1 to ensure we apply LASSO
-# we standardize the regressors
+## Predicting from LASSO regressions
 
-lasso=glmnet(x,y,family="gaussian",alpha=1,standardize=TRUE,intercept=TRUE) 
-par(mfrow=c(1,1))
-plot(lasso,main="Lasso and coefficients path")
+Let's see how closely the model predictions (in the training dataset) are correlated.
 
-lasso25=glmnet(x,y,family="gaussian",alpha=1,lambda=lasso$lambda[25])
-lasso50=glmnet(x,y,family="gaussian",alpha=1,lambda=lasso$lambda[50])
-lasso75=glmnet(x,y,family="gaussian",alpha=1,lambda=lasso$lambda[75])
+```{r}
+# Extract the predicted values
+lasso.predict.lambda.min <- predict(cv_lasso, x[sel_test,], s=cv_lasso$lambda.min)
+lasso.predict.lambda.1se <- predict(cv_lasso, x[sel_test,], s=cv_lasso$lambda.1se)
 
-dev.off()
-coefplot(lasso75,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="LASSO Coefficient Plot (small lambda)")
-coefplot(lasso50,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="LASSO Coefficient Plot (mid lambda)")
-coefplot(lasso25,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="LASSO Coefficient Plot (large lambda)")
-rm(lasso25,lasso50,lasso75)
+# Correlation between the predicted values of the two Lasso models
+cor_fit <- cor(lasso.predict.lambda.min,lasso.predict.lambda.1se)
+print(paste0("Correlation between predicted values: ", cor_fit))
+```
 
-# We can choose lambda by cross-validation using cv.glmnet
-# by default it uses a 10-fold cross validation and a grid of 100 lambda values
-# lambda.min: the value that gives the min CV criterion
-# lambda.1se, the largest value of lambda such that the error is within 
-#      1 standard dev from the minimum  CV criterion
+So while the models are quite different, the correlation between the two prediction series is quite strong.
 
-set.seed(1)
-cv_lasso=cv.glmnet(x,y,family="gaussian",nfolds=10,alpha=1)
-# Plot CV criterion
-par(mfrow=c(1,1))
-plot(cv_lasso,main="Lasso and CV criterion")
+# Comparing Model performance
 
-# list estimated coefficients with lambda.min
-cv_lasso$lambda.min
-lasso.coef.lambda.min=predict(cv_lasso, x, type="coeff",s=cv_lasso$lambda.min)[1:21,]
-lasso.coef.lambda.min
+We have now estimated models with forward and backward variable selection as well as Ridge and Lasso regressions. Let us compare how well these models do in predicting wages in our testing dataset.
 
-# list estimated coefficients with lambda.1se
-cv_lasso$lambda.1se
-lasso.coef.lambda.1se=predict(cv_lasso, x, type="coeff",s=cv_lasso$lambda.1se)[1:21,]
-lasso.coef.lambda.1se
+```{r}
+y.real <- y[sel_test]
+MSE.back <- mean((y.real-pred.back)^2)
+MSE.forw <- mean((y.real-pred.forw)^2)
+MSE.ridge.min <- mean((y.real-ridge.predict.lambda.min)^2) 
+MSE.ridge.1se <- mean((y.real-ridge.predict.lambda.1se)^2) 
+MSE.lasso.min <- mean((y.real-lasso.predict.lambda.min)^2) 
+MSE.lasso.1se <- mean((y.real-lasso.predict.lambda.1se)^2) 
 
-
-#-------------------------------------------------------------------------#
-# RIDGE shrinks parameters rather than selecting them (LASSO)
-#-------------------------------------------------------------------------#
-
-# In glmnet setting alpha=0 ensures we apply RIDGE
-
-ridge=glmnet(x,y,family="gaussian",alpha=0)
-plot(ridge,main="Ridge and coefficients path")
-
-ridge25=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[25])
-ridge50=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[50])
-ridge75=glmnet(x,y,family="gaussian",alpha=0,lambda=ridge$lambda[75])
-
-coefplot(ridge75,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (small lambda)")
-coefplot(ridge50,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (mid lambda)")
-coefplot(ridge25,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coefficient",title="RIDGE Coefficient Plot (large lambda)")
-rm(ridge25,ridge50,ridge75)
-
-set.seed(1)
-cvridge=cv.glmnet(x,y,family="gaussian",alpha=0)
-plot(cvridge,main="Ridge and CV criterion")
-
-# list estimated coefficients with lambda.min
-cvridge$lambda.min
-ridge.coef.lambda.min=predict(cvridge, x, type="coeff",s=cvridge$lambda.min)[1:21,]
-ridge.coef.lambda.min
-
-# list estimated coefficients with lambda.1se
-cvridge$lambda.1se
-ridge.coef.lambda.1se=predict(cvridge, x, type="coeff",s=cvridge$lambda.1se)[1:21,]
-ridge.coef.lambda.1se
-
-
-#-------------------------------------------------------------------------#
-# variable selection using LASSO  (using the hdm package)
-#-------------------------------------------------------------------------#
-
-y=as.matrix(PSID[,1])
-x=as.matrix(PSID[,2:21])
-
-ylasso <- rlasso(y=y,x=x,post=TRUE)
-# ylasso <- rlasso(y=y,x=x,post=TRUE,intercept=TRUE,
-#              penalty = list(homoscedastic=FALSE,X.dependent.lambda = FALSE, 
-#                             Lambda.start = NULL, c=1.1, gamma = 0.1/log(n)),
-#              control = list(numIter=15, tol = 10^-5, threshold = NULL))
-
-# index indicating selected variables
-Iy=ylasso$index
-# coefficients obtained by lasso
-ylasso$coefficients
-
-# Note: these results are very similar to lasso.coef.lambda.1se
-# Need to still see how to change the automated selection of lambda here  
-
-
-
-#---------------------------------------------------------------------------------#
-# clearly in this model, we are in particular interested in estimating and 
-# performing inference on the variable GRADCOLL that accounts for all confounders
-#---------------------------------------------------------------------------------#
-
-lasso_effect_p = rlassoEffects(x=x,y=y,index=c(19),method="partialling out",I3=NULL,post=TRUE)
-summary(lasso_effect_p)
-lasso_effect_d = rlassoEffects(x=x,y=y,index=c(19),method="double selection",I3=NULL,post=TRUE)
-summary(lasso_effect_d)
+print("Mean Square Errors (MSE) in training set")
+print(paste("MSE backward selection",MSE.back))
+print(paste("MSE forward selection",MSE.forw))
+print(paste("MSE Ridge min lambda",MSE.ridge.min))
+print(paste("MSE Ridge 1se lambda",MSE.ridge.1se))
+print(paste("MSE LASSO min lambda",MSE.lasso.min))
+print(paste("MSE LASSO 1se lambda",MSE.lasso.1se))
 
 ```
+
+From here you can see that in this case the Ridge regression delivered the best out of sample performance.
+
+# Alternative Packages
+
+In R, but also other programming languages like Python, the same thing can be done in different ways. In particular, different packages may have been written to achieve the same thing.
+
+Which function from the `hdm` package allows you to estimate a LASSO regression? 
+
+`r mcq(c( "lassoregression", "tsls", answer ="rlasso", "p_adjust", "lasso"))` 
+
+`r hide("How can I possibly know the answer to that question?")`
+
+You can't know!!! But you can find out. If you know that a particular package could potentially have a certain functionality. You should web search something like "R hdm lasso regression" and you are likely to find a link to the package's page on the [CRAN webpage](https://cran.r-project.org/web/packages/hdm/index.html). These pages contain info on all packages. The reference manual and the vignette are likely to help you find the relevant function. 
+
+`r unhide()`
+
+```{r, eval = FALSE}
+# replace XXXX with the correct function name
+lasso.hdm <- XXXX(WAGE~.,data = PSID_reg[sel_train,],post=TRUE) 
+summary(lasso.hdm)
+```
+
+```{r, echo = FALSE}
+lasso.hdm <- rlasso(WAGE~.,data = PSID_reg[sel_train,],post=TRUE)
+summary(lasso.hdm)
+```
+
+While this conceptually estimates the same LASSO model as above there are slight differences to the earlier approach. To figure out what these are you really need to read the help function. The main differences here are:
+
+* the `hdm` package does not use cross validation to find the optimal $\lambda$, they set it to a data dependent value (see the [vignette](https://cran.r-project.org/web/packages/hdm/vignettes/hdm.html) for details).
+* after chosing the variables with non-zero coefficients the model is re-estimated without the penalty term (option `POST = TRUE`).
+
+Let's predict from this LASSO model.
+
+```{r, eval = FALSE}
+lasso.hdm.predict = predict(lasso.hdm, newdata = PSID_reg[sel_test,])  #out-of-sample prediction
+```
+
+When you try this you will most likely get an error message like:
+
+"Error in X %*% beta : non-conformable arguments"
+
+Dealing with error messages like this is a normal and very common activity you will have to do when applying empirical techniques. The message refers to "X %*% beta". 
+
+This refers to the multiplication needed for producing forecasts: $\hat{y} = X \hat{\beta}$. For this operation to work the number of columns of $X$ has to be identical to the number of estimated parameters in $\hat{\beta}$. And the error message tells us that this does not seem to be the case ("non-conformable arguments"). In this case this message will lead us to a solution. Unfortunately it is not the case that error messages are always so informative. A great illustration of that and an essential watch to understand how to **debug** is this [YouTube clip of a Jenny Bryan](https://www.youtube.com/watch?v=vgYS-F8opgE).
+
+So how can that be. We are feeding the same dataset into the `predict` function (`newdata = PSID[sel_test,]`) as the one we used to estimate the model (`data = PSID_reg[sel_train,]`), just different rows. Why then do the parameters which come from the estimated model not fit the data used for forecasting?
+
+The key to understanding this is to recognise that `PSID_reg` contains some `factor` variables. What the `rlasso` function does is that it turns all factor variables into k-1 dummy variables if there are k different values for that factor variable (e.g. `DEGREEW`). So it could be that in the training dataset there are observations with all 7 different outcomes and hence when we called `rlasso` there were indeed 6 dummy variables created and appropriate parameters estimated. If now, however, in the testing dataset there are only observations for 6 out of these 7 categories, then only 5 dummy variables will be created and therefore we have created a mismatch between $X$ columns and $\hat{\beta}$ elements.
+
+This should not be a problem if all variables are numeric as then the size of the dataset handed into the function exactly represents the number of variables used.
+
+So, how do we go about this. We will actually use a trick we already used when applying the Ridge and LASSO regressions earlier. We then first created the `y` and `x` objects which we used in `glmnet`. Let's recall how we created `y` and `x`:
+
+```{r, eval = FALSE}
+y <- PSID_reg$WAGE
+x <- model.matrix(WAGE~.,data = PSID_reg)[,-1]
+```
+
+`y` just gets the dependent variable. `x` uses the model.matrix function and creates the dummy variables from the factor variables in `PSID_reg`. Importantly we do this for the entire dataset not only the training dataset. We then feed the training rows (`sel_train`) into `glmnet`. Let's use the same approach with the `rlasso` function:
+
+```{r, echo = FALSE}
+lasso.hdm2 <- rlasso(y[sel_train]~x[sel_train,],post=TRUE)
+lasso.hdm2.predict = predict(lasso.hdm2, newdata = x[sel_test,])  #out-of-sample prediction
+```
+
+Now that we have forecasts from this LASSO implementation we can again calculate the MSE for these forecasts.
+
+```{r}
+MSE.lasso.hdm <- mean((y.real-lasso.hdm2.predict)^2) 
+print(paste("MSE backward selection",MSE.lasso.hdm))
+```
+
+Comparing this to the earlier evaluations you will realise that this is better than the two cross-validated LASSO versions, but not better than the Ridge regressions.
+
+# Summary
+
+In this section we went through applications of Ridge and LASSO regressions. We learned how to apply cross-validation to find the optimal value for the penalty parameters and then how to apply the estimated models to a new dataset.
+
+You also learned that you have to be very careful with the data setup, in particular when your dataset contains factor variables. As we encountered such a problem we also aplied one of the most important skills you will need as an applied researcher, namely debugging your code. nobody can teach you how to debug, but perhaps the work in this section gave you some hints on how to start.
