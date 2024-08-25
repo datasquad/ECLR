@@ -459,6 +459,7 @@ Regression</h1>
 </div>
 
 
+<p>This exercise is part of the <a href="https://datasquad.github.io/ECLR/">ECLR</a> page.</p>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>Here we will demonstrate the use of LASSO and Ridge regressions to
@@ -485,8 +486,9 @@ library(sandwich)
 library(coefplot)
 library(hdm)</code></pre>
 <p>Let&#39;s load the dataset which contains an extract from the Panel Study
-of Income Dynamics (PSID). The datafile here is saved as a text file
-which can be imported using the <code>read.delim</code> function.</p>
+of Income Dynamics (PSID). You can download this file from here: <a href="https://github.com/datasquad/ECLR/blob/gh-pages/data/PSIDsmall.txt">PSIDsmall.txt</a>.
+The datafile here is saved as a text file which can be imported using
+the <code>read.delim</code> function.</p>
 <pre class="r"><code>## load data set 
 PSID1 &lt;- read.delim(&quot;../data/PSIDsmall.txt&quot;,header=TRUE)</code></pre>
 <p>Let&#39;s see what variables are contained in this dataset.</p>

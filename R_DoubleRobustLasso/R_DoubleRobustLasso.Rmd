@@ -1,0 +1,84 @@
+---
+title: "Double Robust LASSO"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(webexercises)
+```
+
+
+```{r, echo = FALSE, results='asis'}
+# Uncomment to change widget colours:
+#style_widgets(incorrect = "goldenrod", correct = "purple")
+```
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+# Introduction
+
+In the [Ridge and Lasso exercise](https://datasquad.github.io/ECLR/R_RidgeLasso/R_RidgeLasso.html) we learned how to apply Ridge and LASSO regressions to select covariates in a linear (in parameters) regression model. As you well know, regression parameters do not automatically have a causal interpretation. This is true for normal regressions where the researcher selects the covariates, regressions where covariates are selected with [subsample regression methods](https://datasquad.github.io/ECLR/R_VariableSelection_Credit/R_VariableSelection_Credit.html) as well as regressions estimated by Ridge or LASSO regressions. 
+
+Consider a regression model of the following form 
+
+\begin{equation}
+  y_i = \delta D_i + \mathbf{x}_i\mathbf{\beta} + \epsilon_i
+\end{equation}
+
+where the variables represent
+
+* an outcome variable of interest, $y_i$, for individual $i$
+* a treatment variable, $D_i$, which represents whether individual received some treatment ($D_i=1$) or not ($D_i=1$)
+* a vector of covariates associated to individual $i$, $\mathbf{x}_i$, where this includes a constant.
+
+Here we are interested in the average treatment effect (ATE), as captured by the parameter $\delta$. It is, of course, important to understand that the coefficient $\delta$ does identify the average treatment effect of treatment $D$ only if certain assumptions are given. This exercise is not the place where these are discussed in detail. The one assumption that has consequences for this exercise is the conditional independence assumption (CIA). This implies that the potential outcomes (the outcome that eventuates if $i$ receives treatment and the outcome that eventuates if $i$ does not receive treatment) are independent of whether treatment is received as long as we condition on covariates $X$. 
+
+This is trivially true if the treatment is randomly allocated (e.g. in a randomised controled trial). However, in the more common situation in which we are dealing with an observational study where treatments are not randomly allocated. In such situations the treatment variable is potentially endogenous (correlated with the error term) resulting in $\delta$ not identifying the ATE.
+
+This is problematic if the treatment is correlated with factors that are relevant for the outcome. Here there are two situations to consider:
+
+1. All or some of the relevant (for the outcome variable) factors that are correlated with the treatment ($D$) are not observable and hence necessarily captured in the error term. This situation is called "selection on unobservables". In such a situation, there is no way how estimating a regression like the above can recover the ATE. Alternative identifying strategies are needed (e.g. instrumental variables or difference-in-difference).
+2. All relevant (for the outcome variable) factors that are correlated with the treatment ($D$) are observable and hence can be included in the set of covariates ("selection on observables"). In this situation the ATE is identified by $\delta$ if all these variables are included in $x_i$ in the above regression.
+
+It is in the process of following the strategy in 2 that machine learning methods like the LASSO can be useful, in particular in situations where economic theory does not provide clear guidance on what these variables should be. As it is important to include all relevant variables this selection should be done as best as possible. In particular if the set of possible variables is large relative to the number of observations this is crucial.
+
+The way this will be implemented is by making use of the following result (Frisch-Waugh-Lovell theorem). We can estimate the parameter $\delta$ using the following regression
+
+\begin{equation}
+r^y_i = \delta r^D_i + u_i
+\end{equation}
+
+where $r^y_i$ is the estimated residual of the regression $y_i= \mathbf{x}_i\mathbf{\tau}^y + res^y_i$ and $r^D_i$ is the estimated residual of the regression $D_i= \mathbf{x}_i\mathbf{\tau}^D + res^D_i$.
+
+LASSO can be applied for these two helper regressions. This is particularly useful if you have a high-dimensional matrix of covariates $\mathbf{X}$.
+
+
+# Setup
+
+Let's load up the libraries we will be using in this project.
+
+```{r}
+# load packages
+library(car)
+library(AER)
+library(glmnet)
+library(hdm)
+library(tidyverse)
+library(stargazer)
+library(ggplot2)
+library(sandwich)
+```
+
+The package `hdm` is the package which offers the functionality we will be using. 
+
+# Empirical example
+
+The example we will work through here is a cross-country regression following the work by Barro and Lee (1994), [NBER Working Paper](https://www.sciencedirect.com/science/article/abs/pii/0167223194900027)) attempting to establish the determinants of  differential country growth rates. The dataset for that work is pre-loaded with the `hdm` package. We can load it using the following command.
+
+```{r}
+data(GrowthData)
+str(GrowthData)
+```
+
+There are 90 observations and 63 variables (really only 62 as there is an `intercept` column).

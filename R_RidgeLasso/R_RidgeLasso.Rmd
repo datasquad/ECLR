@@ -13,6 +13,7 @@ library(webexercises)
 # Uncomment to change widget colours:
 #style_widgets(incorrect = "goldenrod", correct = "purple")
 ```
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
 
 # Introduction
 
@@ -39,7 +40,7 @@ library(coefplot)
 library(hdm)
 ```
 
-Let's load the dataset which contains an extract from the Panel Study of Income Dynamics (PSID). The datafile here is saved as a text file which can be imported using the `read.delim` function.
+Let's load the dataset which contains an extract from the Panel Study of Income Dynamics (PSID). You can download this file from here:  [PSIDsmall.txt](https://github.com/datasquad/ECLR/blob/gh-pages/data/PSIDsmall.txt). The datafile here is saved as a text file which can be imported using the `read.delim` function.
 
 ```{r}
 ## load data set 

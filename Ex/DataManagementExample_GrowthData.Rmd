@@ -1,0 +1,202 @@
+---
+title: "Data Management Example - Growth Data"
+author: "Ralf Becker"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, root.dir = "C:/Rcode/ECLR/data/BARLEE")
+```
+
+# Introduction
+
+In this exercise we will document how to assemble a data-set that is not nicely presented as a spreadsheet. The data we will be preparing here is a country level economic growth dataset with a large number of covariates. It contains data for 138 countries and many covariates.
+
+At the time of writing this the data were available from this website by [The University of Bristol](https://www.bristol.ac.uk/Depts/Economics/Growth/barlee.htm). From that website you can download a zip file containing the actual datafiles and a text file that provides excellent information on the variables. The data dictionary is also available from here ([readme.txt](https://github.com/datasquad/ECLR/blob/gh-pages/data/BARLEE/readme.txt)) and the zip file from here ([BARLEE.zip](https://github.com/datasquad/ECLR/blob/gh-pages/data/BARLEE.zip)).
+
+Once you downloaded the zip file you should extract the zip file into a folder called "BARLEE". We will now set our working directory to that folder.
+
+```{r, echo = FALSE}
+library(tidyverse)
+library(stringr)
+setwd("C:/Rcode/ECLR/data/BARLEE")
+getwd()
+```
+
+```{r, eval = FALSE}
+setwd("..YOUR_CORRECT_PATH_TO../BARLEE")
+```
+
+Let's see what the files are called in this directory.
+
+```{r}
+filelist <- list.files("C:/Rcode/ECLR/data/BARLEE")   # Here I use my path, you will have to adjust
+filelist
+filelist_prn <- filelist[grepl(".prn",filelist)]   # this extracts only the filenames with ".prn" in the name
+```
+
+All but one file have the extension ".prn" the only other file is "readme.txt" which is the data dictionary. You may wonder what format the ".prn" files are. You will find that information in the data dictionary:
+
+> " The files are plain text (ASCII) files. Data on each variable are listed by the order of SHCODE (see Appendix 1).  The
+missing observations are denoted by 'NA'."
+
+The variable `SHCODE` is also described in the data dictionary as a numeric variable representing countries (e.g. `SHCODE = 2` represents Angola). We have learned from that the datafiles are ASCII files. This means that they are basically text files and you should be able to open them with any text editor (try!).
+
+## Prototype
+
+We will first attempt to master the import of one file and then try to automate this process as much as possible for the others.
+
+When you open these (here "fert.prn") you will see something like this:
+
+![](../images/GrowthDataImport1.png)
+
+There is a number of things you can learn from that.
+
+1. There are no variable names
+2. Numbers seem to be separated by spaces
+3. Missing numbers are represented by "NA"
+4. There seem to be regular linebreaks (one line displaying over two lines on the screen)
+5. Counting the number of values in one line gives 23 variables
+6. There are 138 lines in that file (you have to trust me or check in your text editor), hence the number of lines correspond to the number of countries as anticipated above.
+
+So, it looks as if this file contains 23 pieces of information (variables) for 138 countries. In the data dictionary you will find that this file should contain the following variables: "fert60 fert65 fert70 fert75 fert80 fert85 mort60 mort65 mort70 mort75 mort80 mort85 lifee060 lifee065 lifee070 lifee075 lifee080 lifee085 gpop1 gpop2 gpop3 gpop4 gpop5". Indeed these are 23. 
+
+Let's import the data into R. A bit of web-searching (search for "R import ASCII file") will reveal that there are several functions that can be used for that purpose. For instance (but not only) `read_delim` and `read_table`. Let's try the first (and recall that you can use `?read_delim` to figure out what options are available.)
+
+```{r}
+fert1 <- read_delim("C:/Rcode/ECLR/data/BARLEE/fert.prn", delim = " ", col_names = FALSE, na = "NA")
+dim(fert1)
+```
+
+This has imported one row too many and way too many variables. Let's look at the first few rows to see what happened.
+
+```{r}
+head(fert1)
+```
+We indicated that a space separates values from each other. If you look at the actual text file you will see that there are typically 3 spaces between entries. This explains the extra variables and missing values. Let's re-import the data but indicate that three spaces separate values.
+
+```{r}
+fert <- read_delim("C:/Rcode/ECLR/data/BARLEE/fert.prn", delim = "   ", col_names = FALSE, na = "NA")
+head(fert)
+```
+
+We still have one row and one variable too many and there still seem to be extra missing values. This is a typical and frustrating problem and there are several routes to solving this problem available. 
+
+1. Import whole rows -> replace any number of spaces with only one space -> separate by space
+2. Use another import function to see whether life becomes easier.
+
+Option 2 certainly sounds more attractive. Let's try the `read_table` function:
+
+```{r}
+fert <- read_table("C:/Rcode/ECLR/data/BARLEE/fert.prn", col_names = FALSE, na = "NA")
+head(fert)
+```
+
+This seems to work like a charm. There is still one row too many. 
+
+```{r}
+tail(fert)
+```
+
+You should compare to the text file and you will realise that the last row (row 139) does not contain any data, so we can just delete it and only keep rows 1 to 138.
+
+```{r}
+fert <- fert[1:138,]
+```
+
+Now we will have to add the country name and the variable names. By default the variables were named `x1` to `X23`. We can add the real variable names as follows:
+
+```{r}
+cnames <- "fert60 fert65 fert70 fert75 fert80 fert85 mort60 mort65 mort70 mort75 mort80 mort85 lifee060 lifee065 lifee070 lifee075 lifee080 lifee085 gpop1 gpop2 gpop3 gpop4 gpop5"
+cnames2 <- str_split(cnames," ")[[1]]
+```
+
+The vector `cnames` can be copied straight from the data dictionary. The second line separates the names into a list of 23 names. We can then name the columns of the `fert` object. 
+
+```{r}
+colnames(fert) <- cnames2
+```
+
+Now we need to add the country information. In the data dictionary you will find a table of the 138 countries. We have created a csv file of that table which is available from here [GrowthData_countries.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/BARLEE/GrowthData_countries.csv).
+
+```{r}
+data_all <- read.csv("C:/Rcode/ECLR/data/BARLEE/GrowthData_countries.csv")
+```
+
+As we know that the rows in `fert` are in the same order as the countries in `data_all` (we learn this from the data dictionary) we can just attach the columns from `fert` to data_all.
+
+```{r}
+data_all <- cbind(data_all, fert)
+```
+
+## From prototype to production
+
+That was quite a lot of work to get the data from one file into R. Altogether we have 31 files of that type. If you do repeated things you can often do them in a loop. Let's think about whether we can do that here. For every file we would have to do the following 
+
+1. Define the file name, `filename` 
+2. Import `filename`  the `read_table` function
+3. Change the colnames
+4. Add the columns to `data_all`
+
+We already have a list of the filenames (`filelist_prn`) from which we can extract the right filename and hence we can automate step 1. Once we have done that step 2 is straightforward. However, step 3 requires the list of variable names. Above we manually copied them from the data dictionary. But we don't really want to do that manually. To automate this step we will need to save the variable names in another csv file. 
+
+We have done exactly that in [GrowthData_colnames.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/BARLEE/GrowthData_colnames.csv).
+
+```{r}
+colnames_list <- read.csv("C:/Rcode/ECLR/data/BARLEE/GrowthData_colnames.csv")
+colnames_list$Data <- trimws(colnames_list$Data) # removes leading and trailing spaces
+```
+
+Look at `colnames_list` to find that the first column (`ASCII.File`) has filenames and the 2nd column a list of all the variable names (`Data`).
+
+Now we are in a position to automate the job. We start with a fresh `data_all`.
+
+```{r}
+data_all <- read.csv("C:/Rcode/ECLR/data/BARLEE/GrowthData_countries.csv")
+```
+
+Now we run a loop through all the names in `filelist_prn` and for each of these files we move through steps 1 to 4.
+
+```{r}
+for (i in filelist_prn) {
+  # Step 1
+  filename <- i
+  fileandpath <- paste0("C:/Rcode/ECLR/data/BARLEE/",i) # adjust this to your path
+  
+  # Step 2
+  # only import first 138 rows
+  temp <- read_table(fileandpath, col_names = FALSE, na = "NA", n_max = 138)
+  
+  # Step 3
+  temp.cnames <- colnames_list[colnames_list$ASCII.File == i,2]
+  temp.cnames2 <- str_split(temp.cnames," ")[[1]]
+  colnames(temp) <- temp.cnames2
+  
+  # Step 4
+  # only attach cols corresponding to a variable name
+  data_all <- cbind(data_all, temp[,1:length(temp.cnames2)])
+}
+```
+
+The above code has a few elements that were added after examining results in details. 
+
+* For most datafiles 139 lines were imported with the last line being an empty line. Therefore we included the `n_max = 138` option into the `read_table` function, knowing that each file contains 138 rows of data only.
+* Some variables imported an extra column (i.e. one column more than there were variable names). These were all NAs. Therefore we attached `temp[,1:length(temp.cnames2)]` to `data_all`.
+
+Once you hve done this you can save the resulting object `data_all` in a new csv file which you can then upload to work from.
+
+```{r}
+write.csv(data_all, "C:/Rcode/ECLR/data/BARLEE/GrowthData_complete.csv")
+```
+
+# Summary
+
+This exercise demonstrated a piece of data management. It is not typical in its details as each data project will have its own challenges. But there are a few common features you are likely to encounter:
+
+* The need to merge data from different sources into one data frame.
+* The need to consult a data dictionary (or similar) to understand the data structure. The one provided here is excellent.
+* The opportunity to automate the data upload from multiple files with similar structure.
+* The need to deal with slight irregularities in the data files (like the extra rows or columns).
+
+Each project will provide different challenges and solutions but the way of thinking demonstrated here will translate to many projects. You should, as we have done here, write a script or rmarkdown code which does the data handling with clear explanations. Once you have done that work you can put this code aside and keep working straight from the file you created, here `GrowthData_complete.csv`.
