@@ -11,6 +11,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, root.dir = "C:/Rcode/ECLR/data/BARLEE")
 ```
 
+This page is part of the Econometric Computing Learning Resource ([ECLR](https://datasquad.github.io/ECLR/)).
+
 # Introduction
 
 In this exercise we will document how to assemble a data-set that is not nicely presented as a spreadsheet. The data we will be preparing here is a country level economic growth dataset with a large number of covariates. It contains data for 138 countries and many covariates.
@@ -45,7 +47,9 @@ missing observations are denoted by 'NA'."
 
 The variable `SHCODE` is also described in the data dictionary as a numeric variable representing countries (e.g. `SHCODE = 2` represents Angola). We have learned from that the datafiles are ASCII files. This means that they are basically text files and you should be able to open them with any text editor (try!).
 
-## Prototype
+Here is the plan for the remainder. We shall first import the data for one of the files to figure out how to do that and then we will try and automate this process for all files.
+
+# Prototype
 
 We will first attempt to master the import of one file and then try to automate this process as much as possible for the others.
 
@@ -132,7 +136,7 @@ As we know that the rows in `fert` are in the same order as the countries in `da
 data_all <- cbind(data_all, fert)
 ```
 
-## From prototype to production
+# From prototype to production
 
 That was quite a lot of work to get the data from one file into R. Altogether we have 31 files of that type. If you do repeated things you can often do them in a loop. Let's think about whether we can do that here. For every file we would have to do the following 
 

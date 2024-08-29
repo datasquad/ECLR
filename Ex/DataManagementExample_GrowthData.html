@@ -1490,6 +1490,7 @@ border-radius: 0px;
 </div>
 
 
+<p>This page is part of the Econometric Computing Learning Resource (<a href="https://datasquad.github.io/ECLR/">ECLR</a>).</p>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>In this exercise we will document how to assemble a data-set that is
@@ -1545,8 +1546,12 @@ dictionary as a numeric variable representing countries
 that the datafiles are ASCII files. This means that they are basically
 text files and you should be able to open them with any text editor
 (try!).</p>
-<div id="prototype" class="section level2">
-<h2>Prototype</h2>
+<p>Here is the plan for the remainder. We shall first import the data
+for one of the files to figure out how to do that and then we will try
+and automate this process for all files.</p>
+</div>
+<div id="prototype" class="section level1">
+<h1>Prototype</h1>
 <p>We will first attempt to master the import of one file and then try
 to automate this process as much as possible for the others.</p>
 <p>When you open these (here “fert.prn”) you will see something like
@@ -1675,8 +1680,8 @@ dictionary) we can just attach the columns from <code>fert</code> to
 data_all.</p>
 <pre class="r"><code>data_all &lt;- cbind(data_all, fert)</code></pre>
 </div>
-<div id="from-prototype-to-production" class="section level2">
-<h2>From prototype to production</h2>
+<div id="from-prototype-to-production" class="section level1">
+<h1>From prototype to production</h1>
 <p>That was quite a lot of work to get the data from one file into R.
 Altogether we have 31 files of that type. If you do repeated things you
 can often do them in a loop. Let’s think about whether we can do that
@@ -1740,7 +1745,6 @@ there were variable names). These were all NAs. Therefore we attached
 <code>data_all</code> in a new csv file which you can then upload to
 work from.</p>
 <pre class="r"><code>write.csv(data_all, &quot;C:/Rcode/ECLR/data/BARLEE/GrowthData_complete.csv&quot;)</code></pre>
-</div>
 </div>
 <div id="summary" class="section level1">
 <h1>Summary</h1>
