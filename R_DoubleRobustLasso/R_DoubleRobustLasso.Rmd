@@ -34,7 +34,7 @@ where the variables represent
 
 Here we are interested in the average treatment effect (ATE), as captured by the parameter $\delta$. It is, of course, important to understand that the coefficient $\delta$ does identify the average treatment effect of treatment $D$ only if certain assumptions are given. This exercise is not the place where these are discussed in detail. The one assumption that has consequences for this exercise is the conditional independence assumption (CIA). This implies that the potential outcomes (the outcome that eventuates if $i$ receives treatment and the outcome that eventuates if $i$ does not receive treatment) are independent of whether treatment is received as long as we condition on covariates $X$. 
 
-This is trivially true if the treatment is randomly allocated (e.g. in a randomised controled trial). However, in the more common situation in which we are dealing with an observational study where treatments are not randomly allocated. In such situations the treatment variable is potentially endogenous (correlated with the error term) resulting in $\delta$ not identifying the ATE.
+This is trivially true if the treatment is randomly allocated (e.g. in a randomised controled trial). However, in the more common situation in which we are dealing with an observational study where treatments are not randomly allocated, this is unlikely to be true. In such situations the treatment variable is potentially endogenous (correlated with the error term) resulting in $\delta$ not identifying the ATE.
 
 This is problematic if the treatment is correlated with factors that are relevant for the outcome. Here there are two situations to consider:
 
@@ -82,3 +82,98 @@ str(GrowthData)
 ```
 
 There are 90 observations and 63 variables (really only 62 as there is an `intercept` column).
+
+## Exploratory analysis
+
+This dataset contains a lot of information and the variable definitions are not immediately obvious. In [this ECLR exercise](https://datasquad.github.io/ECLR/Ex/DataManagementExample_GrowthData.html) you can find more details on a somewhat larger dataset and a link to a data dictionary ([readme.txt](https://github.com/datasquad/ECLR/blob/gh-pages/data/BARLEE/readme.txt)) from which you can derive the definitions of the variables in the `GrowthData` dataset. It is not important to understand the definitions of all variables here, but with the help of that data dictionary you can for instance establish the following definitions:
+
+* `human65`, Average schooling years in the total population over age 25 in 1965
+* `seccf65`, Percentage of "secondary school complete" in female pop.
+* `freeop`, Measure of "Free trade openness". 
+
+The two variables we are particularly interested here is the variable labelled `Outcome` which here is defined as a GDP growth rate over a decade (from 1965 to 1975) for a particular country. The covariate we are particularly interested in is `gdpsh465` which represents the initial (i.e. in 1965) level of $log(GDP per capita)$. The question here is whether countries which are poorer at the beginning of that growth period grow faster, ceteris paribus, implying a negative relation between `Outcome` and `gdpsh465` after controlling for relevant covariates. 
+
+The question then is what relevant covariates are?
+
+Before we answer this question let us explore some of the data. 
+
+The data file has data for `r fitb(90)` countries.
+
+After inspecting the datafile it is apparent that `GrowthData` ...
+
+`r mcq(c("contains country names", "contains 3 letter country codes.", "contains numerical country codes", answer = "does not contain a variable which indicates which country each row represents."))`
+
+
+`r hide("I need a hint")`
+
+All variables are numeric variables. Evidently they do not contain any country names or letter abbreviations. It could be that one of the numerical variables represent a country. In the data dictionary you will actually find such a variable called `SHCODE`, but that variable is not included in `GrowthData`.
+
+If you wanted to identify countries you could go to the data exercise linked above and attempt to match variable outcomes, say for `seccf65` to identify countries.
+
+`r unhide()`
+
+First we shall plot a histogram of the outcome variable.
+
+```{r}
+p1 <- ggplot(GrowthData,aes(x=Outcome)) + geom_histogram()
+p1
+```
+
+As you can see the majority of countries display positive growth rates. over a 10 year period.
+
+Let's produce a scatterplot that displays the initial level of GDP to the subsequent growth.
+
+```{r}
+p2 <- ggplot(GrowthData,aes(x=gdpsh465,y=Outcome)) + geom_point()
+p2
+```
+
+From this plot it is impossible to see any obvious relationship between the initial GDP per person (`gdpsh465`) and the Growth rate over the next decade (`Outcome`). But that is perhaps not surprising as the above plot ignores any covariates that may help explain variation. Their absence may hide any such relationship.
+
+A simple regression shows the following.
+
+```{r}
+ols1 <- lm(Outcome~gdpsh465,data = GrowthData)
+stargazer(ols1,type = "text")
+```
+
+The coefficient to the initial GDP value is clearly not statistically significant. Even calculating heteroskedasticity robust standard errors (see next code chunk) does not change this.
+
+```{r}
+se_hc_ols1 <- sqrt(diag(vcovHC(ols1, type = "HC1"))) # calculate HS robust s.e.
+```
+
+## Allowing for covariates
+
+In the paper by Barro and Lee (1994), [NBER Working Paper](https://www.sciencedirect.com/science/article/abs/pii/0167223194900027)) the authors make economic arguments for the covariates that are to be included. They list the following type of variables:
+
+* life expectancy, `lifee065`
+* percentage of secondary school completions in male and female population, `seccm65` and `seccf65`
+* ratio of real gross domestic investment to GDP, `invsh41`   
+* ration of gvernment consumption (not incl defence and education) to GDP, `gvxdxe41`
+* (the log of) the black market premium on foreign exchange, `log(1+bmp1l)`
+* the average number of revolutions and assassinations per year, `pinstab1`
+
+```{r}
+ols2mod <- "Outcome~gdpsh465+lifee065+seccm65+seccf65+invsh41+gvxdxe41+log(1+bmp1l)+pinstab1"
+ols2 <- lm(ols2mod,data = GrowthData)
+```
+
+We want to calculate heteroskedasticity robust standard errors. This is easily done using this little wrapper function for `stargazer`. Dowload this file [stargazer_HC.R](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/docs/stargazer_HC.R), save it to your working folder and then load the function using
+
+```{r, echo = FALSE}
+source("../docs/stargazer_HC.R")
+```
+
+```{r, eval = FALSE}
+source("stargazer_HC.R")
+```
+
+Then you can display regression results using this function. Robust standard errors will be automatically displayed.
+
+```{r}
+stargazer_HC(ols1,ols2)
+```
+You now find a statistically significant effect of the the original level of GDP.
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.

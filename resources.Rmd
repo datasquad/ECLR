@@ -5,14 +5,23 @@ output:
     toc: true
     toc_float: true
 ---
-There is a plethora of resources if you want to learn R (which is one reason why this resource does not go into too much detail). Here are a few places to start.
+There is a plethora of resources if you want to learn R or Python (which is one reason why this resource does not go into too much detail). Here are a few places to start.
+
+## Coding in R
 
 * A dedicated tweet channel for [Econometrics with R](https://twitter.com/Rstats4Econ)
 * [Rob Hyndman](http://robjhyndman.com/publications/software/) has great material, some of which will be referred to here.
 * My colleague [Junanjo Medina](http://jjmedinaariza.github.io/R-for-Criminologists/) has material for criminologists that includes good intros to graphing and some basic statistics
+* [Empirical projects for Economists in R, CORE-ECON](https://www.core-econ.org/doing-economics/index.html)
 * [A Beginner's Guide to R](http://www.computerworld.com/article/2497143/business-intelligence-beginner-s-guide-to-r-introduction.html?null)
 * Florian Heiss has written an R [companion book to Wooldridge's Introductory Econometrics](http://www.urfie.net/read/mobile/index.html#p=1). It is available for free online but you can also get a [hardcopy](http://www.urfie.net/index.html) 
 * Some R resources provided by[UCLA](http://www.ats.ucla.edu/stat/r/)
 * [Quick-R](http://www.statmethods.net) web-site.
 * [Just TryR it!](http://tryr.codeschool.com/levels/1/challenges/1)
+
+## Coding in Python
+
+* [Python for Econometrics by Fabian Raters (Copenhagen)](https://pyecon.org/down/pyecon.pdf)
+* [Introduction to Python for Econometricians by Kevin Sheppard](https://www.kevinsheppard.com/teaching/python/notes/)
+* [Empirical projects for Economists in Python, CORE-ECON](https://www.core-econ.org/doing-economics/index.html)
 
