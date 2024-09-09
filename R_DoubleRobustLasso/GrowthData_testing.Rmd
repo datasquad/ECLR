@@ -1,0 +1,190 @@
+---
+title: "Testing the GrowthData dataset in the hdm package"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(webexercises)
+```
+
+
+```{r, echo = FALSE, results='asis'}
+# Uncomment to change widget colours:
+#style_widgets(incorrect = "goldenrod", correct = "purple")
+```
+
+
+
+# Introduction
+
+```{r}
+# load packages
+library(hdm)
+library(tidyverse)
+```
+
+I have been trying to provide my students with some instructions for using your package. I have been struggling to work out some issues about the GrowthData dataset you helpfully provide through the package. In the help function (`?GrowthData`) you have two links.
+
+[NBER link](https://www2.nber.org/pub/barro.lee/) and [Bristol link](https://www.bristol.ac.uk//Depts//Economics//Growth//barlee.htm)
+
+The former does not seem available any more, but the 2nd from Bristol is still available. I was trying to reconstruct which the 90 countries in the GrowthData dataset are. I reconstructed the data from the Bristol source. As I was doing that I came across two questions I could not answer
+
+1.	In the help for the dataset you say that there were 90 countries for which you had complete data for the 62 covariates. When I try to see how many countries do have complete data from the Bristol dataset 
+
+2. I cannot reconstruct the `Outcome` variable in `GrowthData`.
+
+# Demo
+
+This is to demonstrate my question and hopefully make it easier for you to understand what my question is and if there as an issue to perhaps diagnose the issue.
+
+Let's load the GrowthData data provided by the `hdm` package.
+
+```{r}
+data(GrowthData)
+str(GrowthData)
+```
+
+## Reconstruction of the full Barro and Lee dataset 
+
+I used the data on the Bristol link to reconstruct the full growth dataset. The resulting dataset is available in [GrowthData_complete.csv](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/data/BARLEE/GrowthData_complete.csv). The construction of the dataset is documented here (I wrote this as an exercise for my students) from [here](https://datasquad.github.io/ECLR/Ex/DataManagementExample_GrowthData.html).
+
+```{r}
+GD_complete <- read.csv("https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/data/BARLEE/GrowthData_complete.csv")
+```
+
+That data frame has data for 138 countries and 558 variables. As outlined in the help call for `GrowthData` it is a subset of the complete dataset, in particular it says "The number of covariates is p=62. The number of complete observations is 90."
+
+It could of course be that the defunct NBER link contained the exact `GrowthData` dataset, but as that link is defunct I cannot reconstruct this.
+
+## Question 1, which countries?
+
+Object `GrowthData` does not contain a country identifier. That is, of course, totally understandable as it only serves as an illustration for the package functionality, but I was curious and wanted to give my students the task to match the countries.
+
+My first attempt was to check whether `GD_complete` has 90 observations with complete observations for the 62 variables in `GrowthData`.
+
+```{r}
+sel_vars <-names(GrowthData)[3:63] # excluding Outcome and intercept
+GD_test1 <- GD_complete %>% select(COUNTRY.NAME, sel_vars)
+GD_test1 <- GD_test1 %>% drop_na()
+dim(GD_test1)
+```
+
+This only produces 41 countries.
+
+Then I attempted to match on the basis of the outcome variable, but realised that I think that the outcome variable is not well defined, more on that in Question 2. I therefore decided to match countries on population data, `pop65` (the population of the country in 1965 in thousands).
+
+```{r}
+GrowthData_match_pop <- GrowthData %>% select(pop65)
+GrowthData_match_pop$GDhdm <- "pop65 match in GrowthData"
+GD_test2 <- GD_complete %>% select(COUNTRY.NAME, sel_vars)
+GD_test2 <- merge(GD_test2,GrowthData_match_pop)
+dim(GD_test2)
+```
+
+This again selects 41 countries where the population info coincides between the two data files. Are they the same countries?
+
+```{r}
+GD_test1$COUNTRY.NAME[!(GD_test1$COUNTRY.NAME %in% GD_test2$COUNTRY.NAME)]
+GD_test2$COUNTRY.NAME[!(GD_test2$COUNTRY.NAME %in% GD_test1$COUNTRY.NAME)]
+```
+
+They are the identical set of countries. So, how to identify the remaining 49 countries. Let's look at one of these countries, the one with the biggest population.
+
+```{r}
+GrowthData_notmatched <- GrowthData %>%  filter(!(pop65 %in% GD_test1$pop65)) %>% 
+  filter((pop65 == min(pop65)) | (pop65 == max(pop65)))
+GrowthData_notmatched$pop65
+
+```
+
+So there is a non-matched country with a population in 1965 of 1,968,000 and 620,701,000. Really the large one should be China (and China is not one of the matched countries) Let us check the population information from `GD_complete` for unmatched countries
+
+```{r}
+GD_notmatched <- GD_complete %>%  filter(!(pop65 %in% GD_test1$pop65)) %>% 
+  filter(!is.na(pop65)) %>% 
+  select(COUNTRY.NAME, pop65) %>% arrange(-pop65)
+
+head(GD_notmatched,3)
+```
+
+The largest is indeed China but with a population difference of about 100m to the population in in `GrowthData` (gapminder gives a population of 723m for China in 1965). 
+
+```{r}
+tail(GD_notmatched)
+```
+
+Clearly there are much smaller countries than the smallest unmatched one in `GrowthData`
+
+```{r}
+GD_notmatched[52:67,]
+```
+Jordan is the country with the population closest to 1968, the smallest unmatched population in `GrowtData`. 
+
+We can see whether other characteristics match.
+
+```{r}
+GD_Jordan <- GD_complete %>% select(COUNTRY.NAME, sel_vars) %>% 
+  filter(pop65 == 1962)
+GrowthData_Jordan <- GrowthData %>% select(sel_vars) %>% 
+  filter(pop65 == 1968)
+
+GD_Jordan$s65
+GrowthData_Jordan$s65
+
+GD_Jordan$lifee065
+GrowthData_Jordan$lifee065
+```
+
+Even if `GrowthData` reports life expectancy in logs, this is not the same as log(50.3) = 3.918. 
+
+So, it appears as if `GrowthData` draws from some data that are not contained in `GD_complete`. I assume that the dataset that was available from the NBER link may have contained some updated data.
+
+## Question 2. Outcome variable
+
+I tried to reconstruct what the outcome variable is. In the help function it says that it is a growth rate calculated as a log difference. But the help function is somewhat vague about the period and whether it is an annualised growth rate.
+
+To reconstruct this I looked at the data for the UK, which is one of the matched countries identified from the 1965 population of 54,350,000. 
+
+```{r}
+GrowthData_UK <- GrowthData %>%  filter(pop65 == 54350)
+GrowthData_UK$Outcome
+GrowthData_UK$gdpsh465
+```
+
+The per capita GDP is in log form, it translates to 5609.
+
+```{r}
+sel_vars_gdp1 <- names(GD_complete)[grepl("gdpsh4",names(GD_complete))]
+sel_vars_gdp2 <- names(GD_complete)[grepl("grsh4",names(GD_complete))]
+
+GD_UK <- GD_complete %>% filter(COUNTRY.NAME == "United Kingdom") %>% 
+  select(sel_vars_gdp1,sel_vars_gdp2)
+GD_UK
+```
+
+So you can see that the 65 GDP is indeed 5609. The annualised growth rate from 65 to 70 is (`grsh42`) $log(6319/5609)/5 = 0.023828$. Annualised the growth rate between 65 and 70 was 2.38%. This then begs the question what the outcome variable in `GrowthData` for the UK is. It is given with a value of 0.04718. This is around twice as large as the annualised growth rates calculated above.
+
+The help function says "growth rates in GDP per capita for the periods 1965-1975 and 1975-1985". This would suggest the growth rate between 65 and 85. This is
+
+```{r}
+log(8665/5609)
+```
+
+or in annualised form
+
+```{r}
+log(8665/5609)/20
+```
+
+The complete datasets contains GDP data from two other sources, but the same issue arises.
+
+So, I am failing to be able to reconstruct the `Outcome` variable.
+
+# Summary
+
+If you make it to the end of this document you have spent some time with this query. I am very grateful that you take this query seriously. If you had any information that would help me understand where I am going wrong I would be very grateful.
+
+Ralf Becker
+
+ralf.becker@manchester.ac.uk

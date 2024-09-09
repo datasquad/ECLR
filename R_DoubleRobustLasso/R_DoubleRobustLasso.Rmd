@@ -93,7 +93,7 @@ This dataset contains a lot of information and the variable definitions are not 
 
 The two variables we are particularly interested here is the variable labelled `Outcome` which here is defined as a GDP growth rate over a decade (from 1965 to 1975) for a particular country. The covariate we are particularly interested in is `gdpsh465` which represents the initial (i.e. in 1965) level of $log(GDP per capita)$. The question here is whether countries which are poorer at the beginning of that growth period grow faster, ceteris paribus, implying a negative relation between `Outcome` and `gdpsh465` after controlling for relevant covariates. 
 
-The question then is what relevant covariates are?
+The question then is what the relevant covariates are?
 
 Before we answer this question let us explore some of the data. 
 
@@ -108,7 +108,7 @@ After inspecting the datafile it is apparent that `GrowthData` ...
 
 All variables are numeric variables. Evidently they do not contain any country names or letter abbreviations. It could be that one of the numerical variables represent a country. In the data dictionary you will actually find such a variable called `SHCODE`, but that variable is not included in `GrowthData`.
 
-If you wanted to identify countries you could go to the data exercise linked above and attempt to match variable outcomes, say for `seccf65` to identify countries.
+If you wanted to identify countries you could go to the data exercise linked above and attempt to match variable outcomes, say for `pop65` to identify countries. In that way you will be able to match about half of the countries.
 
 `r unhide()`
 
@@ -119,7 +119,7 @@ p1 <- ggplot(GrowthData,aes(x=Outcome)) + geom_histogram()
 p1
 ```
 
-As you can see the majority of countries display positive growth rates. over a 10 year period.
+As you can see the majority of countries display positive growth rates. 
 
 Let's produce a scatterplot that displays the initial level of GDP to the subsequent growth.
 
@@ -177,3 +177,12 @@ stargazer_HC(ols1,ols2)
 You now find a statistically significant effect of the the original level of GDP.
 
 This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+# Testing
+
+```{r}
+selnames <- names(GrowthData)[3:63]
+
+tempdata <- datacomplete %>% select(selnames)
+tempdata_complete <- complete.cases(tempdata)
+```
