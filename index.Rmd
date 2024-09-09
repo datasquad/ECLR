@@ -39,9 +39,15 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Basic regression models | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [WBdata.Rdata](https://github.com/datasquad/ECLR/blob/gh-pages/data/WBdata.Rdata) 
 | Predicting from a Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
 | Regression Inference | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionInference.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
+| IV Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIV.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
+
+## Large Data / Data Science techniques
+
+| Topic | Workthrough | Data used |
+|:------|:-----|:-----|
 | Regression Model Selection | [Workthrough in R](https://datasquad.github.io/ECLR/R_VariableSelection_Credit/R_VariableSelection_Credit.html) | in code upload
 | Ridge and LASSO Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RidgeLasso/R_RidgeLasso.html) | [PSIDsmall.txt](https://github.com/datasquad/ECLR/blob/gh-pages/data/PSIDsmall.txt)
-| IV Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIV.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
+| Post Double Selection LASSO | [Workthrough in R](https://datasquad.github.io/ECLR/R_DoubleRobustLasso/R_DoubleRobustLasso.html) | in code upload
 
 ## Dealing with Time-Series variables
 

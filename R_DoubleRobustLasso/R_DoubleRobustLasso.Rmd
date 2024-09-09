@@ -91,7 +91,7 @@ This dataset contains a lot of information and the variable definitions are not 
 * `seccf65`, Percentage of "secondary school complete" in female pop.
 * `freeop`, Measure of "Free trade openness". 
 
-The two variables we are particularly interested here is the variable labelled `Outcome` which here is defined as a GDP growth rate over a decade (from 1965 to 1975) for a particular country. The covariate we are particularly interested in is `gdpsh465` which represents the initial (i.e. in 1965) level of $log(GDP per capita)$. The question here is whether countries which are poorer at the beginning of that growth period grow faster, ceteris paribus, implying a negative relation between `Outcome` and `gdpsh465` after controlling for relevant covariates. 
+The two variables we are particularly interested here is the variable labelled `Outcome` which here is defined as a GDP growth rate over a decade (from 1965 to 1975) for a particular country. The covariate we are particularly interested in is `gdpsh465` which represents the initial (i.e. in 1965) level of $log(GDP per capita)$. The question here is whether countries which are poorer at the beginning of that growth period grow faster, ceteris paribus, implying a negative relation between `Outcome` ($y_i$) and `gdpsh465` ($D_i$) after controlling for relevant covariates ($\mathbf{X}$). 
 
 The question then is what the relevant covariates are?
 
@@ -143,14 +143,14 @@ The coefficient to the initial GDP value is clearly not statistically significan
 se_hc_ols1 <- sqrt(diag(vcovHC(ols1, type = "HC1"))) # calculate HS robust s.e.
 ```
 
-## Allowing for covariates
+## Allowing for covariates, Economic judgement
 
 In the paper by Barro and Lee (1994), [NBER Working Paper](https://www.sciencedirect.com/science/article/abs/pii/0167223194900027)) the authors make economic arguments for the covariates that are to be included. They list the following type of variables:
 
 * life expectancy, `lifee065`
 * percentage of secondary school completions in male and female population, `seccm65` and `seccf65`
 * ratio of real gross domestic investment to GDP, `invsh41`   
-* ration of gvernment consumption (not incl defence and education) to GDP, `gvxdxe41`
+* ratio of government consumption (not incl defense and education) to GDP, `gvxdxe41`
 * (the log of) the black market premium on foreign exchange, `log(1+bmp1l)`
 * the average number of revolutions and assassinations per year, `pinstab1`
 
@@ -176,13 +176,119 @@ stargazer_HC(ols1,ols2)
 ```
 You now find a statistically significant effect of the the original level of GDP.
 
-This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+## Using LASSO for variable selection
 
-# Testing
+In the previous section we used the economic expertise of Barro and Lee to decide which covariates to include in $\mathbf{X}$. You may wonder whether such expertise is actually needed. Couldn't we just include all available variables (the kitchen sink approach)? Let's try this.
+
 
 ```{r}
-selnames <- names(GrowthData)[3:63]
-
-tempdata <- datacomplete %>% select(selnames)
-tempdata_complete <- complete.cases(tempdata)
+ols3mod <- "Outcome~."  # ~. indicates that you do want to include all variables in the dataset
+ols3 <- lm(ols3mod,data = GrowthData)
+stargazer_HC(ols1,ols2,ols3,keep = "gdpsh465")
 ```
+
+While we now get a slightly negative coefficient we also get a large standard error resulting in a statistically insignificant coefficient estimate.
+
+The aim is now to evaluate whether the economic expertise can be replaced by using LASSO, or if we can even make a case for the statistical tool of LASSO being able to identify variables that are statistically relevant and had not been identified by the economic expertise.
+
+In order to use the `rlassoEffect` function which is part of the `hdm` package we need to define matrices with variables $y_i$, $D_i$ and $\mathbf{x_i}$. This is done here:
+
+```{r}
+y = as.matrix(GrowthData[, "Outcome"]) 
+d = as.matrix(GrowthData[, "gdpsh465"])
+X = as.matrix(GrowthData)[, -c(1, 2, 3)] 
+varnames = colnames(GrowthData)
+varnames.X = colnames(X) # produces a list of all possible covariates
+```
+
+As you can see, for the definition of `X` the first three columns of data (`Outcome`, `Intercept` and `gdpsh465`) have been excluded. An intercept is automatically added.
+
+The process that is now implemented is that the `rlassoEffect` function will estimate two helper regressions
+
+\begin{equation}
+  \text{Direct: }y_i = \mathbf{x}_i\mathbf{\gamma} + u_i
+\end{equation}
+
+and
+
+\begin{equation}
+  \text{Indirect: }d_i = \mathbf{x}_i\mathbf{\kappa} + v_i
+\end{equation}
+
+For each of these a LASSO is applied to select variables from \mathbf{x}_i. The two selections will typicaly be different and the Post Double Selection estimator then uses the union of these two selections, \mathbf{x}^*_i, in a new model.
+
+\begin{equation}
+  y_i = \delta D_i + \mathbf{x}^*_i\mathbf{\beta} + \epsilon_i
+\end{equation}
+
+This is what is being achieved by the following command:
+
+```{r}
+doublesel.effect = rlassoEffect(x = X, y = y, d = d, method = "double selection")
+summary(doublesel.effect)
+```
+
+As you can see, the estimated effect of the initial level of GDP (`gdpsh465`) is stronger than that identified in the model that used the expert judgement (`OLS2`). 
+
+You may now be interested which variables this procedure selected for $\mathbf{x}^*_i$. This information is contained in `doublesel.effect$selection.index`.
+
+```{r}
+ds.sel <- varnames.X[doublesel.effect$selection.index]
+ds.sel
+```
+
+Only variables `bmp1l` and `life065` were also included in the expertise driven model `OLS2`.
+
+## Investigating the double selection method
+
+In this section we shall reconstruct the double selection process in the above example. We wish to understand why, the particular selection (`ds.sel`) was made. To understand this we shall estimate 
+
+In order to understand the Double Selection method
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+
+\begin{equation}
+  \text{Direct: }y_i = \mathbf{x}_i\mathbf{\gamma} + u_i
+\end{equation}
+
+and
+
+\begin{equation}
+  \text{Indirect: }d_i = \mathbf{x}_i\mathbf{\kappa} + v_i
+\end{equation}
+
+One of the variables in `ds.sel` is `humanf65`. Which of the following is true?
+
+`r mcq(c("humanf65 was selected as a covariate in both models", "humanf65 was selected as a covariate in model Direct", "humanf65 was selected as a covariate in model Indirect", "humanf65 was not selected in either Direct or Indirect", "humanf65 was selected in either Direct or Indirect but not both", answer = "humanf65 was selected in at least one of Direct or Indirect"))` 
+
+`r hide("I need a hint")`
+
+Recall that the covariates used in the post double selection model is the union of the covariate selections in the two helper models. Therefore, any variable that appears in `ds.sel` should have been selected in at least one of the two models.
+
+`r unhide()`
+
+Let us run the two LASSO selection models.
+
+```{r}
+GrowthData.direkt <- GrowthData %>% select(-gdpsh465) 
+direkt <- rlasso(Outcome~.,data = GrowthData.direkt, post = TRUE)
+```
+
+You could look at the actual regression output with `summary(direkt)`, but here we are only interested in which variables have been selected by the LASSO. The model output `direkt$index` contains that information and we will filter out all the variables for which that index is `TRUE`.
+  
+```{r}
+direkt$index[direkt$index==TRUE]
+```
+
+So, the only variable selected is `bmp1l`. 
+
+Now we shall estimate the indirekt model
+
+```{r}
+GrowthData.indirekt <- GrowthData %>% select(-Outcome) 
+indirekt <- rlasso(gdpsh465~.,data = GrowthData.indirekt, post = TRUE)
+indirekt$index[indirekt$index==TRUE]
+```
+
+These are the remaining six variables that were selected in the Double Selection procedure.

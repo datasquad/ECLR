@@ -111,7 +111,7 @@ getSymbols("AAPL",env=.GlobalEnv,src="yahoo",from=as.Date("2000-01-04"),to=as.Da
 
 Confirm that you have a new object called `AAPL` in your environment.
 
-You can also download multiple series at the same time, say share proces for Amazon ("AMZN") and Fedex ("FDX").
+You can also download multiple series at the same time, say share prices for Amazon ("AMZN") and Fedex ("FDX").
 
 ```{r}
 getSymbols(c("AMZN","FDX"),env=.GlobalEnv,src="yahoo",from=as.Date("2000-01-04"),to=as.Date("2023-01-01"))

@@ -510,7 +510,7 @@ should see an object called <code>GSPC</code> in your environment
 <p>Confirm that you have a new object called <code>AAPL</code> in your
 environment.</p>
 <p>You can also download multiple series at the same time, say share
-proces for Amazon (“AMZN”) and Fedex (“FDX”).</p>
+prices for Amazon (“AMZN”) and Fedex (“FDX”).</p>
 <pre class="r"><code>getSymbols(c(&quot;AMZN&quot;,&quot;FDX&quot;),env=.GlobalEnv,src=&quot;yahoo&quot;,from=as.Date(&quot;2000-01-04&quot;),to=as.Date(&quot;2023-01-01&quot;))</code></pre>
 <pre><code>## [1] &quot;AMZN&quot; &quot;FDX&quot;</code></pre>
 <p>Both time-series should be saved to your environment now.</p>
