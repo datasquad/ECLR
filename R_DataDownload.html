@@ -13,7 +13,7 @@
 
 <title>Data Loading</title>
 
-<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
@@ -29,7 +29,7 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
@@ -472,23 +472,6 @@ internet access when you work.</p>
 <pre><code>## The following objects are masked from &#39;package:base&#39;:
 ## 
 ##     as.Date, as.Date.numeric</code></pre>
-<pre><code>## 
-## ################################### WARNING ###################################
-## # We noticed you have dplyr installed. The dplyr lag() function breaks how    #
-## # base R&#39;s lag() function is supposed to work, which breaks lag(my_xts).      #
-## #                                                                             #
-## # If you call library(dplyr) later in this session, then calls to lag(my_xts) #
-## # that you enter or source() into this session won&#39;t work correctly.          #
-## #                                                                             #
-## # All package code is unaffected because it is protected by the R namespace   #
-## # mechanism.                                                                  #
-## #                                                                             #
-## # Set `options(xts.warn_dplyr_breaks_lag = FALSE)` to suppress this warning.  #
-## #                                                                             #
-## # You can use stats::lag() to make sure you&#39;re not using dplyr::lag(), or you #
-## # can add conflictRules(&#39;dplyr&#39;, exclude = &#39;lag&#39;) to your .Rprofile to stop   #
-## # dplyr from breaking base R&#39;s lag() function.                                #
-## ################################### WARNING ###################################</code></pre>
 <pre><code>## Loading required package: TTR</code></pre>
 <pre><code>## Registered S3 method overwritten by &#39;quantmod&#39;:
 ##   method            from

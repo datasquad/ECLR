@@ -9,13 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Ralf Becker" />
 
-<meta name="date" content="2023-11-03" />
 
-<title>R_GraphIntro</title>
+<title>Introduction to Graphs</title>
 
-<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
@@ -31,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -221,6 +222,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -228,6 +292,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -268,35 +342,10 @@ $(document).ready(function () {
 
 
 
+<h1 class="title toc-ignore">Introduction to Graphs</h1>
 
 </div>
 
-<div id="TOC">
-<ul>
-<li><a href="#introduction-and-setup"
-id="toc-introduction-and-setup">Introduction and Setup</a></li>
-<li><a href="#loading-a-dataset" id="toc-loading-a-dataset">Loading a
-dataset</a></li>
-<li><a href="#basic-graphics-in-r" id="toc-basic-graphics-in-r">Basic
-graphics in R</a></li>
-<li><a href="#advanced-graphics-with-ggplot"
-id="toc-advanced-graphics-with-ggplot">Advanced graphics with
-<code>ggplot</code></a>
-<ul>
-<li><a href="#general-structure-of-graphic-commands-in-ggplot"
-id="toc-general-structure-of-graphic-commands-in-ggplot">General
-structure of graphic commands in <code>ggplot</code></a></li>
-<li><a href="#one-variable-graphs" id="toc-one-variable-graphs">One
-variable graphs</a></li>
-<li><a href="#two-variables-graph" id="toc-two-variables-graph">Two
-variables graph</a></li>
-<li><a href="#other-graphs" id="toc-other-graphs">Other graphs</a></li>
-</ul></li>
-<li><a href="#saving-graphs" id="toc-saving-graphs">Saving
-graphs</a></li>
-<li><a href="#summary" id="toc-summary">Summary</a></li>
-</ul>
-</div>
 
 <div id="introduction-and-setup" class="section level1">
 <h1>Introduction and Setup</h1>
@@ -376,8 +425,7 @@ complicated ethnicities.</p>
 <code>plot</code> function. The plot function recognises the datatype
 and adjusts the graphics type accordingly. For instance:</p>
 <pre class="r"><code>plot(mydata$salary)</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-9-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>It has recognised that the data in <code>salary</code> are numeric
 and this triggers a scatterplot. To produce a scatter plot you need a
 second variable and as we did not deliver any it automatically uses the
@@ -386,14 +434,12 @@ datafile). If you want to set which variable appears on the horizontal
 axis (e.g. the batting average, <code>bavg</code>), then you need to set
 this as follows:</p>
 <pre class="r"><code>plot(mydata$bavg,mydata$salary) # first variable for horizontal, 2nd for vertical axis</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-10-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>If we are sending a categrical/factor variable to <code>plot</code>
 such as the <code>position</code> variable, then the function will
 automatically create a bar graph.</p>
 <pre class="r"><code>plot(mydata$position)</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-11-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>These plots can be very useful to get a first idea of what the data
 look like and it is possible to adapt certain aspects of these plots,
 however, when you want to prepare nice looking plots for a report, then
@@ -451,8 +497,7 @@ categorical variable, like the <code>position</code> variable.</p>
 <p>This has produced the graph and it is stored in <code>g1</code>. You
 can see it by calling <code>g1</code>.</p>
 <pre class="r"><code>g1</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-14-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>This is very similar to the bar graph produced in the basic graph
 section. Let’s change the esthetics a little by adding a theme and a
 title.</p>
@@ -470,23 +515,21 @@ which indicates how many career home runs a player has.</p>
   theme_classic() +
   labs(x = &quot;Home Runs&quot;, y = &quot;&quot;, title =&quot;Career Home Runs&quot;)
 g2</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better
-## value with `binwidth`.</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-16-1.png" /><!-- --></p>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with
+## `binwidth`.</code></pre>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <p>You get a good idea from this about the distribution of the home run
-variale. Instead of <code>geom_histogram()</code> you could use a smooth
-versio of the histogram, called <code>geom_density()</code>. Try for
-yourself what the option <code>size = 1</code> inside the function call
-does by changing the value (remember you cannot break your
+variable. Instead of <code>geom_histogram()</code> you could use a
+smooth versio of the histogram, called <code>geom_density()</code>. Try
+for yourself what the option <code>size = 1</code> inside the function
+call does by changing the value (remember you cannot break your
 computer).</p>
 <pre class="r"><code>g3 &lt;- ggplot(mydata, aes(x = hruns)) + 
   geom_density(size = 1) + 
   theme_classic() +
   labs(x = &quot;Home Runs&quot;, y = &quot;&quot;, title =&quot;Career Home Runs&quot;)
 g3</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-17-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 <p>And now you will learn one of the incredibly powerful modifications
 you can undertake with <code>ggplot</code>. In the initial function
 call, in the aesthetics (<code>aes</code>) settings we add
@@ -496,8 +539,7 @@ call, in the aesthetics (<code>aes</code>) settings we add
   theme_classic() +
   labs(x = &quot;Home Runs&quot;, y = &quot;&quot;, title =&quot;Career Home Runs&quot;)
 g4</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-18-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>We now get different density plots by position. You can now easily
 see that Catchers, Shortstops and Second Base players have fewer home
 runs, they are the very specilist fielding positions.</p>
@@ -509,8 +551,7 @@ parameter to see what it does.</p>
   theme_classic() +
   labs(x = &quot;Home Runs&quot;, y = &quot;&quot;, title =&quot;Career Home Runs&quot;)
 g4</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-19-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 <p>It is important to understand that a data analyst will rarely
 remember all of these commands. A crucial programming technique is
 searching the internet. You could, for instance, search for “r ggplot
@@ -528,8 +569,7 @@ two variables.</p>
   theme_classic() +
   labs(x = &quot;Home Runs&quot;, y = &quot;Salary&quot;, title =&quot;Scatter plot&quot;)
 g5</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-20-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 <p>Here we can see that in general there is a positive relationship
 between the number of career home runs and the salary variables.</p>
 <p>After we learned that the number of home runs differs significantly
@@ -542,8 +582,7 @@ graph. We could add a colour differentiation</p>
   theme_classic() +
   labs(x = &quot;Home Runs&quot;, y = &quot;Salary&quot;, title =&quot;Scatter plot&quot;)
 g7</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-21-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <p>But this is somewhat too messy to actually see anything here. Another
 way to do this is what is called facetting.</p>
 <pre class="r"><code>g8 &lt;- ggplot(mydata, aes(x = hruns, y = salary)) + 
@@ -552,8 +591,7 @@ way to do this is what is called facetting.</p>
   facet_wrap(vars(position)) +
   labs(x = &quot;Home Runs&quot;, y = &quot;Salary&quot;, title =&quot;Scatter plots&quot;)
 g8</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-22-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
 <p>The addition of <code>+ facet_wrap(vars(position))</code> produced a
 scatter plot for each position separately. In this case this does not
 really help us a lot other than to see that outfielders are the players
@@ -565,8 +603,7 @@ which score, on average, more home runs than other positions.</p>
   facet_grid(vars(ethnicity)) +
   labs(title =&quot;Bar graph of positions (conditional on ethnicity) &quot;)
 g9</code></pre>
-<p><img
-src="R_GraphIntro_files/figure-html/unnamed-chunk-23-1.png" /><!-- --></p>
+<p><img src="R_GraphIntro_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 <p>This very clearly illustrates that, at the time, black players
 predominantly played in the outfield.</p>
 </div>
@@ -578,11 +615,28 @@ time-series plot. The Basketball data do not have any time dimension
 such that there is no obvious use for a time-series plot. However, it
 will be constructed in a very similar way, just using the
 <code>geom_line()</code> option. Explore the possibilities in <a
-href="https://ggplot2-book.org/">hadley Wickham’s book</a>.</p>
+href="https://ggplot2-book.org/">Hadley Wickham’s book</a>.</p>
 </div>
 </div>
 <div id="saving-graphs" class="section level1">
 <h1>Saving graphs</h1>
+<p>The following is a fairly straightforward way to save graphs as an
+image. You can then import that image into any software you wish, such
+as Microsoft Word. Let’s say you wish to include the graph we saved in
+<code>g9</code> into another document.</p>
+<pre class="r"><code>ggsave(&quot;baseball.png&quot;, g9)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<p>This will create “baseball.png” in your working directory from where
+you can load it to wherever you want to use it. Use the help function
+(<code>?ggsave</code>) in the console to find out what options you have.
+For instance you could, instead of the square image saved on this
+occasion, save a wide format picture.</p>
+<pre class="r"><code>ggsave(&quot;baseball_wide.png&quot;, width = 15, height = 9, g9)</code></pre>
+<p>This very useful function but only works for plots produced with
+<code>ggplot</code>. If you want to save any other plot you can produce
+that plot in the console. Then you will see it in the “Plots” window in
+RStudio, and from there you can save it using the “Export” button.</p>
+<p><img src="images/Plot_export.PNG" /></p>
 </div>
 <div id="summary" class="section level1">
 <h1>Summary</h1>
@@ -593,6 +647,8 @@ work.</p>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -625,6 +681,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

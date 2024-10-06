@@ -14,7 +14,7 @@
 
 <title>Demonstrating the LLN and CLT</title>
 
-<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
@@ -303,9 +303,9 @@ x2 &lt;- rnorm(n, mean=mu, sd=std)  # sampled from normal distribution with mean
 mean1 &lt;- mean(x1)
 mean2 &lt;- mean(x2)
 paste(&quot;Sample 1 mean = &quot;, mean1)</code></pre>
-<pre><code>## [1] &quot;Sample 1 mean =  1.5329093238106&quot;</code></pre>
+<pre><code>## [1] &quot;Sample 1 mean =  1.68596968108322&quot;</code></pre>
 <pre class="r"><code>paste(&quot;Sample 2 mean = &quot;, mean2)</code></pre>
-<pre><code>## [1] &quot;Sample 2 mean =  -0.0344277525785356&quot;</code></pre>
+<pre><code>## [1] &quot;Sample 2 mean =  -0.115647585638028&quot;</code></pre>
 <p>As you can see the means are different from the respective population
 means of 1.5 (for the uniform distribution drawing values between 1 and
 2) and 0 (as set when we draw normally distributed random vaiables). The
@@ -400,11 +400,11 @@ p_denpop</code></pre>
 population mean and standard deviation.</p>
 <pre class="r"><code>mu_x = mean(Xpop)
 paste(&quot;Population mean =&quot;, mu_x)</code></pre>
-<pre><code>## [1] &quot;Population mean = 0.745881467968155&quot;</code></pre>
+<pre><code>## [1] &quot;Population mean = 0.744665429216517&quot;</code></pre>
 <pre class="r"><code># as sd calculates sample sd we correct to get pop sd
 std_x = sd(Xpop)*((length(Xpop)-1)/length(Xpop)) 
 paste(&quot;Population standard error =&quot;, std_x)</code></pre>
-<pre><code>## [1] &quot;Population standard error = 1.05161184863466&quot;</code></pre>
+<pre><code>## [1] &quot;Population standard error = 1.0604009584022&quot;</code></pre>
 <p>Let’s start by using two sample sizes, <code>n1=5</code> and
 <code>n2=30</code>. We draw 1000 samples, calculate sample means and
 then show the distribution of the resulting sequences of sample
