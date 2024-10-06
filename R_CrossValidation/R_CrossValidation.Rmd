@@ -1,0 +1,452 @@
+---
+title: "Cross Validation"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(webexercises)
+```
+
+## Introduction
+
+The problem addressed here is that of deciding between models of different complexities. To fix ideas we shall load some packages and a dataset we work with
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(stargazer)
+library(ISLR2)
+library(cv)
+
+data(Auto)  # This dataset, Auto, comes with the ISLR2 package, 
+str(Auto)
+```
+
+This is a database of different cars with their respective characteristics (name plus eight features). For instance
+
+```{r}
+Auto[269,]
+```
+
+is a Toyata Celica.
+
+How much horsepower has the `dodge rampage`? `r fitb(Auto$horsepower[Auto$name == "dodge rampage"])`
+
+`r hide("How can I figure this out quickly?")`
+
+You could of course open the object `Auto` find the "dodge rampage" and then check out its horsepower ... but that is a little tedious. Imagine you had 2,000 car models and not just 392. Here is what you should do: `Auto$horsepower[Auto$name == "dodge rampage"]`. Do you understand what this does?
+
+`r unhide()`
+
+You are wondering how the fuel efficiency, as measured by miles-per-gallon (`mpg`, higher is more efficient), relates to the horsepower of the car. Let's start by estimating a simple linear model.
+
+```{r}
+OLS1 <- lm(mpg ~ horsepower,data = Auto)
+stargazer(OLS1, type = "text")
+```
+
+As you can see, `horsepower` appears to be a highly influential factor explaining variation in the outcome variable, `mpg`. The more horsepower, the lower the fuel efficiency. But is the relationship really linear? Let's estimate models with quadratic and cubic terms in `horsepower`.
+
+Complete the following code to replicate the subsequent output.
+
+```{r, eval = FALSE}
+OLS2 <- lm(mpg ~ poly(horsepower,2),data = XXXX)
+OLS3 <- lm(mpg ~ XXXX(horsepower,XXXX),XXXX)
+
+stargazer(OLS1, XXXX, XXXX, type = "text")
+```
+
+```{r, echo = FALSE}
+OLS2 <- lm(mpg ~ poly(horsepower,2),data = Auto)
+OLS3 <- lm(mpg ~ poly(horsepower,3),data = Auto)
+
+stargazer(OLS1,OLS2,OLS3, type = "text")
+```
+
+ From here you can see that the amount of variation in the dependent variable that can be explained by the model increases from 0.6 to 0.69 from the linear to the quadratic model but does not really increase any further with the cubic model.
+
+`r hide("What does poly() do?")`
+
+You should check out the help function `?poly` to see the function's description. It includes higher order versions of horsepower into the model. When you read the help you will realise that it includes orthogonalised higher powers, so not just horsepower^2 and horsepower^3. 
+
+`r unhide()`
+
+Which of the following statements is correct?
+
+```{r, echo = FALSE}
+opts_p <- c(
+   answer = "The quadratic and cubic models could be estimated by OLS as the model is still linear in parameters.",
+   "The quadratic and cubic models were estimated with Maximum Likelihood as the model was no longer linear in parameters.",
+   "The quadratic and cubic models could be estimated by OLS as all nonlinear parameters can be estimated with the Least Squares Method."
+)
+```
+
+`r longmcq(opts_p)`
+
+## Selecting between models
+
+Traditional ways of selecting between models would be by performing hypothesis tests for the additional, higher order variables or to compare the in-sample fit between models, taking account of the different number of variables used (e.g. select the model that delivers the smallest information criterion).
+
+Both these methods rely on in-sample fit, meaning that the same observations are used for estimating parameters and for evaluating how well the model fits. If you are building a model for the purpose of forecasting you may want to estimate the model on some data and then evaluate its fit on another set of data. This is what you would have to do for forecasting and therefore it is attractive to use such a scheme for model evaluation as well.
+
+### Cross-validation, an introduction
+
+Let us randomly select half of the observations (training or estimation set). Estimate the three different models and then see how well the different models predict the `mpg` on the on the other half of the data (test or evaluation set).
+
+```{r}
+set.seed(123)
+obs <- dim(Auto)[1]
+train <- sample(obs,floor(dim(Auto)[1]/2)) # randomly selects half the obs
+test <- seq(1:obs)
+test <- test[-train] # all obs not in train
+
+OLS1.train <- lm(mpg ~ horsepower,data = Auto[train,])
+OLS2.train <- lm(mpg ~ poly(horsepower,2),data = Auto[train,])
+OLS3.train <- lm(mpg ~ poly(horsepower,3),data = Auto[train,])
+```
+
+Now we can use the estimated models to predict the outcome variable in the `test` data set (`Auto[train,]`).
+
+```{r}
+p1 <- predict(OLS1.train,Auto[test,])
+p2 <- predict(OLS2.train,Auto[test,])
+p3 <- predict(OLS3.train,Auto[test,])
+```
+
+Let us compare the predictions with the actual observations. In order to use ggplot we add the actual realisations and the three predictions to a dataframe (here as 4 variables) and then the data are formed into a long format.
+
+```{r}
+comp_data <- data.frame(real = Auto[test,"mpg"], p1 = p1, p2 = p2, p3 = p3)
+comp_data <- comp_data %>% pivot_longer(cols = starts_with("p"),names_to = "forecast")
+
+ggplot(comp_data,aes(x = real, y = value, colour = forecast)) + 
+  geom_point() +
+  geom_abline(intercept = 0,slope = 1, size = 1) +
+  labs(title = "Comparing forecasts to realisations", x = "mpg", y = "Forecast mpg")
+
+```
+
+On the horizontal axis you have the realised mpg and on the vertical the forecast mpg. If a prediction is on the black line the forecast hits exactly the realisation.
+
+From the plot it is difficult to establish which model is better and we should calculate summary statistics to have a numerical measure of the forecast quality.
+
+```{r}
+# calculates the mean square prediction error
+mse1.1 = mean((p1-Auto[test,"mpg"])^2)
+mse2.1 = mean((p2-Auto[test,"mpg"])^2)
+mse3.1 = mean((p3-Auto[test,"mpg"])^2)
+
+# or alternatively use the mse(y,yhat) function 
+mse1.1 <- mse(Auto[test,"mpg"],p1)
+mse2.1 <- mse(Auto[test,"mpg"],p2)
+mse3.1 <- mse(Auto[test,"mpg"],p3)
+
+paste("MSE.OLS1.1 =", mse1.1)
+paste("MSE.OLS2.1 =", mse2.1)
+paste("MSE.OLS3.1 =", mse3.1)
+
+```
+
+You can see that, on this occasion the in-sample findings are confirmed. `OLS2` and `OLS3` perform better when it comes to the forecasting. 
+
+An obvious question here is whether we would get a similar result if we estimated the model using the `test` data and then tested these models on the `train` data.  
+
+```{r}
+train <- test  # change the role of test and train data
+test <- seq(1:obs)
+test <- test[-train] # all obs not in train
+
+OLS1.train <- lm(mpg ~ horsepower,data = Auto[train,])
+OLS2.train <- lm(mpg ~ poly(horsepower,2),data = Auto[train,])
+OLS3.train <- lm(mpg ~ poly(horsepower,3),data = Auto[train,])
+
+p1 <- predict(OLS1.train,Auto[test,])
+p2 <- predict(OLS2.train,Auto[test,])
+p3 <- predict(OLS3.train,Auto[test,])
+
+mse1.2 <- mse(Auto[test,"mpg"],p1)
+mse2.2 <- mse(Auto[test,"mpg"],p2)
+mse3.2 <- mse(Auto[test,"mpg"],p3)
+
+paste("MSE.OLS1.2 =", mse1.2)
+paste("MSE.OLS2.2 =", mse2.2)
+paste("MSE.OLS3.2 =", mse3.2)
+```
+
+Qualitatively we get the same result. `OLS2` and `OLS3` fit the data better. 
+
+You should recognise that the above operations simulate the process of estimating a model on one dataset and then apply that model to forecast on a fresh dataset. This is done by selecting data for the training and testing dataset role from the existing dataset. In this case we split the data into two subsets (or folds) that were then used for trainig/estimation or testing/predicting purposes.
+
+### k-fold cross validation
+
+The introductory example above implemented a 2-fold cross validation. Averaging the two mse measures we got for each model we obtain a summary measure for each model describing the quality of fit.
+
+```{r}
+paste("MSE.OLS1 =", (mse1.1+mse1.2)/2)
+paste("MSE.OLS2 =", (mse2.1+mse2.2)/2)
+paste("MSE.OLS3 =", (mse3.1+mse3.2)/2)
+```
+
+In that example we split the data into 2 parts/folds. We could decide to split the sample into say 4 parts. Then one could estimate and test the model with the following scheme: 
+
+Estimation/Training parts | Prediction/Testing parts
+------------- | -------------
+1,2,3 | 4
+1,2,4 | 3
+1,3,4 | 2
+2,3,4 | 1
+
+In a similar way you could split the data into $k$ parts. The larger $k$ the more data you use to estimate the model but the more different models are to be estimated. This can get tedious and fortunately, a package has been written that makes the job easier. This is the `cv` package.
+
+You use the `cv` function to do the hard work, i.e. take your model, create all the necessary datasplits, obtain the respective model parameters and then predict the left out observations, calculate and summarise a measure of fit across all different folds. And in fact, the `cv` function can do the whole thing for several models at the same time. This is useful as we would typically use cross-validation to decide which of a set of models we should be using.
+
+Here is how you do the cross-validation for the three models `OLS1`, `OLS2` and `OLS3` using a 4 fold cross validation.
+
+```{r}
+cv4 <- cv(models(OLS1,OLS2,OLS3), data = Auto,  k = 4)
+```
+Note that the input is the saved, full sample models (`OLS1`, `OLS2` and `OLS3`). You also need ot specify the dataset used (the full dataset, the function will do the sample splitting) and then how many folds you wish to have.
+
+You can look at the results of this as follows
+
+```{r}
+summary(cv4)
+```
+
+Now you can compare the cross-validation criterion and chose the model with the smallest value. You can do that by looking at the above results or by plotting the results. To plot the results we first have to extract the summary measures (the cv criterion, which are mean square errors by default) into a useful structure.
+
+```{r}
+cv4.crit <- as.data.frame(cv4, 
+                           rows="cv",             
+                           columns="criteria"
+                           )
+cv4.crit$p <- seq(1,3) # this adds a model number, indexing the poynomial
+```
+
+This is now a dataframe and we can use ggplot to plot results.
+
+```{r}
+ggplot(cv4.crit, aes(y = adjusted.criterion, x = p)) + 
+  geom_line() +
+  labs(title = "CV mse for models with increasing polynomials in horsepower",
+       x = "polynomial order")
+```
+
+You should now attempt to redo the above exercise for polynomials in horsepower up to 11. Then you should use a 10 fold cross validation to decide which of the models has the lowest cross validation criterion. When you plot the data also add the `full.criterion` which shows you the non-cross-validated in-sample fit.
+
+```{r,  webex.hide="Click here to see the solution"}
+# Add models for higher polynomials, OLS1 to OLS3 are already available
+OLS4 <- lm(mpg ~ poly(horsepower,4),data = Auto)
+OLS5 <- lm(mpg ~ poly(horsepower,5),data = Auto)
+OLS6 <- lm(mpg ~ poly(horsepower,6),data = Auto)
+OLS7 <- lm(mpg ~ poly(horsepower,7),data = Auto)
+OLS8 <- lm(mpg ~ poly(horsepower,8),data = Auto)
+OLS9 <- lm(mpg ~ poly(horsepower,9),data = Auto)
+OLS10 <- lm(mpg ~ poly(horsepower,10),data = Auto)
+OLS11 <- lm(mpg ~ poly(horsepower,11),data = Auto)
+
+# seed ensures that you always get the same random splits
+cv10 <- cv(models(OLS1,OLS2,OLS3,OLS4,OLS5,OLS6,OLS7,OLS8,OLS9,OLS10,OLS11), 
+           data = Auto,  
+           k = 10, 
+           seed = 1234)
+
+cv10.crit <- as.data.frame(cv10, 
+                           rows="cv",             
+                           columns="criteria"
+                           )
+
+# save the criteria in a separate data frame - will add other crit later
+# remove the fold variable and rename some columns
+cv.crit <- cv10.crit %>% 
+  select(-fold) %>% 
+  rename(CV10.adj.crit = adjusted.criterion) %>% 
+  rename(CV10.crit = criterion) 
+cv.crit$p <- seq(1,dim(cv10.crit)[1]) # this adds a model number, indexing the poynomial
+
+ggplot(cv.crit, aes(x = p)) + 
+  geom_line(aes(y = CV10.adj.crit), color = "darkred") +
+  geom_line(aes(y = full.criterion), color="steelblue") +
+  labs(title = "CV mse for models with increasing polynomials in horsepower",
+       x = "polynomial order")
+ 
+```
+
+In your solution you should see that the full.criterion keeps decreasing, but the CV criterion will identify an optimal polynomial order.
+
+### Leave one out cross validation
+
+In the above example we applied a 4 and then a 10 fold cross-validation. Could you increase the number of folds? Indeed you could, you could increase it up to the number of observations, here 392.
+
+This implies the following structure:
+
+Estimation/Training observations | Prediction/Testing observations
+------------- | -------------
+1-391 | 392
+1-390, 392 | 391
+1-389, 391-392 | 390
+1-388, 390-392 | 389
+... | ...
+1-2, 4-392 | 3
+1, 3-392 | 2
+2-392 | 1
+
+This is called the leave one out cross-validation scheme. The `cv` function can implement this by using `k="loo"` as the input for the number of folds.
+
+```{r}
+# no seed required for loo CV as there are no random draws
+cvloo <- cv(models(OLS1,OLS2,OLS3,OLS4,OLS5,OLS6,OLS7,OLS8,OLS9,OLS10,OLS11), data = Auto,  k = "loo") 
+summary(cvloo)
+```
+
+Now we add the leave one out (loo) cross-validation criterion to the `cv.crit` dataframe.
+
+```{r}
+cvloo.crit <- as.data.frame(cvloo, 
+                           rows="cv",             
+                           columns="criteria"
+                           )
+
+cv.crit$CVloo.crit <- cvloo.crit$criterion
+```
+
+With the criteria for the 10-fold and the loo cross validation in one data frame we can display these nicely. In order to show multiple lines nicely with `ggplot` it is best to transfer the data into the long format.
+
+```{r}
+cv.crit.long <- cv.crit %>% pivot_longer(!c(model,p),names_to = "Eval.type",values_to = "criterion")
+
+ggplot(cv.crit.long, aes(x = p, y = criterion, colour = Eval.type)) + 
+  geom_line() +
+  labs(title = "CV mse for models with increasing polynomials in horsepower",
+       x = "polynomial order")
+```
+
+On this occasion the message from the 10-fold and loo cross-validation are very comparable.
+
+### Note on leave one out cross validation
+
+As the loo cross-validation has been described above it look as if we have to run 392 regressions. As it turns out there is a neat algebraic trick that enables the calculation of the loo-CV criterion after only running the full-sample regression. When we are dealing with 392 observations this is not so essential, but if you have thousands if not millions of observations then this does matter for computational time.
+
+We will illustrate this trick here for a simple regression. This means that we will reconstruct the loo-CV criterion for the `p=1` model which previously was calculated to be `r cv.crit[cv.crit$p==1,"CVloo.crit"]`.
+
+The formula for the $CV_{loo,n}$ can be calculated from 
+
+\begin{equation}
+CV_{loo,n} = \frac{1}{n} \Sigma_{i=1}^{n} \left( \frac{y_i - \hat{y}_i}{1-h_i}\right)^2
+\end{equation}
+
+where
+
+\begin{equation}
+h_i = \frac{1}{n} + \frac{(x_{j} - \bar{x})^2}{\Sigma_{j=1}^{n} (x_{j} - \bar{x})^2}
+\end{equation}
+
+is called the leverage of the $i$th observation, $x_i$ is the $i$th observation of the (single) explanatory variable (here `horsepower`) and $\hat{y}_i$ is the model prediction for the $i$th observation coming from the full-sample estimation, i.e. from `OLS1` in our case.
+
+Let us calculate the above. We already have 
+
+```{r}
+# prepare all the terms needed
+n <- dim(Auto)[1]
+y <- Auto$mpg
+x <- Auto$horsepower
+xbar <- mean(x)
+yhat <- predict(OLS1,Auto)
+x_m_xbar.sq <- (x - xbar)^2
+sum.x_m_xbar.sq <- sum(x_m_xbar.sq)
+
+# calculate leverage
+h = (1/n) +  (x_m_xbar.sq/sum.x_m_xbar.sq)
+
+# Calculate CV criterion
+temp <- ((y-yhat)/(1-h))^2
+CVloo.1 = mean(temp)
+
+paste("CVloo.1 =", CVloo.1, ", from cv procedure: ", cv.crit[cv.crit$p==1,"CVloo.crit"])
+```
+
+As you can see they are identical. Well actually that is not a surprise as the cleaver programmers of the `cv` function are of course aware of the trick and are using this approach rather than estimating 392 regressions. So in effect we just recreated one of the pieces of code that are hidden underneath the hood of the `cv` function.
+
+For the general k-fold CV such tricks do not exist and you (or the `cv` procedure) actually do have to estimate multiple regressions.
+
+## Extended Application
+
+Above we build a model with only horsepower as the explanatory variable. Now we include some additional variables.
+
+```{r}
+OLS1.ext <- lm(mpg ~ horsepower+weight+year,data = Auto)
+summary(OLS1.ext)
+```
+
+you can see that the inclusion of other explanatory variables has turned the horsepower variable insignificant. however, higher order terms may still be relevant.
+
+Your task is now to replicate the above analysis. Consider models which extend `OLS1.ext` with higher powers of the `horsepower` variable (up to $p=11$). Then apply the 10-fold and the loo CV to decide which model is most suitable for forecasting purposes.
+
+```{r,  webex.hide="Click here to see the solution"}
+# Add models for higher polynomials, OLS1.ext is already available
+OLS2.ext <- lm(mpg ~ poly(horsepower,2) + weight + year,data = Auto)
+OLS3.ext <- lm(mpg ~ poly(horsepower,3) + weight + year,data = Auto)
+OLS4.ext <- lm(mpg ~ poly(horsepower,4) + weight + year,data = Auto)
+OLS5.ext <- lm(mpg ~ poly(horsepower,5) + weight + year,data = Auto)
+OLS6.ext <- lm(mpg ~ poly(horsepower,6) + weight + year,data = Auto)
+OLS7.ext <- lm(mpg ~ poly(horsepower,7) + weight + year,data = Auto)
+OLS8.ext <- lm(mpg ~ poly(horsepower,8) + weight + year,data = Auto)
+OLS9.ext <- lm(mpg ~ poly(horsepower,9) + weight + year,data = Auto)
+OLS10.ext <- lm(mpg ~ poly(horsepower,10) + weight + year,data = Auto)
+OLS11.ext <- lm(mpg ~ poly(horsepower,11) + weight + year,data = Auto)
+
+# 10 fold CV
+# seed ensures that you always get the same random splits
+cv10.ext <- cv(models(OLS1.ext,OLS2.ext,OLS3.ext,OLS4.ext,OLS5.ext,
+                      OLS6.ext,OLS7.ext,OLS8.ext,OLS9.ext,OLS10.ext,OLS11.ext), 
+           data = Auto,  
+           k = 10, 
+           seed = 1234)
+
+cv10.ext.crit <- as.data.frame(cv10.ext, 
+                           rows="cv",             
+                           columns="criteria"
+                           )
+
+# save the criteria in a separate data frame - will add other crit later
+# remove the fold variable and rename some columns
+cv.ext.crit <- cv10.ext.crit %>% 
+  select(-fold) %>% 
+  rename(CV10.adj.crit = adjusted.criterion) %>% 
+  rename(CV10.crit = criterion) 
+cv.ext.crit$p <- seq(1,dim(cv10.ext.crit)[1]) # this adds a model number, indexing the poynomial
+
+# loo CV
+# no seed required for loo CV as there are no random draws
+cvloo.ext <- cv(models(OLS1.ext,OLS2.ext,OLS3.ext,OLS4.ext,OLS5.ext,
+                      OLS6.ext,OLS7.ext,OLS8.ext,OLS9.ext,OLS10.ext,OLS11.ext), 
+           data = Auto,  
+           k = "loo")
+
+cvloo.ext.crit <- as.data.frame(cvloo.ext, 
+                           rows="cv",             
+                           columns="criteria"
+                           )
+
+# add he loo CV crit to results dataframe
+cv.ext.crit$CVloo.crit <- cvloo.ext.crit$criterion 
+
+# change results dataframe to long format for easier plotting
+cv.ext.crit.long <- cv.ext.crit %>% pivot_longer(!c(model,p),
+                                                 names_to = "Eval.type",
+                                                 values_to = "criterion")
+
+ggplot(cv.ext.crit.long, aes(x = p, y = criterion, colour = Eval.type)) + 
+  geom_line() +
+  labs(title = "CV mse for extended models with increasing polynomials in horsepower",
+       x = "polynomial order")
+
+
+```
+
+When inspecting the results you will see that now, after including other variables, the cross-validation results suggest that we should only include up to the third power of `horsepower` variable. Without the inclusion of `weight` and `year` the cross-validation procedure suggested the inclusion of 7 powers.
+
+## Summary
+
+Here we learned how to implement cross-validation approaches to support model selection. The useful `cv` function implements k-fold and leave one out cross-validation in a straightforward manner. All you need to do is to estimate the full-sample model and then feed that into the `cv` function.

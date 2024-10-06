@@ -1,5 +1,5 @@
 ---
-title: "Data Loading"
+title: "Introduction to Graphs"
 output:
   html_document:
     toc: true
@@ -157,7 +157,7 @@ g2 <- ggplot(mydata, aes(x = hruns)) +
 g2
 ```
 
-You get a good idea from this about the distribution of the home run variale. Instead of `geom_histogram()` you could use a smooth versio of the histogram, called `geom_density()`. Try for yourself what the option `size = 1` inside the function call does by changing the value (remember you cannot break your computer).
+You get a good idea from this about the distribution of the home run variable. Instead of `geom_histogram()` you could use a smooth versio of the histogram, called `geom_density()`. Try for yourself what the option `size = 1` inside the function call does by changing the value (remember you cannot break your computer).
 
 ```{r warning=FALSE}
 g3 <- ggplot(mydata, aes(x = hruns)) + 

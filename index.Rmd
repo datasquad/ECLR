@@ -31,6 +31,9 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Basic Data Analysis | [Workthrough in R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv) 
 | Basic Data Analysis (Tidyverse) | [Workthrough in R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
 | Basic Data Visualisation (ggplot) | [Workthrough in R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
+| Loops | [Workthrough in R](https://datasquad.github.io/ECLR/R_LoopPractice/R_LoopPractice.html) | in code upload
+| Law of Large Numbers and Central Limit Theorem | [Workthrough in R](https://datasquad.github.io/ECLR/R_LLN_and_CLT.html) | in code simulated data
+
 
 # Regression models and related techniques
 
@@ -48,6 +51,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Regression Model Selection | [Workthrough in R](https://datasquad.github.io/ECLR/R_VariableSelection_Credit/R_VariableSelection_Credit.html) | in code upload
 | Ridge and LASSO Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RidgeLasso/R_RidgeLasso.html) | [PSIDsmall.txt](https://github.com/datasquad/ECLR/blob/gh-pages/data/PSIDsmall.txt)
 | Post Double Selection LASSO | [Workthrough in R](https://datasquad.github.io/ECLR/R_DoubleRobustLasso/R_DoubleRobustLasso.html) | in code upload
+| Cross-Validation | [Workthrough in R](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html) | in code upload
 
 ## Dealing with Time-Series variables
 

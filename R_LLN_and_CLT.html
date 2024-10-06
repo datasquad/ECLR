@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2024-10-06" />
+
+<title>Demonstrating the LLN and CLT</title>
+
+<script src="site_libs/header-attrs-2.21/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="Datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+<li>
+  <a href="Author.html">Author</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Demonstrating the LLN and CLT</h1>
+<h4 class="date">2024-10-06</h4>
+
+</div>
+
+
+<p>Here we wish to demonstrate the workings of the Law of Large Numbers
+(LLN) and the Central Limit Theorem (CLT).</p>
+<p>Let’s load two packages we will be using.</p>
+<pre class="r"><code>library(tidyverse)
+library(ggplot2)</code></pre>
+<div id="law-of-large-numbers-lln" class="section level3">
+<h3>Law of Large Numbers (LLN)</h3>
+<p>The LLN indicates that if you have a random variable with a finite
+mean <span class="math inline">\(\mu_x\)</span> and you take random
+draws from that population, then the sample mean <span
+class="math inline">\(\bar{X}=\frac{1}{n}\Sigma_i^n x_i\)</span> will
+converge to the population mean <span
+class="math inline">\(\mu_x\)</span>.</p>
+<p>In order to demonstrate this in a simulation we need to set a
+distribution from which we draw random numbers. Then we sample from the
+distribution and calculate a sample mean.</p>
+<pre class="r"><code>n &lt;- 10
+# set lower and upper bound for uniform
+lb &lt;- 1
+ub &lt;- 2
+# set parameters for normal r.v.
+mu &lt;- 0
+std &lt;- 1
+
+# raw random variables
+x1 &lt;- runif(n,lb,ub)  # sampled from uniforn distribution between 1 and 2
+x2 &lt;- rnorm(n, mean=mu, sd=std)  # sampled from normal distribution with mean 0 and sd = 1
+mean1 &lt;- mean(x1)
+mean2 &lt;- mean(x2)
+paste(&quot;Sample 1 mean = &quot;, mean1)</code></pre>
+<pre><code>## [1] &quot;Sample 1 mean =  1.5329093238106&quot;</code></pre>
+<pre class="r"><code>paste(&quot;Sample 2 mean = &quot;, mean2)</code></pre>
+<pre><code>## [1] &quot;Sample 2 mean =  -0.0344277525785356&quot;</code></pre>
+<p>As you can see the means are different from the respective population
+means of 1.5 (for the uniform distribution drawing values between 1 and
+2) and 0 (as set when we draw normally distributed random vaiables). The
+LLN suggests that taken larger and larger samples (<span
+class="math inline">\(n \rightarrow \infty\)</span>) should result in
+sample means closer and closer to the population mean. So we need to
+code a loop in which we increase the sample size <code>n</code>.</p>
+<p>Let’s construct a range of increasing sample sizes between 5 and
+5000.</p>
+<pre class="r"><code>n_sel1 &lt;- seq(5,50,5)
+n_sel2 &lt;- seq(60,100,10)
+n_sel3 &lt;- seq(150,5000,50)
+n_sel &lt;- c(n_sel1,n_sel2,n_sel3)</code></pre>
+<p>Now we have a range of increasing sample sizes and we shall draw
+random samples of increasing sizes, calculate their sample means and
+then observe how they behave.</p>
+<pre class="r"><code># start by creating containers into which to save the sample means
+save_mean1 = rep(NA,length(n_sel))
+save_mean2 = rep(NA,length(n_sel))
+
+for (i in (1:length(n_sel))) {
+  n &lt;- n_sel[i]
+  save_mean1[i] &lt;- mean(runif(n,lb,ub))  
+  save_mean2[i] &lt;- mean(rnorm(n, mean=mu, sd=std))
+}</code></pre>
+<p>Now we display the results. First we create a dataframe with the two
+series of sample means and the sample siz</p>
+<pre class="r"><code>results &lt;- data.frame(n = n_sel, mean1 = save_mean1, mean2 = save_mean2 )</code></pre>
+<p>Now we can plot using <code>ggplot</code>. By plotting sample mean
+against the log of the sample size the effect becomes clearer. However
+see how the result looks like if you plot against <span
+class="math display">\[n\]</span>.</p>
+<pre class="r"><code>p1 &lt;- ggplot(results, aes(x = log(n), y=mean1)) + 
+  geom_line() +
+  labs(x = &quot;Sample Size&quot;, y = &quot;Sample average&quot;, title = &quot;Sample means drawn from uniform distribution&quot;)
+p1</code></pre>
+<p><img src="R_LLN_and_CLT_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>p2 &lt;- ggplot(results, aes(x = log(n), y=mean2)) + 
+  geom_line() +
+  labs(x = &quot;Sample Size&quot;, y = &quot;Sample average&quot;, title = &quot;Sample means drawn from normal distribution&quot;)
+p2</code></pre>
+<p><img src="R_LLN_and_CLT_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>You can see from here that the sample means do converge to the
+population means of 1.5 an 0 respectively. The variability around the
+population means does reduce as the sample size gets larger.</p>
+</div>
+<div id="central-limit-theorem-clt" class="section level2">
+<h2>Central Limit Theorem (CLT)</h2>
+<p>CLTs basically indicate that, given certain conditions for the
+sequence of random numbers, <span class="math inline">\(X_i\)</span> (or
+<span class="math inline">\(X_t\)</span> when dealing with time series
+data), the sample mean of that sequence is a random variable and that
+variable is, for sufficiently large samples, normally distributed around
+the population mean <span class="math inline">\(mu_x\)</span>. The
+amazing feature of this is that the sample mean is asymptotically
+normally distributed regardless of what distribution the random
+variables <span class="math inline">\(X_i\)</span> are drawn from. This
+is a key result that allows for statistical inference in many
+contexts.</p>
+<p>In order to illustrate the workings of the CLT we will simulate a
+large population for <span class="math inline">\(X\)</span>. Then we
+shall draw random samples for different sample sizes. However, in
+contrast to the earlier illustration of the LLN, at every sample size we
+shall draw many samples of the same sample size, then calculate the
+sample mean for each of these samples and then display the distribution
+of these sample means, as that is the subject of the CLT.</p>
+<p>Let’s start by creating a population of values. Our population shall
+be a mixture of the two distributions we used previously. 10,000 from
+the uniform distribution (between 1 and 2) and 10,000 from the normal
+distribution.</p>
+<pre class="r"><code>n &lt;- 10000
+# set lower bound for uniform
+lb &lt;- 1
+ub &lt;- 2
+# set parameters for normal r.v.
+mu &lt;- 0
+std &lt;- 1
+
+# raw random variables
+x1 &lt;- runif(n,lb,ub)  # sampled from uniforn distribution between 1 and 2
+x2 &lt;- rnorm(n, mean=mu, sd=std)  # sampled from normal distribution with mean 0 and sd = 1
+
+Xpop &lt;- append(x1,x2)</code></pre>
+<p>Let’s look at a distribution for this population.</p>
+<pre class="r"><code>Xpop.df &lt;- data.frame(x = Xpop)
+p_denpop &lt;- ggplot(Xpop.df,aes(x=x)) + 
+  geom_density() +
+  labs(x = &quot;X&quot;, y = &quot;Density&quot;, title = &quot;Distribution of population&quot;)
+p_denpop</code></pre>
+<p><img src="R_LLN_and_CLT_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>This a clearly unusual population. Let’s also calculate the
+population mean and standard deviation.</p>
+<pre class="r"><code>mu_x = mean(Xpop)
+paste(&quot;Population mean =&quot;, mu_x)</code></pre>
+<pre><code>## [1] &quot;Population mean = 0.745881467968155&quot;</code></pre>
+<pre class="r"><code># as sd calculates sample sd we correct to get pop sd
+std_x = sd(Xpop)*((length(Xpop)-1)/length(Xpop)) 
+paste(&quot;Population standard error =&quot;, std_x)</code></pre>
+<pre><code>## [1] &quot;Population standard error = 1.05161184863466&quot;</code></pre>
+<p>Let’s start by using two sample sizes, <code>n1=5</code> and
+<code>n2=30</code>. We draw 1000 samples, calculate sample means and
+then show the distribution of the resulting sequences of sample
+means.</p>
+<pre class="r"><code>n1 &lt;- 5
+n2 &lt;- 30
+reps &lt;- 1000
+save_mean3 &lt;- rep(NA,reps)
+save_mean4 &lt;- rep(NA,reps)
+
+for (i in 1:reps) {
+  save_mean3[i] &lt;- mean(sample(Xpop,n1)) # by default this samples without replacement
+  save_mean4[i] &lt;- mean(sample(Xpop,n2)) 
+}</code></pre>
+<pre class="r"><code>results.clt &lt;- data.frame(sm1 = save_mean3, sm2 = save_mean4)
+p_densm1 &lt;- ggplot(results.clt,aes(x=sm1)) + 
+  geom_density() + 
+  labs(x = &quot;Sample Mean&quot;, y = &quot;Density&quot;, title = &quot;Distribution of sample means, n1 = 5&quot;)
+p_densm1</code></pre>
+<p><img src="R_LLN_and_CLT_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>The distribution is clearly not normal. In particular it seems
+asymmetric, perhaps not surprising as the population distribution is
+clearly asymmetric. Let’s see how this distribution looks like for
+sample means calculated from samples of size <code>n2 = 30</code>.</p>
+<pre class="r"><code>results.clt &lt;- data.frame(sm1 = save_mean3, sm2 = save_mean4)
+p_densm2 &lt;- ggplot(results.clt,aes(x=sm2)) + 
+  geom_density() + 
+  labs(x = &quot;Sample Mean&quot;, y = &quot;Density&quot;, title = &quot;Distribution of sample means, n2 = 30&quot;)
+p_densm2</code></pre>
+<p><img src="R_LLN_and_CLT_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>We can clearly still see some asymmetry here, but less than for
+<code>n1=5</code>.</p>
+<p>Let’s generalise the code a little to be able to get distributions
+from more than just two sample sizes.</p>
+<pre class="r"><code>n_sel.clt &lt;- c(5,10,30, 75)
+reps &lt;- 1000
+
+# now the container in which we save results is a matrix
+save_mean5 &lt;- matrix(NA, nrow = reps, ncol = length(n_sel.clt))
+for (j in (1:length(n_sel.clt))) {
+  n.clt &lt;- n_sel.clt[j] # select a sample size
+  for (i in 1:reps) {
+    save_mean5[i,j] &lt;- mean(sample(Xpop,n.clt)) # by default this samples without replacement
+  }
+}</code></pre>
+<p>The sample means from 4 x 1000 samples are now saved in
+<code>save_mean5</code>. Each column contains the samples for one of the
+sample sizes. To display the results nicely we should get the results
+into a dataframe.</p>
+<pre class="r"><code>col_names &lt;- c(sprintf(&quot;n%02d&quot;, n_sel.clt))  # this creates variable names
+# this puts the cols of save_mean5 into a dataframe and adds the col_names
+results.clt &lt;- save_mean5 %&gt;% data.frame() %&gt;% setNames(col_names)</code></pre>
+<p>To use the full power of <code>ggplot</code> it is best to create a
+long dataframe. This means that we do not have a column/variable of
+sample means for each sample size but that we have one column with
+sample means but one extra variable which tells us what sample size each
+particular sample mean comes from. This is done with the very powerful
+<code>pivot_longer</code> function.</p>
+<pre class="r"><code>results.clt.long &lt;- results.clt %&gt;% pivot_longer(cols = starts_with(&quot;n&quot;), 
+                                                 names_to = &quot;Sample.size&quot;, 
+                                                 values_to = &quot;sm&quot;)</code></pre>
+<p>Compare <code>results.clt</code> and <code>results.clt.long</code> to
+understand what this last line actually did.</p>
+<p>Now we can apply a great visualisation to overlay multiple density
+plots (smoothed histograms).</p>
+<pre class="r"><code>p.clt &lt;- ggplot(results.clt.long, aes(x=sm, fill=Sample.size)) +
+  geom_density(alpha=0.2) +
+  labs(x = &quot;Sample Mean&quot;, y = &quot;Density&quot;, title = &quot;Distribution of sample means, various sample sizes&quot;)
+p.clt</code></pre>
+<p><img src="R_LLN_and_CLT_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>You can perhaps see that the distributions start looking more like a
+normal distribution for larger sample sizes.</p>
+<p>However, the predominant aspect of the graph is that you can see the
+variance of the distributions decreasing as the sample size increases.
+What the CLT actually says is that the standardised sample mean is
+standard normally distributed. What this implies is that</p>
+<p><span class="math display">\[\begin{equation}
+\frac{\bar{x}-\mu_X}{\sigma_{\bar{x}}}
+\end{equation}\]</span></p>
+<p>is standard normally distributed and <span
+class="math inline">\(\sigma_{\bar{x}} = \sigma_{X}/\sqrt{n}\)</span>.
+You will remember this from your statistics classes. We know what our
+population mean (<span class="math inline">\(\mu_X\)</span>) and
+standard deviation (<span class="math inline">\(\sigma_X\)</span>) are
+as we calculated them above (<code>mu_x</code> and <code>std_x</code>).
+So we can standardise.</p>
+<p>In practice, you usually do not know <span
+class="math inline">\(\sigma_X\)</span> and instead you use the sample
+standard deviation (<span class="math inline">\(s_x\)</span>). You also
+don’t typically know the population mean, that value often comes from
+the hypothesis of a hypothesis test. The result being that we work with
+<span
+class="math inline">\(\frac{\bar{x}-\mu_x}{s_{X}/\sqrt{n}}\)</span>.</p>
+<p>This standardised sample mean would be t-distributed with <span
+class="math inline">\(n=1\)</span> degrees of freedom if <span
+class="math inline">\(X\)</span> was normally distributed. In our case
+that is certainly not the case. However, the CLT will still apply and we
+should expect this, for sufficiently large <span
+class="math inline">\(n\)</span>, to be N(0,1).</p>
+<p>Let us repeat the above experiment but rather than looking at the
+distribution of the sample means we look at the distribution of the
+standardised sample means as they should be comparable across different
+sample sizes.</p>
+<pre class="r"><code>n_sel.clt &lt;- c(5,10,30, 75)
+reps &lt;- 1000
+
+# now the container in which we save results is a matrix
+save_mean6 &lt;- matrix(NA, nrow = reps, ncol = length(n_sel.clt))
+for (j in (1:length(n_sel.clt))) {
+  n.clt &lt;- n_sel.clt[j] # select a sample size
+  for (i in 1:reps) {
+    x_sample &lt;- sample(Xpop,n.clt)
+    xbar &lt;- mean(x_sample)
+    s.x &lt;- sd(x_sample)
+    s.xbar &lt;- s.x/sqrt(n.clt)
+    save_mean6[i,j] &lt;- ((xbar-mu_x)/s.xbar)
+  }
+}
+col_names &lt;- c(sprintf(&quot;n%02d&quot;, n_sel.clt))  # this creates variable names
+results.clt2 &lt;- save_mean6 %&gt;% data.frame() %&gt;% setNames(col_names)
+results.clt2.long &lt;- results.clt2 %&gt;% pivot_longer(cols = starts_with(&quot;n&quot;), 
+                                                 names_to = &quot;Sample.size&quot;, 
+                                                 values_to = &quot;sm&quot;)</code></pre>
+<pre class="r"><code>p.clt2 &lt;- ggplot(results.clt2.long, aes(x=sm, fill=Sample.size)) +
+  geom_density(alpha=0.2) +
+  xlim(-5, 10) +
+  labs(x = &quot;Sample Mean&quot;, y = &quot;Density&quot;, title = &quot;Distribution of standardised sample means, various sample sizes&quot;)
+p.clt2</code></pre>
+<p><img src="R_LLN_and_CLT_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>If we were to overlay a normal distribution you would see that the
+distribution for n=75 is very close to a standard normal distribution
+(as a t distribution with 75-1 degrees of freedom is very close to a
+N(0,1)). In fact one may argue that the distribution for n=30 is already
+reasonably close to a normal distribution. For <span
+class="math inline">\(n=5\)</span> and <span
+class="math inline">\(10\)</span> we can still see clear
+asymmetries.</p>
+</div>
+<div id="clt-in-a-regression-context" class="section level2">
+<h2>CLT in a regression context</h2>
+<p>The CLT basically tells you that a suitably scaled average is
+normally distributed if the sample size is sufficiently large. As it
+turns out, OLS regression coefficients are really exactly that, suitably
+scaled averages. Consider a simple regression model</p>
+<p><span class="math display">\[\begin{equation}
+y_i = \alpha + \beta x_i + u_i
+\end{equation}\]</span></p>
+<p>You will also remember the following formula for the OLS estimator
+for the slope coefficient <span
+class="math inline">\(\beta\)</span>:</p>
+<p><span class="math display">\[\begin{equation}
+\hat{\beta}= \frac{Cov(y_i,x_i)}{Var(x_i)}
+\end{equation}\]</span></p>
+<p>It turns out that this is just “a suitably scaled average”.</p>
+<p><span class="math display">\[\begin{equation}
+\hat{\beta}=
+\frac{\frac{1}{n}\Sigma_{i=1}^{n}(y_i-\bar{y})(x_i-\bar{x})}{Var(x_i)} =
+Var(x_i)^{-1}\frac{1}{n}\Sigma_{i=1}^{n}(y_i-\bar{y})(x_i-\bar{x})
+\end{equation}\]</span></p>
+<p>It is the average of <span
+class="math inline">\((y_i-\bar{y})(x_i-\bar{x})\)</span> that is being
+calculated (and then divided by a variance term).</p>
+<p>Let’s demonstrate how the CLT works in this context. We begin by
+simulating pairs of <span class="math inline">\({y_i,x_i}\)</span> that
+come from a true regression model. In practice you will not have the
+luxury of observing this.</p>
+<pre class="r"><code># set lower and upper bound for x
+lb &lt;- 1
+ub &lt;- 10
+
+# set parameters for normal r.v. for error term
+mu &lt;- 0
+std &lt;- 1
+
+# We simulate a large population
+n &lt;- 1000000
+
+# raw random variables
+x &lt;- runif(n,lb,ub)  # sampled from uniforn distribution between 1 and 10
+u &lt;- rnorm(n, mean=mu, sd=std)  # sampled from normal distribution with mean 0 and sd = 1
+
+# now we set the model parameters
+alpha &lt;- -3
+beta &lt;- 0.7
+
+# now calculate the Y values
+y &lt;- alpha + beta * x + u</code></pre>
+<p>Now we need to draw repeated samples of <span
+class="math inline">\({y_i,x_i}\)</span> pairs from this population of
+data. For each of the samples we shall estimate a regression from which
+we get <span class="math inline">\(\hat{\beta}\)</span> and <span
+class="math inline">\(se(\hat{\beta})\)</span> from which we then
+calculate</p>
+<p><span class="math display">\[\begin{equation}
+\frac{\hat{\beta}-\beta}{se(\hat{\beta})}
+\end{equation}\]</span></p>
+<p>Recall that <span class="math inline">\(\hat{\beta}\)</span> is
+basically an average which is then (suitably) scaled by <span
+class="math inline">\(se(\hat{\beta})\)</span>. This is also what we
+call the t-test if we were to test the null hypothesis that the
+coefficient was equal to <span class="math inline">\(\beta\)</span>
+(which in this case we know to be true). For illustration purposes we
+continue with this simple regression model but the ideas continue to
+apply for multiple regressions.</p>
+<pre class="r"><code>n_sel.clt &lt;- c(5,10,30, 75)
+reps &lt;- 1000
+
+# now the container in which we save results is a matrix
+save_mean7 &lt;- matrix(NA, nrow = reps, ncol = length(n_sel.clt))
+for (j in (1:length(n_sel.clt))) {
+  n.clt &lt;- n_sel.clt[j] # select a sample size
+  for (i in 1:reps) {
+    selobs &lt;- sample(1:length(y),n.clt) # samples n.clt observations, these are the obs numbers
+    x_sample &lt;- x[selobs]  # ensures that same obs are sampled from x and y
+    y_sample &lt;- y[selobs]
+    OLS.clt &lt;- lm(y_sample~x_sample)
+    sOLS.clt &lt;- summary(OLS.clt) # save regression results, makes coefficient estimates and their se available
+    betahat &lt;- sOLS.clt$coefficients[&quot;x_sample&quot;, &quot;Estimate&quot;]
+    sebetahat &lt;- sOLS.clt$coefficients[&quot;x_sample&quot;, &quot;Std. Error&quot;]
+    save_mean7[i,j] &lt;- ((betahat-beta)/sebetahat)
+  }
+}
+col_names &lt;- c(sprintf(&quot;n%02d&quot;, n_sel.clt))  # this creates variable names
+results.clt3 &lt;- save_mean7 %&gt;% data.frame() %&gt;% setNames(col_names)
+results.clt3.long &lt;- results.clt3 %&gt;% pivot_longer(cols = starts_with(&quot;n&quot;), 
+                                                 names_to = &quot;Sample.size&quot;, 
+                                                 values_to = &quot;sm&quot;)</code></pre>
+<pre class="r"><code>p.clt3 &lt;- ggplot(results.clt3.long, aes(x=sm, fill=Sample.size)) +
+  geom_density(alpha=0.2) +
+  xlim(-5, 10) +
+  labs(x = &quot;Sample Mean&quot;, y = &quot;Density&quot;, title = &quot;Distribution of t-test in regression, various sample sizes&quot;)
+
+p.clt3</code></pre>
+<p><img src="R_LLN_and_CLT_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p>Qualitatively you can see the same result as for the standardised
+sample mean earlier. That is now not a surprise any more as the OLS
+coefficient estimate in a linear regression model is really nothing else
+but a sample estimate.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
