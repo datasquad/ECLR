@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>GARCH Modelling</title>
+
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="Datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+<li>
+  <a href="Author.html">Author</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">GARCH Modelling</h1>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>When you are dealing with financial time-series we often have
+relatively high frequency observations available. It is very common for
+instance to have daily observations available. In fact it is now
+possible to obtain hourly, minute, second or even millisecond
+observations. But here we will restrict ourselves to daily observations.
+For some assets these will be 7 days a week observations, but for others
+these will be work-day observations, so typically 5 days a week of
+observations.</p>
+</div>
+<div id="packages-used" class="section level1">
+<h1>Packages used</h1>
+<p>There are a number of packages that can enable us to estimate
+volatility models. The packages we will use are the <code>rugarch</code>
+for univariate GARCH models and the <code>rmgarch</code> (for
+multivariate models) package both written by Alexios Ghalanos. We shall
+also use the <code>quantmod</code> package as it will give us some easy
+access to some standard financial data.</p>
+<p>So please ensure that you install these packes and then load
+them,</p>
+<pre class="r"><code>#install.packages(c(&quot;quantmod&quot;,&quot;rugarch&quot;,&quot;rmgarch&quot;))   # only needed in case you have not yet installed these packages
+library(quantmod)
+library(rugarch)
+library(rmgarch)</code></pre>
+<p>Next we set our working directory</p>
+<pre class="r"><code># replace with your directory and uncomment
+# setwd(&quot;YOUR/COPLETE/DIRECTORY/PATH&quot;) </code></pre>
+</div>
+<div id="data-upload" class="section level1">
+<h1>Data upload</h1>
+<p>Here we will use a convenient data retrieval function
+(<code>getSymbols</code>) delivered by the <code>quantmod</code> package
+in order to retrieve some data. This function works, for instance, to
+retrieve stock data. The default source is <a
+href="https://finance.yahoo.com/">Yahoo Finance</a>. If you want to find
+out what stock has which symbol you should be able to search the
+internet to find a list of ticker symbols. The following shows how to
+use the function. But note that my experience is that sometimes the
+connection does not work and you may get an error message. In that case
+just retry a few seconds later and it may well work.</p>
+<pre class="r"><code>startDate = as.Date(&quot;2007-01-03&quot;) #Specify period of time we are interested in
+endDate = as.Date(&quot;2018-04-30&quot;)
+
+getSymbols(&quot;^GSPC&quot;, from = startDate, to = endDate)</code></pre>
+<pre><code>## [1] &quot;GSPC&quot;</code></pre>
+<pre class="r"><code>getSymbols(&quot;IBM&quot;, from = startDate, to = endDate)</code></pre>
+<pre><code>## [1] &quot;IBM&quot;</code></pre>
+<pre class="r"><code>getSymbols(&quot;GOOG&quot;, from = startDate, to = endDate)</code></pre>
+<pre><code>## [1] &quot;GOOG&quot;</code></pre>
+<pre class="r"><code>getSymbols(&quot;BP&quot;, from = startDate, to = endDate)</code></pre>
+<pre><code>## [1] &quot;BP&quot;</code></pre>
+<p>In your environment you can see that each of these commands loads an
+object with the respective ticker symbol name. Let’s have a look at one
+of these dataframes to understand what data these are:</p>
+<pre class="r"><code>head(IBM)</code></pre>
+<pre><code>##            IBM.Open IBM.High  IBM.Low IBM.Close IBM.Volume IBM.Adjusted
+## 2007-01-03 92.90631 94.07265 92.02677  92.99236    9619853     52.58294
+## 2007-01-04 92.97323 94.44550 92.61950  93.98662   11008627     53.14511
+## 2007-01-05 93.30784 93.64245 92.64819  93.13576    7553480     52.66402
+## 2007-01-08 94.16826 95.12428 94.02486  94.55067   10815640     53.46408
+## 2007-01-09 94.72276 95.91779 94.71320  95.66921   11619177     54.09660
+## 2007-01-10 94.16826 94.69408 93.62333  94.54111    9147061     53.45868</code></pre>
+<pre class="r"><code>str(IBM)</code></pre>
+<pre><code>## An xts object on 2007-01-03 / 2018-04-27 containing: 
+##   Data:    double [2850, 6]
+##   Columns: IBM.Open, IBM.High, IBM.Low, IBM.Close, IBM.Volume ... with 1 more column
+##   Index:   Date [2850] (TZ: &quot;UTC&quot;)
+##   xts Attributes:
+##     $ src    : chr &quot;yahoo&quot;
+##     $ updated: POSIXct[1:1], format: &quot;2024-10-06 12:04:22&quot;</code></pre>
+<p>You can see that this object contains a range of daily observations
+(<code>Open</code>, <code>High</code>, <code>Close</code>,
+<code>Volume</code> and <code>Adjusted</code> share price). We also
+learn that the object is formatted as an <code>xts</code> object.
+<code>xts</code> is a type of time-series format and indeed we learn
+that the data range from 2007-01-03 to 2018-04-30.</p>
+<p>You can in fact produce a somewhat fancy looking chart with the
+following command (also part of the <code>quantmod</code> package)</p>
+<pre class="r"><code>chartSeries(GOOG)</code></pre>
+<p><img src="R_GarchModelling_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>When we are estimating volatility models we work with returns. There
+is a function that transforms the data to returns.</p>
+<pre class="r"><code>rIBM &lt;- dailyReturn(IBM)
+rBP &lt;- dailyReturn(BP)
+rGOOG &lt;- dailyReturn(GOOG)
+
+
+# We put all data into a data frame for use in the multivariate model
+rX &lt;- data.frame(rIBM, rBP, rGOOG)
+names(rX)[1] &lt;- &quot;rIBM&quot;
+names(rX)[2] &lt;- &quot;rBP&quot;
+names(rX)[3] &lt;- &quot;rGOOG&quot;</code></pre>
+<p>There is also a <code>weeklyReturn</code> function in case that is
+what you are interested in.</p>
+</div>
+<div id="univariate-garch-model" class="section level1">
+<h1>Univariate GARCH Model</h1>
+<p>Here we are using the functionality provided by the
+<code>rugarch</code> package written by Alexios Galanos.</p>
+<div id="model-specification" class="section level2">
+<h2>Model Specification</h2>
+<p>The first thing you need to do is to ensure you know what type of
+GARCH model you want to estimate and then let R know about this. It is
+the <code>ugarchspec( )</code> function which is used to let R know
+about the model type. There is in fact a default specification and the
+way to invoke this is as follows</p>
+<pre class="r"><code>ug_spec = ugarchspec()</code></pre>
+<p><code>ug_spec</code> is now a list which contains all the relevant
+model specifications. Let’s look at them:</p>
+<pre class="r"><code>ug_spec</code></pre>
+<pre><code>## 
+## *---------------------------------*
+## *       GARCH Model Spec          *
+## *---------------------------------*
+## 
+## Conditional Variance Dynamics    
+## ------------------------------------
+## GARCH Model      : sGARCH(1,1)
+## Variance Targeting   : FALSE 
+## 
+## Conditional Mean Dynamics
+## ------------------------------------
+## Mean Model       : ARFIMA(1,0,1)
+## Include Mean     : TRUE 
+## GARCH-in-Mean        : FALSE 
+## 
+## Conditional Distribution
+## ------------------------------------
+## Distribution :  norm 
+## Includes Skew    :  FALSE 
+## Includes Shape   :  FALSE 
+## Includes Lambda  :  FALSE</code></pre>
+<p>The key issues here are the spec for the <code>Mean Model</code>
+(here an ARMA(1,1) model) and the specification for the
+<code>GARCH Model</code>, here an <code>sGARCH(1,1)</code> which is
+basically a GARCH(1,1). To get details on all the possible
+specifications and how to change them it is best to consult the <a
+href="https://cran.r-project.org/web/packages/rugarch/vignettes/Introduction_to_the_rugarch_package.pdf">documentation</a>
+of the <code>rugarch</code> package.</p>
+<p>Let’s say you want to change the mean model from an ARMA(1,1) to an
+ARMA(1,0), i.e. an AR(1) model.</p>
+<pre class="r"><code>ug_spec &lt;- ugarchspec(mean.model=list(armaOrder=c(1,0)))</code></pre>
+<p>You could call <code>ug_spec</code> again to check that the model
+specification has actually changed.</p>
+<p>The following is the specification for an # an example of the EWMA
+Model (although we will not use it below).</p>
+<pre class="r"><code>ewma_spec = ugarchspec(variance.model=list(model=&quot;iGARCH&quot;, garchOrder=c(1,1)), 
+        mean.model=list(armaOrder=c(0,0), include.mean=TRUE),  
+        distribution.model=&quot;norm&quot;, fixed.pars=list(omega=0))</code></pre>
+</div>
+<div id="model-estimation" class="section level2">
+<h2>Model Estimation</h2>
+<p>Now that we have specified a model to estimate we need to find the
+best arameters, i.e. we need to estimate the model. This step is
+achieved by the <code>ugarchfit</code> function.</p>
+<pre class="r"><code>ugfit = ugarchfit(spec = ug_spec, data = rIBM)</code></pre>
+<p><code>ugfit</code> is now a list that contains a range of results
+from the estimation. Let’s have a look at the results</p>
+<pre class="r"><code>ugfit</code></pre>
+<pre><code>## 
+## *---------------------------------*
+## *          GARCH Model Fit        *
+## *---------------------------------*
+## 
+## Conditional Variance Dynamics    
+## -----------------------------------
+## GARCH Model  : sGARCH(1,1)
+## Mean Model   : ARFIMA(1,0,0)
+## Distribution : norm 
+## 
+## Optimal Parameters
+## ------------------------------------
+##         Estimate  Std. Error   t value Pr(&gt;|t|)
+## mu      0.000342    0.000220   1.55696  0.11948
+## ar1    -0.013579    0.021424  -0.63383  0.52619
+## omega   0.000015    0.000002   6.91601  0.00000
+## alpha1  0.111085    0.005441  20.41613  0.00000
+## beta1   0.809643    0.004053 199.74146  0.00000
+## 
+## Robust Standard Errors:
+##         Estimate  Std. Error  t value Pr(&gt;|t|)
+## mu      0.000342    0.000229  1.49327 0.135367
+## ar1    -0.013579    0.019591 -0.69314 0.488222
+## omega   0.000015    0.000011  1.38185 0.167018
+## alpha1  0.111085    0.049762  2.23232 0.025594
+## beta1   0.809643    0.076640 10.56424 0.000000
+## 
+## LogLikelihood : 8364.692 
+## 
+## Information Criteria
+## ------------------------------------
+##                     
+## Akaike       -5.8665
+## Bayes        -5.8560
+## Shibata      -5.8665
+## Hannan-Quinn -5.8627
+## 
+## Weighted Ljung-Box Test on Standardized Residuals
+## ------------------------------------
+##                         statistic p-value
+## Lag[1]                    0.03288  0.8561
+## Lag[2*(p+q)+(p+q)-1][2]   0.03297  1.0000
+## Lag[4*(p+q)+(p+q)-1][5]   1.39445  0.8716
+## d.o.f=1
+## H0 : No serial correlation
+## 
+## Weighted Ljung-Box Test on Standardized Squared Residuals
+## ------------------------------------
+##                         statistic p-value
+## Lag[1]                     0.2501  0.6170
+## Lag[2*(p+q)+(p+q)-1][5]    1.2785  0.7941
+## Lag[4*(p+q)+(p+q)-1][9]    1.9510  0.9108
+## d.o.f=2
+## 
+## Weighted ARCH LM Tests
+## ------------------------------------
+##             Statistic Shape Scale P-Value
+## ARCH Lag[3]     1.295 0.500 2.000  0.2552
+## ARCH Lag[5]     1.603 1.440 1.667  0.5656
+## ARCH Lag[7]     1.935 2.315 1.543  0.7312
+## 
+## Nyblom stability test
+## ------------------------------------
+## Joint Statistic:  26.7347
+## Individual Statistics:              
+## mu     0.42590
+## ar1    0.06676
+## omega  0.89962
+## alpha1 0.55323
+## beta1  0.15390
+## 
+## Asymptotic Critical Values (10% 5% 1%)
+## Joint Statistic:          1.28 1.47 1.88
+## Individual Statistic:     0.35 0.47 0.75
+## 
+## Sign Bias Test
+## ------------------------------------
+##                    t-value   prob sig
+## Sign Bias           0.2136 0.8309    
+## Negative Sign Bias  1.0140 0.3107    
+## Positive Sign Bias  0.4426 0.6581    
+## Joint Effect        1.6915 0.6388    
+## 
+## 
+## Adjusted Pearson Goodness-of-Fit Test:
+## ------------------------------------
+##   group statistic p-value(g-1)
+## 1    20     134.9    1.705e-19
+## 2    30     139.3    2.301e-16
+## 3    40     160.1    1.304e-16
+## 4    50     166.0    1.240e-14
+## 
+## 
+## Elapsed time : 0.309979</code></pre>
+<p>If you are familiar with GARCH models you will recognise some of the
+parameters. <code>ar1</code> is the AR1 coefficient of the mean model
+(here very small and basically insignificant), <code>alpha1</code> is
+the coefficient to the squared residuals in the GARCH equation and
+<code>beta1</code> is the coefficient to the lagged variance.</p>
+<p>Often you will want to use model output for some further analysis. It
+is therefore important to understand how to extract information such as
+the parameter estimates, their standard errors or the residuals. The
+object <code>ugfit</code> contains all the information. In that object
+you can find two drawers (or in technical speak slots, <span
+class="citation">@fit</span> and <span class="citation">@model</span>).
+Each of these drawers contains a range of different things. What they
+contain you can figure out by asking for the element names</p>
+<pre class="r"><code>paste(&quot;Elements in the @model slot&quot;)</code></pre>
+<pre><code>## [1] &quot;Elements in the @model slot&quot;</code></pre>
+<pre class="r"><code>names(ugfit@model)</code></pre>
+<pre><code>##  [1] &quot;modelinc&quot;   &quot;modeldesc&quot;  &quot;modeldata&quot;  &quot;pars&quot;       &quot;start.pars&quot;
+##  [6] &quot;fixed.pars&quot; &quot;maxOrder&quot;   &quot;pos.matrix&quot; &quot;fmodel&quot;     &quot;pidx&quot;      
+## [11] &quot;n.start&quot;</code></pre>
+<pre class="r"><code>paste(&quot;Elements in the @fit slot&quot;)</code></pre>
+<pre><code>## [1] &quot;Elements in the @fit slot&quot;</code></pre>
+<pre class="r"><code>names(ugfit@fit)</code></pre>
+<pre><code>##  [1] &quot;hessian&quot;         &quot;cvar&quot;            &quot;var&quot;             &quot;sigma&quot;          
+##  [5] &quot;condH&quot;           &quot;z&quot;               &quot;LLH&quot;             &quot;log.likelihoods&quot;
+##  [9] &quot;residuals&quot;       &quot;coef&quot;            &quot;robust.cvar&quot;     &quot;A&quot;              
+## [13] &quot;B&quot;               &quot;scores&quot;          &quot;se.coef&quot;         &quot;tval&quot;           
+## [17] &quot;matcoef&quot;         &quot;robust.se.coef&quot;  &quot;robust.tval&quot;     &quot;robust.matcoef&quot; 
+## [21] &quot;fitted.values&quot;   &quot;convergence&quot;     &quot;kappa&quot;           &quot;persistence&quot;    
+## [25] &quot;timer&quot;           &quot;ipars&quot;           &quot;solver&quot;</code></pre>
+<p>If you wanted to extract the estimated coefficients you would do that
+in the following way:</p>
+<pre class="r"><code>ugfit@fit$coef</code></pre>
+<pre><code>##            mu           ar1         omega        alpha1         beta1 
+##  3.420060e-04 -1.357913e-02  1.515333e-05  1.110854e-01  8.096429e-01</code></pre>
+<pre class="r"><code>ug_var &lt;- ugfit@fit$var   # save the estimated conditional variances
+ug_res2 &lt;- (ugfit@fit$residuals)^2   # save the estimated squared residuals</code></pre>
+<p>Let’s plot the squared residuals and the estimated conditional
+variance:</p>
+<pre class="r"><code>plot(ug_res2, type = &quot;l&quot;)
+lines(ug_var, col = &quot;green&quot;)</code></pre>
+<p><img src="R_GarchModelling_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+<div id="model-forecasting" class="section level2">
+<h2>Model Forecasting</h2>
+<p>Often you will want to use an estimated model to subsequently
+forecast the conditional variance. The function used for this purpose is
+the <code>ugarchforecast</code> function. The application is rather
+straightforward:</p>
+<pre class="r"><code>ugfore &lt;- ugarchforecast(ugfit, n.ahead = 10)
+ugfore</code></pre>
+<pre><code>## 
+## *------------------------------------*
+## *       GARCH Model Forecast         *
+## *------------------------------------*
+## Model: sGARCH
+## Horizon: 10
+## Roll Steps: 0
+## Out of Sample: 0
+## 
+## 0-roll forecast [T0=2018-04-27]:
+##         Series   Sigma
+## T+1  0.0003689 0.01640
+## T+2  0.0003416 0.01622
+## T+3  0.0003420 0.01604
+## T+4  0.0003420 0.01587
+## T+5  0.0003420 0.01572
+## T+6  0.0003420 0.01558
+## T+7  0.0003420 0.01545
+## T+8  0.0003420 0.01533
+## T+9  0.0003420 0.01521
+## T+10 0.0003420 0.01511</code></pre>
+<p>As you can see we have produced forecasts for the next ten days, both
+for the expected returns (<code>Series</code>) and for the conditional
+volatility (square root of the conditional variance). Similar to the
+object created for model fitting, <code>ugfore</code> contains two slots
+(<span class="citation">@model</span> and <span
+class="citation">@forecast</span>) and you can use
+<code>names(ugfore@forecast)</code> to figure out under which names the
+elements are saved. For instance you can extract the conditional
+volatility forecast as follows:</p>
+<pre class="r"><code>ug_f &lt;- ugfore@forecast$sigmaFor
+plot(ug_f, type = &quot;l&quot;)</code></pre>
+<p><img src="R_GarchModelling_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p>Note that the volatility is the square root of the conditional
+variance.</p>
+<p>To put these forecasts into context let’s display them together with
+the last 50 observations used in the estimation.</p>
+<pre class="r"><code>ug_var_t &lt;- c(tail(ug_var,20),rep(NA,10))  # gets the last 20 observations
+ug_res2_t &lt;- c(tail(ug_res2,20),rep(NA,10))  # gets the last 20 observations
+ug_f &lt;- c(rep(NA,20),(ug_f)^2)
+
+plot(ug_res2_t, type = &quot;l&quot;)
+lines(ug_f, col = &quot;orange&quot;)
+lines(ug_var_t, col = &quot;green&quot;)</code></pre>
+<p><img src="R_GarchModelling_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>You can see how the forecast of the conditional variance picks up
+from the last estimated conditional variance. In fact it decreases from
+there, slowly, towards the unconditional variance value.</p>
+<p>The <code>rugarch</code> package has a lot of additional
+functionality which you can explore through the documentation.</p>
+</div>
+</div>
+<div id="multivariate-garch-models" class="section level1">
+<h1>Multivariate GARCH models</h1>
+<p>Often you will want to model the volatility of a vector of assets.
+This can be done with the multivariate equivalent of the univariate
+GARCH model. Estimating multivariate GARCH models turns out to be
+significantly more difficult than univariate GARCH models, but
+fortunately procedures have been developed that deal with most of these
+issues.</p>
+<p>Here we are using the <code>rmgarch</code> package which has a lot of
+useful functionality. We are applying it to estimate a multivariate
+volatility model for the returns of BP, Google/Alphabet and IBM
+shares.</p>
+<p>As for the <code>rugarch</code> package we first need to specify the
+model we want to estimate. Here we stick with a Dynamic Conditional
+Correlation (DCC) model (see the <a
+href="https://cran.r-project.org/web/packages/rmgarch/vignettes/The_rmgarch_models.pdf">documentation</a>
+for details.). When estimating DCC models one basically estimates
+individual GARCH-type models (which could differ for each individual
+asset). These are then used to standardise the individual residuals. As
+a second step one then has to specify the correlation dynamics of these
+standardised residuals. It is possible to estimate the parameters of the
+univariate and the correlation model in one big swoop. however, my
+experience with this, and other packages, is that it is beneficial to
+separate the two steps.</p>
+<div id="model-setup" class="section level2">
+<h2>Model Setup</h2>
+<p>Here we assume that we are using the same univariate volatility model
+specification for each of the three assets.</p>
+<pre class="r"><code># DCC (MVN)
+uspec.n = multispec(replicate(3, ugarchspec(mean.model = list(armaOrder = c(1,0)))))</code></pre>
+<p>What does this command do? You will recognise that
+<code>ugarchspec(mean.model = list(armaOrder = c(1,0)))</code> specifies
+an AR(1)-GARCH(1,1) model. By using
+<code>replicate(3, ugarchspec...)</code> we replicate this model 3 times
+(as we have three assets, IBM, Google/Alphabet and BP).</p>
+<p>We now estimate these univariate GARCH models using the
+<code>multifit</code> command.</p>
+<pre class="r"><code>multf = multifit(uspec.n, rX)</code></pre>
+<p>The results are saved in <code>multf</code> and you can type
+<code>multf</code> into the command window to see the estimated
+parameters for these three models. But we will here proceed to specify
+the DCC model (I assume that you know what a DCC model is. This is not
+the place to elaborate on this and many textbooks or indeed the <a
+href="https://cran.r-project.org/web/packages/rmgarch/vignettes/The_rmgarch_models.pdf">documentation</a>
+to this package provide details). To specify the correlation
+specification we use the <code>dccspec</code> function.</p>
+<pre class="r"><code>spec1 = dccspec(uspec = uspec.n, dccOrder = c(1, 1), distribution = &#39;mvnorm&#39;)</code></pre>
+<p>In this specification we have to state how the univariate
+volatilities are modeled (as per <code>uspec.n</code>) and how complex
+the dynamic structure of the correlation matrix is (here we are using
+the most standard <code>dccOrder = c(1, 1)</code> specification).</p>
+</div>
+<div id="model-estimation-1" class="section level2">
+<h2>Model Estimation</h2>
+<p>Now we are in a position to estimate the model using the
+<code>dccfit</code> function.</p>
+<pre class="r"><code>fit1 = dccfit(spec1, data = rX, fit.control = list(eval.se = TRUE), fit = multf)</code></pre>
+<p>We want to estimate the model as specified in <code>spec1</code>,
+using the data in <code>rX</code>. The option
+<code>fit.control = list(eval.se = TRUE)</code> ensures that the
+estimation procedure produces standard errors for estimated parameters.
+Importantly <code>fit = multf</code> indicates that we ought to use the
+already estimated univariate models as they were saved in
+<code>multf</code>. The way to learn how to use these functions is by a
+combination of looking at the functions’s help (<code>?dccfit</code>)
+and googling.</p>
+<p>When you estimate a multivariate volatility model like the DCC model
+you are typically interested in the estimated covariance or correlation
+matrices. After all it is at the core of these models that you allow for
+time-variation in the correlation between the assets (there are also
+constant correlation models, but we do not discuss this here). Therefore
+we will now learn how we extract these.</p>
+<pre class="r"><code># Get the model based time varying covariance (arrays) and correlation matrices
+cov1 = rcov(fit1)  # extracts the covariance matrix
+cor1 = rcor(fit1)  # extracts the correlation matrix</code></pre>
+<p>To understand the object we have at our hands here we can have a look
+at the imension:</p>
+<pre class="r"><code>dim(cor1)</code></pre>
+<pre><code>## [1]    3    3 2850</code></pre>
+<p>We get three outputs which tells us that we have a three dimensional
+object. The firts two dimensions have 3 elements each (think a <span
+class="math inline">\(3\times3\)</span> correlation matrix) and then
+there is a third dimension with 2850 elements. This tells us that
+<code>cor1</code> stores 2850 (<span
+class="math inline">\(3\times3\)</span>) sorrelation matrices, one for
+each day of data.</p>
+<p>Let’s have a look at the correlation matrix for the last day, day
+2850;</p>
+<pre class="r"><code>cor1[,,dim(cor1)[3]]</code></pre>
+<pre><code>##            rIBM      rBP     rGOOG
+## rIBM  1.0000000 0.242554 0.3535372
+## rBP   0.2425540 1.000000 0.2753110
+## rGOOG 0.3535372 0.275311 1.0000000</code></pre>
+<p>So let’s say we want to plot the time-varying correlation between
+Google and BP, which is 0.275311 on that last day. In our matrix with
+returns <code>rX</code> BP is the second asset and Google the 3rd. So in
+any particular correlation matrix we want the element in row 2 and
+column 3.</p>
+<pre class="r"><code>cor_BG &lt;- cor1[2,1,]   # leaving the last dimension empty implies that we want all elements
+cor_BG &lt;- as.xts(cor_BG)  # imposes the xts time series format - useful for plotting</code></pre>
+<p>And now we plot this.</p>
+<pre class="r"><code>plot(cor_BG)</code></pre>
+<p><img src="R_GarchModelling_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p>If you transformed <code>cor_BG</code> to be a <code>xts</code>
+series the <code>plot</code> function automatically picks up the date
+information. As you can see there is significant variation through time
+with the correaltion typically varying between 0.2 and 0.5.</p>
+<p>Let’s plot all three correlations between the three assets.</p>
+<pre class="r"><code>par(mfrow=c(3,1))  # this creates a frame with 3 windows to be filled by plots
+plot(as.xts(cor1[1,2,]),main=&quot;IBM and BP&quot;)
+plot(as.xts(cor1[1,3,]),main=&quot;IBM and Google&quot;)
+plot(as.xts(cor1[2,3,]),main=&quot;BP and Google&quot;)</code></pre>
+<p><img src="R_GarchModelling_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+</div>
+<div id="forecasts" class="section level2">
+<h2>Forecasts</h2>
+<p>Often you will want to use your estimated model to produce forecasts
+for the covariance or correlation matrix</p>
+<pre class="r"><code>dccf1 &lt;- dccforecast(fit1, n.ahead = 10)
+dccf1</code></pre>
+<pre><code>## 
+## *---------------------------------*
+## *       DCC GARCH Forecast        *
+## *---------------------------------*
+## 
+## Distribution         :  mvnorm
+## Model                :  DCC(1,1)
+## Horizon              :  10
+## Roll Steps           :  0
+## -----------------------------------
+## 
+## 0-roll forecast: 
+## 
+## First 2 Correlation Forecasts
+## , , 1
+## 
+##        [,1]   [,2]   [,3]
+## [1,] 1.0000 0.2540 0.3562
+## [2,] 0.2540 1.0000 0.2884
+## [3,] 0.3562 0.2884 1.0000
+## 
+## , , 2
+## 
+##        [,1]   [,2]   [,3]
+## [1,] 1.0000 0.2659 0.3587
+## [2,] 0.2659 1.0000 0.2909
+## [3,] 0.3587 0.2909 1.0000
+## 
+## . . .
+## . . .
+## 
+## Last 2 Correlation Forecasts
+## , , 1
+## 
+##        [,1]   [,2]   [,3]
+## [1,] 1.0000 0.3203 0.3703
+## [2,] 0.3203 1.0000 0.3027
+## [3,] 0.3703 0.3027 1.0000
+## 
+## , , 2
+## 
+##        [,1]   [,2]   [,3]
+## [1,] 1.0000 0.3251 0.3713
+## [2,] 0.3251 1.0000 0.3038
+## [3,] 0.3713 0.3038 1.0000</code></pre>
+<p>The actual forecasts for the correlation can be addresse via</p>
+<pre class="r"><code>Rf &lt;- dccf1@mforecast$R    # use H for the covariance forecast</code></pre>
+<p>When checking the structure of <code>Rf</code></p>
+<pre class="r"><code>str(Rf)</code></pre>
+<pre><code>## List of 1
+##  $ : num [1:3, 1:3, 1:10] 1 0.254 0.356 0.254 1 ...</code></pre>
+<p>you realise that the object <code>Rf</code> is a list with one
+element. It turns out that this one list item is then a 3 dimensional
+matrix/array which contains the the 10 forecasts of <span
+class="math inline">\(3 \times 3\)</span> correlation matrices. If we
+want to extract, say, the 10 forecasts for the correlation between IBM
+(1st asset) and BP (2nd asset), we have to do this in the following
+way:</p>
+<pre class="r"><code>corf_IB &lt;- Rf[[1]][1,2,]  # Correlation forecasts between IBM and BP
+corf_IG &lt;- Rf[[1]][1,3,]  # Correlation forecasts between IBM and Google
+corf_BG &lt;- Rf[[1]][2,3,]  # Correlation forecasts between BP and Google</code></pre>
+<p><code>[[1]]</code> tells R to go to the first (and here only) list
+item and then <code>[1,2,]</code> instructs R to select the (1,2)
+element of all available correlation matrices.</p>
+<p>As for the univariate volatililty model let us display the forecast
+along with the last in-sample estimates of correlation.</p>
+<pre class="r"><code>par(mfrow=c(3,1))  # this creates a frame with 3 windows to be filled by plots
+c_IB &lt;- c(tail(cor1[1,2,],20),rep(NA,10))  # gets the last 20 correlation observations
+cf_IB &lt;- c(rep(NA,20),corf_IB) # gets the 10 forecasts
+plot(c_IB,type = &quot;l&quot;,main=&quot;Correlation IBM and BP&quot;)
+lines(cf_IB,type = &quot;l&quot;, col = &quot;orange&quot;)
+
+c_IG &lt;- c(tail(cor1[1,3,],20),rep(NA,10))  # gets the last 20 correlation observations
+cf_IG &lt;- c(rep(NA,20),corf_IG) # gets the 10 forecasts
+plot(c_IG,type = &quot;l&quot;,main=&quot;Correlation IBM and Google&quot;)
+lines(cf_IG,type = &quot;l&quot;, col = &quot;orange&quot;)
+
+c_BG &lt;- c(tail(cor1[2,3,],20),rep(NA,10))  # gets the last 20 correlation observations
+cf_BG &lt;- c(rep(NA,20),corf_BG) # gets the 10 forecasts
+plot(c_BG,type = &quot;l&quot;,main=&quot;Correlation BP and Google&quot;)
+lines(cf_BG,type = &quot;l&quot;, col = &quot;orange&quot;)</code></pre>
+<p><img src="R_GarchModelling_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+</div>
+</div>
+<div id="further-thoughts" class="section level1">
+<h1>Further thoughts</h1>
+<p>If you are looking at using pseudo-out-of sample forecasting
+(i.e. pretend to forecast values that actually have already occured) you
+should explore the <code>out.sample</code> option of the
+<code>dccfit</code> function.</p>
+<p>The <code>rmgarch</code> package also allows you to estimate
+multivariate factor GARCH models and copula GARCH models (check the <a
+href="https://cran.r-project.org/web/packages/rmgarch/vignettes/The_rmgarch_models.pdf">documentation</a>
+for more details.</p>
+<p>An alternative package with a slightly different set of multivariate
+volatility models is the <code>ccgarch</code> package.</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

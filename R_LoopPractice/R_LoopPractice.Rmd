@@ -8,6 +8,8 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(webexercises)
 ```
 
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
 ## Introduction
 
 Here we will go through the basics of looping in R.
@@ -222,3 +224,5 @@ In this exercise we went through the mechanics of programming a loop. Here we ap
 But loops can be used for many other reasons. You may have dozens of datafiles which are all structured in the same way. A loop can then be used to import the data in these files. Or you have a database with many customer interactions. You could then write a loop to write customer specific reports for all customers in the database.
 
 There are other ways in which you can repeat actions in a code. Most notably there are `while` loops. They differ from `for` loops in that it is not pre-determined how often a loop is repeated. `for` loops are much more common in econometric computing and hence it is the only one covered in this introduction.
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.

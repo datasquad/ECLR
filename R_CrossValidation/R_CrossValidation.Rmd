@@ -3,6 +3,7 @@ title: "Cross Validation"
 output: webexercises::webexercises_default
 ---
 
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(webexercises)
@@ -450,3 +451,5 @@ When inspecting the results you will see that now, after including other variabl
 ## Summary
 
 Here we learned how to implement cross-validation approaches to support model selection. The useful `cv` function implements k-fold and leave one out cross-validation in a straightforward manner. All you need to do is to estimate the full-sample model and then feed that into the `cv` function.
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.

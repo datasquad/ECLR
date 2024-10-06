@@ -10,7 +10,6 @@
 
 
 
-<meta name="date" content="2024-10-06" />
 
 <title>Demonstrating the LLN and CLT</title>
 
@@ -30,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -220,6 +222,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -227,6 +292,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -268,7 +343,6 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Demonstrating the LLN and CLT</h1>
-<h4 class="date">2024-10-06</h4>
 
 </div>
 
@@ -303,9 +377,9 @@ x2 &lt;- rnorm(n, mean=mu, sd=std)  # sampled from normal distribution with mean
 mean1 &lt;- mean(x1)
 mean2 &lt;- mean(x2)
 paste(&quot;Sample 1 mean = &quot;, mean1)</code></pre>
-<pre><code>## [1] &quot;Sample 1 mean =  1.68596968108322&quot;</code></pre>
+<pre><code>## [1] &quot;Sample 1 mean =  1.64303160097916&quot;</code></pre>
 <pre class="r"><code>paste(&quot;Sample 2 mean = &quot;, mean2)</code></pre>
-<pre><code>## [1] &quot;Sample 2 mean =  -0.115647585638028&quot;</code></pre>
+<pre><code>## [1] &quot;Sample 2 mean =  -0.521765306306065&quot;</code></pre>
 <p>As you can see the means are different from the respective population
 means of 1.5 (for the uniform distribution drawing values between 1 and
 2) and 0 (as set when we draw normally distributed random vaiables). The
@@ -400,11 +474,11 @@ p_denpop</code></pre>
 population mean and standard deviation.</p>
 <pre class="r"><code>mu_x = mean(Xpop)
 paste(&quot;Population mean =&quot;, mu_x)</code></pre>
-<pre><code>## [1] &quot;Population mean = 0.744665429216517&quot;</code></pre>
+<pre><code>## [1] &quot;Population mean = 0.747800149661189&quot;</code></pre>
 <pre class="r"><code># as sd calculates sample sd we correct to get pop sd
 std_x = sd(Xpop)*((length(Xpop)-1)/length(Xpop)) 
 paste(&quot;Population standard error =&quot;, std_x)</code></pre>
-<pre><code>## [1] &quot;Population standard error = 1.0604009584022&quot;</code></pre>
+<pre><code>## [1] &quot;Population standard error = 1.04658733716929&quot;</code></pre>
 <p>Let’s start by using two sample sizes, <code>n1=5</code> and
 <code>n2=30</code>. We draw 1000 samples, calculate sample means and
 then show the distribution of the resulting sequences of sample
@@ -647,6 +721,8 @@ but a sample estimate.</p>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -679,6 +755,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

@@ -58,6 +58,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
 | Basic TS modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/EUROSTATtimeseries.csv) 
+| GARCH modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_GarchModelling.html) | in code data download 
 
 
 ## Special topics
