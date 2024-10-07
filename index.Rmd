@@ -43,6 +43,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Predicting from a Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
 | Regression Inference | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionInference.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
 | IV Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIV.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
+| Panel Models | [Workthrough in R](https://datasquad.github.io/ECLR/R_PanelRegression.html) | in code links
 
 ## Large Data / Data Science techniques
 
