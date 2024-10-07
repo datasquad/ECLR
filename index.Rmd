@@ -45,7 +45,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | IV Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIV.html) | [mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv)
 | Panel Models | [Workthrough in R](https://datasquad.github.io/ECLR/R_PanelRegression.html) | in code links
 
-## Large Data / Data Science techniques
+# Large Data / Data Science techniques
 
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
@@ -54,17 +54,13 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Post Double Selection LASSO | [Workthrough in R](https://datasquad.github.io/ECLR/R_DoubleRobustLasso/R_DoubleRobustLasso.html) | in code upload
 | Cross-Validation | [Workthrough in R](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html) | in code upload
 
-## Dealing with Time-Series variables
+# Dealing with Time-Series variables
 
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
 | Basic TS modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/EUROSTATtimeseries.csv) 
 | GARCH modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_GarchModelling.html) | in code data download 
 
-
-## Special topics
-
-to come
 
 # Examples
 
