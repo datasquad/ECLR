@@ -9,11 +9,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Ralf Becker" />
 
-<meta name="date" content="2024-10-07" />
+<meta name="date" content="2024-10-08" />
 
-<title>Datasets used on ECLR</title>
+<title>Datasets</title>
 
 <script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -31,6 +30,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -221,6 +223,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -228,6 +293,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -268,13 +343,14 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Datasets used on ECLR</h1>
-<h4 class="author">Ralf Becker</h4>
-<h4 class="date">2024-10-07</h4>
+<h1 class="title toc-ignore">Datasets</h1>
+<h4 class="date">2024-10-08</h4>
 
 </div>
 
 
+<div id="datasets-used-on-eclr" class="section level1">
+<h1>Datasets used on ECLR</h1>
 <p>Here we provide information on the datasets used on the ECLR page</p>
 <div id="mroz-dataset-mroz.csv" class="section level2">
 <h2>mroz dataset (<a
@@ -333,9 +409,144 @@ deliver two objects into your environment. Along the proper datafile
 (<code>wb_data</code>) you will find <code>wb_data_Des</code> which
 contains some information for each of the variables.</p>
 </div>
+</div>
+<div id="other-datasets" class="section level1">
+<h1>Other datasets</h1>
+<div id="aggregator-sources" class="section level2">
+<h2>Aggregator sources</h2>
+<p>Some organisation provide access to a range of datasets collated from
+different sources:</p>
+<ul>
+<li><a href="https://data.cdrc.ac.uk/">Consumer Data Research
+Center</a>, e.g. Election Data, Residence-Workplace and travel mode data
+from Census, Council Tax Maps, Index of Multiple Deprivation, Population
+density</li>
+<li><a href="https://www.ukdataservice.ac.uk/">The UK Data Service</a>,
+Census data, International macrodata, Qualitative/mixed methods and UK
+surveys</li>
+<li><a href="https://ourworldindata.org/">Our World in Data</a>, Data
+Stories with good links to data</li>
+<li><a href="https://fred.stlouisfed.org/">St. Louis FRED Database</a>.
+A databse maintained by the St. Louis FED with economic and financial
+data.</li>
+<li><a
+href="https://www-statista-com.manchester.idm.oclc.org/">Statista</a>}
+is a website that collates data from a range of different sources and
+countries. With your university login you have access to this
+database.</li>
+</ul>
+<p>You could also browse a range of websites which link to a variety of
+datasets (much like this page)</p>
+<ul>
+<li><a
+href="https://www.springboard.com/blog/free-public-data-sets-data-science-project/">Springboard</a>,
+19 Free Public Data Sets for Your First Data Science Project</li>
+<li><a href="http://cameron.econ.ucdavis.edu/e102/data.html">Economic
+Data Sources collated by UC Davies</a></li>
+<li><a href="https://www.economicsnetwork.ac.uk/data_sets">Economic Data
+Sources collated by the Economics Network</a></li>
+<li><a href="https://ejd.econ.mathematik.uni-ulm.de/">Datasets for
+published work</a></li>
+</ul>
+</div>
+<div id="some-specific-datasets" class="section level2">
+<h2>Some Specific Datasets</h2>
+<p>Here are links to some specific datasets</p>
+<div id="uk-focused-data" class="section level3">
+<h3>UK focused data</h3>
+<ul>
+<li><a href="https://www.police.uk/pu/about-police.uk-crime-data/">UK
+Police</a>, All individual crimes reported in the UK</li>
+<li><a href="https://uk-air.defra.gov.uk/data/">Department of
+Environment and Rural Affairs (DEFRA)</a>, from here you can get data on
+air quality in the UK for different locations</li>
+<li><a
+href="https://statistics.gov.scot/resource?uri=http%3A%2F%2Fstatistics.gov.scot%2Fdata%2Froad-safety">Summary
+data on Road Casualty Data in Scotland by council</a></li>
+<li><a href="https://roadtraffic.dft.gov.uk/downloads">Department for
+Transport</a>, Road traffic data in the UK.</li>
+<li><a
+href="https://www.gov.uk/government/collections/road-accidents-and-safety-statistics">Department
+for Transport</a>, Road accident data. On the basis of these data you
+can get summaries by different locations and time.</li>
+<li><a
+href="http://www.pedestriansafety.org.uk/stats.php">Pedestriansafety.org</a></li>
+<li><a
+href="https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads">Land
+Registry</a>, UK House Price data</li>
+<li><a
+href="https://www.google.com/covid19/mobility/index.html?hl=en">Google
+Mobility Data</a>, During the Covid period (2020 to 2022) Google
+published a mobility index which measured national and regional
+activities in certain areas (like recreational activities, or shopping
+areas).</li>
+</ul>
+</div>
+<div id="non-uk-data" class="section level3">
+<h3>non-UK data</h3>
+<ul>
+<li><a
+href="https://www.census.gov/data/tables/time-series/demo/popest/2010s-counties-detail.html">US
+Census</a>, Demographic information on US states and counties</li>
+<li><a href="https://globalcarbonbudgetdata.org/">Global Carbon Budget
+Data website</a>, CO2 emission and emission budget data</li>
+<li><a href="https://utd19.ethz.ch/">UTD19</a>, traffic data for a range
+of cities (mainly in Europe).</li>
+<li><a href="https://hatecrime.osce.org/">OECD database of hate
+crimes</a></li>
+<li><a href="https://www.cdc.gov/">US Center for Disease Control</a>,
+Data on all sorts of diseases.</li>
+<li><a href="https://cde.ucr.cjis.gov/">F.B.I Crime Data Explorer</a>,
+U.S. Crime data at different levels of aggregation.</li>
+<li><a href="https://usa.ipums.org/usa/">US Household Surveys</a>,
+Yearly Big US household survey 2006-onwards</li>
+<li><a href="https://www.bls.gov/cex/">US Consumer expenditure
+survey</a></li>
+<li><a href="https://psidonline.isr.umich.edu/">US Panel Study of Income
+Dynamics</a>, Tracks consumers over time, so can be used to look at
+career progression, etc.</li>
+<li><a href="https://www.federalreserve.gov/econres/scfindex.htm">US
+Survey of Consumer Finances</a></li>
+<li><a href="https://www.census.gov/programs-surveys/ahs/data.html">US
+American Housing Survey</a>, Mortgage rates, LTV, borrower
+characteristics</li>
+<li><a href="https://www.nationsreportcard.gov/">US Educational
+Achievements</a>, Reading and Maths achievement in the US. Data by
+regions and time.</li>
+<li><a href="https://wonder.cdc.gov/ucd-icd10.html">US CDC Wonder
+Database</a>, can help you get detailed disease data by location and
+time.</li>
+<li><a
+href="https://www.consumerfinance.gov/data-research/hmda/historic-data/">Home
+Mortgage Disclosure Act</a></li>
+<li><a href="https://www.zillow.com/research/data/">Zillow research
+data</a>, Housing: prices, sales, etc.</li>
+<li><a href="https://www.realtor.com/research/data/">Realtor.com
+data</a>, Housing characteristics (costs, physical condition, with
+household characteristics).</li>
+<li><a href="https://www.mtusdata.org/mtus/">Time use surveys,
+international</a></li>
+<li><a href="https://cdr.ffiec.gov/public/">Federal Financial
+Institutions Examination Council</a>, Panel data on banks’ balance
+sheets.</li>
+<li><a
+href="https://ec.europa.eu/eurostat/web/income-and-living-conditions/data/database">EUROSTAT</a>,Income
+and living conditions in the EU</li>
+<li><a href="https://www.visualcrossing.com/">Visual Crossing</a>, From
+here you can get global weather data, including historical data.</li>
+<li><a href="https://data.worldbank.org/">World Bank</a> has a range of
+data amongst others a <a
+href="https://www.worldbank.org/en/research/brief/inflation-database">Inflation
+data</a>.</li>
+</ul>
+</div>
+</div>
+</div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -368,6 +579,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

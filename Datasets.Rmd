@@ -1,13 +1,17 @@
 ---
-title: "Datasets used on ECLR"
-author: "Ralf Becker"
+title: "Datasets"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+# Datasets used on ECLR
 
 Here we provide information on the datasets used on the ECLR page
 
@@ -33,3 +37,68 @@ The dataset contains information on more than 40,000 accidents. On each accident
 The data here are prepared from the [European Value Study](https://europeanvaluesstudy.eu/). This is a repeated cross-sectional survey administered across European countries. The study covers a wide range of subjects like attitudes towards work, immigration, family and the environment.
 
 The above dataset is a `Rdata` object which you can load into your Rcode using `load("WBdata.Rdata")`. This will then deliver two objects into your environment. Along the proper datafile (`wb_data`) you will find `wb_data_Des` which contains some information for each of the variables.
+
+# Other datasets
+
+## Aggregator sources
+
+Some organisation provide access to a range of datasets collated from different sources:
+
+
+* [Consumer Data Research Center](https://data.cdrc.ac.uk/), e.g. Election Data, Residence-Workplace and travel mode data from Census, Council Tax Maps, Index of Multiple Deprivation, Population density
+* [The UK Data Service](https://www.ukdataservice.ac.uk/), Census data, International macrodata, Qualitative/mixed methods and UK surveys
+*	[Our World in Data](https://ourworldindata.org/), Data Stories with good links to data
+*	[St. Louis FRED Database](https://fred.stlouisfed.org/). A databse maintained by the St. Louis FED with economic and financial data.
+*	[Statista](https://www-statista-com.manchester.idm.oclc.org/)} is a website that collates data from a range of different sources and countries. With your university login you have access to this database.
+
+
+
+You could also browse a range of websites which link to a variety of datasets (much like this page)
+
+* [Springboard](https://www.springboard.com/blog/free-public-data-sets-data-science-project/), 19 Free Public Data Sets for Your First Data Science Project
+*	[Economic Data Sources collated by UC Davies](http://cameron.econ.ucdavis.edu/e102/data.html)
+* [Economic Data Sources collated by the Economics Network](https://www.economicsnetwork.ac.uk/data_sets)
+* [Datasets for published work](https://ejd.econ.mathematik.uni-ulm.de/)
+
+
+## Some Specific Datasets
+
+Here are links to some specific datasets
+
+### UK focused data
+
+*	[UK Police](https://www.police.uk/pu/about-police.uk-crime-data/), All individual crimes reported in the UK
+* [Department of Environment and Rural Affairs (DEFRA)](https://uk-air.defra.gov.uk/data/), from here you can get data on air quality in the UK for different locations
+* [Summary data on Road Casualty Data in Scotland by council](https://statistics.gov.scot/resource?uri=http%3A%2F%2Fstatistics.gov.scot%2Fdata%2Froad-safety)
+* [Department for Transport](https://roadtraffic.dft.gov.uk/downloads), Road traffic data in the UK.
+* [Department for Transport](https://www.gov.uk/government/collections/road-accidents-and-safety-statistics), Road accident data. On the basis of these data you can get summaries by different locations and time. 
+* [Pedestriansafety.org](http://www.pedestriansafety.org.uk/stats.php)
+*	[Land Registry](https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads), UK House Price data
+* [Google Mobility Data](https://www.google.com/covid19/mobility/index.html?hl=en), During the Covid period (2020 to 2022) Google published a mobility index which measured national and regional activities in certain areas (like recreational activities, or shopping areas).
+
+### non-UK data
+
+
+* [US Census](https://www.census.gov/data/tables/time-series/demo/popest/2010s-counties-detail.html), Demographic information on US states and counties
+* [Global Carbon Budget Data website](https://globalcarbonbudgetdata.org/), CO2 emission  and emission budget data
+* [UTD19](https://utd19.ethz.ch/), traffic data for a range of cities (mainly in Europe).
+* [OECD database of hate crimes](https://hatecrime.osce.org/)
+* [US Center for Disease Control](https://www.cdc.gov/), Data on all sorts of diseases.
+* [F.B.I Crime Data Explorer](https://cde.ucr.cjis.gov/), U.S. Crime data at different levels of aggregation.
+* [US Household Surveys](https://usa.ipums.org/usa/), Yearly Big US household survey 2006-onwards
+* [US Consumer expenditure survey](https://www.bls.gov/cex/)
+* [US Panel Study of Income Dynamics](https://psidonline.isr.umich.edu/), Tracks consumers over time, so can be used to look at career progression, etc.
+* [US Survey of Consumer Finances](https://www.federalreserve.gov/econres/scfindex.htm)
+* [US American Housing Survey](https://www.census.gov/programs-surveys/ahs/data.html), Mortgage rates, LTV, borrower characteristics
+* [US  Educational Achievements](https://www.nationsreportcard.gov/), Reading and Maths achievement in the US. Data by regions and time.
+* [US CDC Wonder Database](https://wonder.cdc.gov/ucd-icd10.html), can help you get detailed disease data by location and time.
+* [Home Mortgage Disclosure Act](https://www.consumerfinance.gov/data-research/hmda/historic-data/)
+* [Zillow research data](https://www.zillow.com/research/data/), Housing: prices, sales, etc.
+* [Realtor.com data](https://www.realtor.com/research/data/), Housing characteristics (costs, physical condition, with household characteristics).
+* [Time use surveys, international](https://www.mtusdata.org/mtus/)
+* [Federal Financial Institutions Examination Council](https://cdr.ffiec.gov/public/), Panel data on banks' balance sheets.
+* [EUROSTAT](https://ec.europa.eu/eurostat/web/income-and-living-conditions/data/database),Income and living conditions in the EU
+* [Visual Crossing](https://www.visualcrossing.com/), From here you can get global weather data, including historical data.
+* [World Bank](https://data.worldbank.org/) has a range of data amongst others a [Inflation data](https://www.worldbank.org/en/research/brief/inflation-database).
+
+
