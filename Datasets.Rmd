@@ -50,12 +50,6 @@ Some organisation provide access to a range of datasets collated from different 
 *	[Our World in Data](https://ourworldindata.org/), Data Stories with good links to data
 *	[St. Louis FRED Database](https://fred.stlouisfed.org/). A databse maintained by the St. Louis FED with economic and financial data.
 *	[Statista](https://www-statista-com.manchester.idm.oclc.org/)} is a website that collates data from a range of different sources and countries. With your university login you have access to this database.
-
-
-
-You could also browse a range of websites which link to a variety of datasets (much like this page)
-
-* [Springboard](https://www.springboard.com/blog/free-public-data-sets-data-science-project/), 19 Free Public Data Sets for Your First Data Science Project
 *	[Economic Data Sources collated by UC Davies](http://cameron.econ.ucdavis.edu/e102/data.html)
 * [Economic Data Sources collated by the Economics Network](https://www.economicsnetwork.ac.uk/data_sets)
 * [Datasets for published work](https://ejd.econ.mathematik.uni-ulm.de/)
