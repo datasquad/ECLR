@@ -200,7 +200,7 @@ table(PSID[sel_train,]$AGEY,PSID[sel_train,]$CHILDREN, dnn = c("Age of youngest 
 You can see that `AGEY=0` corresponds to no child being in the household. We therefore define the variable `CHILD` as follows
 
 ```{r}
-PSID <- PSID %>% mutate(CHILD = (CHILDREN>1))
+PSID <- PSID %>% mutate(CHILD = (CHILDREN>0))
 ```
 
 # Modeling wage variation
@@ -687,7 +687,7 @@ x <- model.matrix(WAGE~.,data = PSID_reg)[,-1]
 
 `y` just gets the dependent variable. `x` uses the model.matrix function and creates the dummy variables from the factor variables in `PSID_reg`. Importantly we do this for the entire dataset not only the training dataset. We then feed the training rows (`sel_train`) into `glmnet`. Let's use the same approach with the `rlasso` function:
 
-```{r, echo = FALSE}
+```{r}
 lasso.hdm2 <- rlasso(y[sel_train]~x[sel_train,],post=TRUE)
 lasso.hdm2.predict = predict(lasso.hdm2, newdata = x[sel_test,])  #out-of-sample prediction
 ```
