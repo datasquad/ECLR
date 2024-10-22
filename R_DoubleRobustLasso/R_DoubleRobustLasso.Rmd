@@ -215,7 +215,7 @@ and
   \text{Indirect: }d_i = \mathbf{x}_i\mathbf{\kappa} + v_i
 \end{equation}
 
-For each of these a LASSO is applied to select variables from \mathbf{x}_i. The two selections will typicaly be different and the Post Double Selection estimator then uses the union of these two selections, \mathbf{x}^*_i, in a new model.
+For each of these a LASSO is applied to select variables from $\mathbf{x}_i$. The two selections will typically be different and the Post Double Selection estimator then uses the union of these two selections, $\mathbf{x}^*_i$, in a new model.
 
 \begin{equation}
   y_i = \delta D_i + \mathbf{x}^*_i\mathbf{\beta} + \epsilon_i
