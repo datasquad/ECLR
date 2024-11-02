@@ -382,11 +382,15 @@ with <code>getwd()</code> in the console. Make sure that file location
 and working directory are synchronised.</p>
 <p>If you use the help function (<code>?read.csv</code> in the console)
 you will find some guidance in the use of this function.</p>
-<p><img src="images/readcsvhelp.png" style="width:50.0%"
-alt="read.csv help" /> As you can see there are a lot of options you can
-set. One which is often important to use is the <code>na.strings</code>
-option. Here you are telling R how missing values are coded up in the
-spreadsheet you are uploading.</p>
+<div class="float">
+<img src="images/readcsvhelp.png" style="width:50.0%"
+alt="read.csv help" />
+<div class="figcaption">read.csv help</div>
+</div>
+<p>As you can see there are a lot of options you can set. One which is
+often important to use is the <code>na.strings</code> option. Here you
+are telling R how missing values are coded up in the spreadsheet you are
+uploading.</p>
 <p>Let’s see why this is important. You can get a first glimpse at the
 data using the <code>str()</code> function. This is useful as it gives
 you the datatypes.</p>
@@ -457,7 +461,6 @@ internet access when you work.</p>
 <p>The ones we will discuss here are:</p>
 <ul>
 <li>Quantmod</li>
-<li>Quandl</li>
 <li>pdfetch</li>
 </ul>
 <div id="quantmod" class="section level2">
@@ -509,22 +512,39 @@ package.</p>
 <pre class="r"><code>library(pdfetch)
 library(xts)</code></pre>
 <p>This package has data download functions specific to the database you
-are using. Say you wish to get data from the Office for National
-Statistics (ONS) in the UK, then you need to use the
-<code>pdfetch_ONS</code> function.</p>
-<p>To get the data you need to know what the series ID and in which
-database the data are. For instance a <a
-href="https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l55o/mm23">CPI
-inflation</a> measure is in the <code>mm23</code> database and the
-series has ID <code>l550</code>. Then you can download these data as
-follows:</p>
-<pre class="r"><code>ons_data &lt;- pdfetch_ONS(&quot;l55o&quot;,&quot;mm23&quot;)
-periodicity(ons_data)</code></pre>
-<pre><code>## Monthly periodicity from 1989-01-31 to 2024-08-31</code></pre>
-<p>If you are looking for a particular series you will have to go to the
-ONS homepage and search for the database and series ID information you
-need. In the help for the <code>pdfetch_ONS</code> function you will
-find a link which you can use to find the necessary information.</p>
+are using. Say you wish to get data from the <a
+href="https://fred.stlouisfed.org/">FRED database</a> maintained by the
+St. Louis Fed in the U.S., then you will be using the
+<code>pdfetch_FRED</code> function. In order to download data from FRED
+you will need to know the data identifier. You can go to the above
+website and search for the series you are interested in. Say, you are
+looking for the size of the public debt in the U.S. and you will find
+the indicator <a
+href="https://fred.stlouisfed.org/series/GFDEBTN">GFDEBTN</a>.</p>
+<pre class="r"><code>data1 &lt;- pdfetch_FRED(c(&quot;GFDEBTN&quot;))
+periodicity(data1)</code></pre>
+<pre><code>## Quarterly periodicity from 1966-03-31 to 2024-06-30</code></pre>
+<p>The data come in quarterly frequency and they are now stored in your
+environment as an <code>xts</code> data series object. This means that R
+knows that this is a time-series and you can use the functionality of
+the <code>xts</code> package to <a
+href="https://www.datacamp.com/cheat-sheet/xts-cheat-sheet-time-series-in-r">manipulate
+the data</a>.</p>
+<p>The <code>pdfetch</code> package can access other databases, for
+instance the data available from <a
+href="https://finance.yahoo.com/">Yahoo Finance</a>. You will again have
+to find the data identifier. For instance you may wish to get Apple
+share prices (<code>AAPL</code>) and wish to download the adjusted close
+price (<code>adjclose</code>) and trading volume
+(<code>volume</code>).</p>
+<pre class="r"><code>data2 &lt;- pdfetch_YAHOO(&quot;AAPL&quot;,c(&quot;adjclose&quot;,&quot;volume&quot;))</code></pre>
+<p>This has put the Apple shareprice and volume into a new
+<code>xts</code> project.</p>
+<p>Consulting the help function (<code>?pdfetch_YAHOO</code>) you can
+see that you can also specify which dates you wish to download and at
+what frequency you wish to have data. Below we are downloading the Crude
+Oil futures price.</p>
+<pre class="r"><code>data3 &lt;- pdfetch_YAHOO(&quot;CL=F&quot;,c(&quot;close&quot;,&quot;volume&quot;),interval = &quot;daily&quot;)</code></pre>
 <p>Check the <code>pdfetch</code> package information to see what other
 databases can be “tapped” with this package.</p>
 </div>

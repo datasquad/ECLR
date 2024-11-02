@@ -74,6 +74,7 @@ Here are links to some specific datasets
 
 
 * [US Census](https://www.census.gov/data/tables/time-series/demo/popest/2010s-counties-detail.html), Demographic information on US states and counties
+* [FRED-MD and FRED-QD](https://research.stlouisfed.org/econ/mccracken/fred-databases/), a standardised set of monthly and quarterly US Macro data which is updated monthly. This is updated by and available from Michael McCracken's website on FRED.
 * [Global Carbon Budget Data website](https://globalcarbonbudgetdata.org/), CO2 emission  and emission budget data
 * [UTD19](https://utd19.ethz.ch/), traffic data for a range of cities (mainly in Europe).
 * [OECD database of hate crimes](https://hatecrime.osce.org/)

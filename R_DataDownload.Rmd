@@ -39,6 +39,7 @@ A typical erorr message at this stage is "Error in file(file, "rt") : cannot ope
 If you use the help function (`?read.csv` in the console) you will find some guidance in the use of this function.
 
 ![read.csv help](images/readcsvhelp.png){width=50%}
+
 As you can see there are a lot of options you can set. One which is often important to use is the `na.strings` option. Here you are telling R how missing values are coded up in the spreadsheet you are uploading.
 
 Let's see why this is important. You can get a first glimpse at the data using the `str()` function. This is useful as it gives you the datatypes.
@@ -83,7 +84,6 @@ There are a number of packages which facilitate the easy download of data direct
 The ones we will discuss here are:
 
 * Quantmod
-* Quandl
 * pdfetch
 
 
@@ -128,18 +128,32 @@ library(pdfetch)
 library(xts)
 ```
 
-This package has data download functions specific to the database you are using. Say you wish to get data from the Office for National Statistics (ONS) in the UK, then you need to use the `pdfetch_ONS` function.
-
-To get the data you need to know what the series ID and in which database the data are. For instance a [CPI inflation](https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l55o/mm23) measure is in the `mm23` database and the series has ID `l550`. Then you can download these data as follows:
+This package has data download functions specific to the database you are using. Say you wish to get data from the [FRED database](https://fred.stlouisfed.org/) maintained by the St. Louis Fed in the U.S., then you will be using the `pdfetch_FRED` function. In order to download data from FRED you will need to know the data identifier. You can go to the above website and search for the series you are interested in. Say, you are looking for the size of the public debt in the U.S. and you will find the indicator [GFDEBTN](https://fred.stlouisfed.org/series/GFDEBTN).
 
 ```{r}
-ons_data <- pdfetch_ONS("l55o","mm23")
-periodicity(ons_data)
+data1 <- pdfetch_FRED(c("GFDEBTN"))
+periodicity(data1)
 ```
 
-If you are looking for a particular series you will have to go to the ONS homepage and search for the database and series ID information you need. In the help for the `pdfetch_ONS` function you will find a link which you can use to find the necessary information.
+The data come in quarterly frequency and they are now stored in your environment as an `xts` data series object. This means that R knows that this is a time-series and you can use the functionality of the `xts` package to [manipulate the data](https://www.datacamp.com/cheat-sheet/xts-cheat-sheet-time-series-in-r).
+
+The `pdfetch` package can access other databases, for instance the data available from [Yahoo Finance](https://finance.yahoo.com/). You will again have to find the data identifier. For instance you may wish to get Apple share prices (`AAPL`) and wish to download the adjusted close price (`adjclose`) and trading volume (`volume`).
+
+```{r}
+data2 <- pdfetch_YAHOO("AAPL",c("adjclose","volume"))
+```
+
+This has put the Apple shareprice and volume into a new `xts` project.
+
+Consulting the help function (`?pdfetch_YAHOO`) you can see that you can also specify which dates you wish to download and at what frequency you wish to have data. Below we are downloading the Crude Oil futures price.
+
+```{r}
+data3 <- pdfetch_YAHOO("CL=F",c("close","volume"),interval = "daily")
+```
+
 
 Check the `pdfetch` package information to see what other databases can be "tapped" with this package. 
+
 
 # Summary
 
