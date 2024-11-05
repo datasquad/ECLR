@@ -24,7 +24,6 @@ We begin by loading a range of packages.
 ```{r}
 # load packages
 library(car)
-#library(carData,curl)
 library(AER)
 library(glmnet)
 library(hdm)

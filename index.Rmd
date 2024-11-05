@@ -53,6 +53,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Ridge and LASSO Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RidgeLasso/R_RidgeLasso.html) | [PSIDsmall.txt](https://github.com/datasquad/ECLR/blob/gh-pages/data/PSIDsmall.txt)
 | Post Double Selection LASSO | [Workthrough in R](https://datasquad.github.io/ECLR/R_DoubleRobustLasso/R_DoubleRobustLasso.html) | in code upload
 | Cross-Validation | [Workthrough in R](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html) | in code upload
+| Principal Components | [Workthrough in R](https://datasquad.github.io/ECLR/R_CrossValidation/R_PCA.html) | in code upload
 
 # Dealing with Time-Series variables
 

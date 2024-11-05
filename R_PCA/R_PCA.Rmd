@@ -1,0 +1,332 @@
+---
+title: "Principal Component Analysis - DJI"
+output: webexercises::webexercises_default
+---
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+options(scipen=1, digits=3)
+library(webexercises)
+```
+
+# Principal Component Analysis. Time Series Application.
+
+## PCA Framework
+
+Here, we will demonstrate the use of factor analysis to address situations similar to Lasso and Ridge Regression, where you estimate a regression model containing a large number of potential or weak explanatory variables. These types of models are primarily used for prediction purposes. Let's assume we want to predict the return of the Dow Jones Industrial portfolio using the returns of its constituents from the previous period. Formally, given a $k \times 1$ vector of individual returns from the previous day $\boldsymbol r_{t-1}$, we aim to predict the return on the value-weighted portfolio at time $t$, $r^p_t$, i.e. assuming linearity:
+
+$$r^p_t = \mu_0+{\boldsymbol{\beta r_{t-1}}} + u_t$$
+
+According to the **efficient market hypothesis (EMH)**, the explanatory power of this regression should be close to zero.  One of the formulations of EMH is that all relevant information at time ( $t-1$ ) is already reflected in the stock prices at time ( $t-1$ ). Thus, changes in prices (returns) cannot be predicted using past changes in prices, i.e., $E(r_{t} | r_{t-1,1}, \ldots, r_{t-1,k}) = \mu $.
+
+At the very least, we can anticipate that any individual return at time $t-1$ has close to zero explanatory power to predict the portfolio return at time $t$. To check whether this is the case we will identify and download the necessary data. Then we will perform the above regression but also estimate a model that used principal components rather than individual returns.
+
+
+# Data Import
+
+The data to download includes the Dow Jones Industrial Average and its constituents. The data will be downloaded from [Yahoo Finance](https://finance.yahoo.com/) using the `pdfetch` package. The list of constituents will be extracted from [Wikipedia](https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average) using the `xml2` and `rvest` packages. 
+
+```{r}
+library(xml2)   # package to read websites
+library(rvest)  # works with xml2 to access content of websites
+library(pdfetch)  # to access data  
+library(quantmod) # to access data 
+library(pls)      # used for Principle Component Regressions
+```
+
+We start by copying the entire content of the corresponding Wikipedia page:
+
+```{r}
+url <- "https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average"
+webpage <- xml2::read_html(url)
+```
+
+
+`r hide("Where is the webpage?")` 
+
+If you look at the `webpage` object in your environment you see that it is actually a list of two things (`node` and `doc`). And if you try to look at `webpage$node` or `webpage$doc` R will reply with a message like `<pointer: 0x0000016a157ceba0>`. Don't worry, all the webpage info is there (somewhere in your computer's memory and the `webpage` object links/points to that memory), and you could look at it using `as.character(webpage)`. But we are rarely interested in the entire html document, but rather particular elements. Below we will extract a table from that html document.
+
+`r unhide()`
+
+
+Second, we extract the table with the relevant data (component companies of the DJIA). We are interested in the first table on the above linked page. However, sometimes elements of the html page that are not obviously tables are coded as tables. So you may need to try which table is the one you want. Here it turns out to be the 3rd.
+
+```{r}
+table_DJI <- rvest::html_table(webpage)[[3]] 
+print(table_DJI)
+```
+
+Now we store the column with the company symbols (`Symbol`) as a vector of strings. We will use that information soon to download the return data for these companies.
+
+```{r}
+dji_ticks <- table_DJI$Symbol
+print(dji_ticks)
+```
+
+Here's how you can download the adjusted close daily prices of the Dow Jones Industrial Average constituents from January 2005 to July 2024 using the `pdfetch` package and in particular the `pdfetch_YAHOO` function as we get the data from the YAHOO Finance website.
+
+```{r}
+DJIC = pdfetch_YAHOO(identifiers = dji_ticks, fields = "adjclose",
+                     from = as.Date("2005-01-01"),
+                     to = as.Date("2024-07-07"),
+                     interval = "1d")
+```
+
+This puts the `DJIC` object in your environment. This is a `xts` type object which means that R knows that these are time-series data. 
+
+`r hide("Doing the same in a different way")` 
+
+It is important to keep in mind that most things can be achieved in different ways. Above we used the `pdfetch` package to get the data. There is another package (`quantmod`) which can be used to get the same data. It has a function called `getSymbols` which obtains data for a particular tick.
+
+```{r, eval = FALSE}
+# the 6th column is the adjusted close, hence [,6]
+DJIC <- getSymbols(dji_ticks[1],auto.assign = FALSE)[,6] 
+names(DJIC) <- dji_ticks[1]
+for(i in seq(2, length(dji_ticks))){
+  temp <- getSymbols(dji_ticks[i],auto.assign = FALSE)[,6]
+  names(temp) <- dji_ticks[i]
+  DJIC = merge(DJIC, temp)
+}
+
+isna = colSums(is.na(DJIC))
+print(isna)
+```
+
+But if the `pdfetch` function worked there is no nee to do this as well.
+
+`r unhide()`
+
+Next we check for missing values.
+
+```{r}
+isna = colSums(is.na(DJIC))
+print(isna)
+```
+
+Two of the stocks have a significant amount of missing observations. Here's how you can drop Visa (`V`) and Dow Chemical (`DOW`) from the list of constituents
+
+```{r}
+DJIC_nmiss = DJIC[,isna==0]
+```
+
+Now we import the Dow Jones Industrial Average [`^DJI`](https://finance.yahoo.com/quote/%5EDJI/) index:
+
+```{r}
+dji_ind = pdfetch_YAHOO(identifiers = "^DJI",fields = "adjclose",
+                    from = as.Date("2005-01-01"),
+                    to = as.Date("2024-07-07"),
+                    interval = "1d")
+plot(dji_ind,main = "Dow Jones Industrial")
+```
+
+Finally, construct log-return series for `^DJI` and log-returns for its constituents `DJIC_nmiss` in percents
+
+```{r}
+djret = diff(log(dji_ind))[-1]*100
+Xret = diff(log(DJIC_nmiss))[-1]*100
+```
+
+
+`r hide("What does the [-1] in the above code do?")` 
+
+To invesigate this, run the code without the `[-1]` part and compare this to the results above. The return calculation creates a missing observation for the first observation and `[-1]` removes that first observation.
+
+`r unhide()`
+
+
+## PCA construction
+
+Now that the data have been setup we can apply PCA to the transformed data.
+
+```{r}
+Xpca <-  prcomp(Xret, scale. = TRUE)
+```
+
+By default, the `prcomp()` function centers the variables to have a mean of zero. By using `scale. = TRUE`, we scale the variables to have a standard deviation of one. The output from `prcomp()` contains several useful quantities.
+
+```{r}
+names(Xpca)
+```
+
+The `center` and `scale` components correspond to the means and standard deviations of the variables that were used for scaling prior to implementing PCA. Since our data consists of daily returns (in percentages), the means are quite small.
+
+```{r}
+print(Xpca$center)
+print(Xpca$scale)
+```
+
+The `rotation` matrix provides the principal component loadings. The loadings for the first four factors are:
+
+```{r}
+Xpca$rotation[,1:4]
+```
+
+What will be the result of `sum(Xpca$rotation^2)`? `r fitb(sum(Xpca$rotation^2))` 
+
+`r hide("Click here to see the hint")` 
+
+By construction, $$\sum_{i=1}^{k} w_{i,j}^2 = 1$$ meaning that the sum of squared loadings for one factor (over all $k$ elements in `Xret`) sum to 1.
+
+As there are $k$ factors:
+
+$$\sum_{j=1}^{k}\sum_{i=1}^{k} w_{i,j}^2 = k$$ 
+In this case, $k=28$. 
+`r unhide()`
+
+Standard deviations are stored in 
+
+```{r}
+Xpca$sdev
+```   
+
+With a fraction of total variance explained by a particular factor:
+
+```{r}
+pve = Xpca$sdev^2/sum(Xpca$sdev^2)
+pve
+```
+
+The first factor explains 45.7% of all the variance and the second one explains 5.4% of it. The last factor explains 0.7% of the total variance. We can plot the proportion of variance explained:
+
+```{r}
+plot(pve, xlab = "Principal Component", ylab = "Proportion of Variance Explained", ylim = c(0,0.5), type = "o")
+```
+
+
+What will be the result of the `sum(Xpca$sdev^2)` calculation? `r fitb(sum(Xpca$sde^2))` Will it be different from the  `sum(var(Xpca$x))` calculation? `r mcq(c("Yes",answer = "No"))`.  
+
+`r hide("Click here to see the hint")` 
+Let's define a $T\times k$ matrix of factors $F$ (`Xpca$x`), a $k\times k$ matrix of loadings $w$ (`Xpca$rotation`), and a $T\times k$ matrix of demeaned standardised returns $R$. By construction, $F = R \times w$.  
+A sample covariance matrix of $F$ (`var(Xpca$x)`), given demeaned $R$, can be defined as
+$$\widehat{Cov}(F) = \frac{1}{T-1} w'R'Rw$$
+As $w'w = ww' = I_{k\times k}$ (see previous hint) and $Cov(f_i,f_j)=0, i\ne j$, it follows that $\widehat{Cov}(F)$ is a diagonal matrix up to rounding error. `sum(Xpca$sdev^2)` is a sum of variances of all factors, i.e. $trace(\widehat{Cov}(F))=k$.
+
+`sum(var(Xpca$x))` is 
+$$\sum_{i=1}^k\sum_{j=1}^k \widehat{cov(f_i,f_j)} = \sum_{i=1}^k \widehat{cov(f_i,f_i)} = Tr(\widehat{Cov}(F))$$
+On the other hand,
+
+$$Tr(\widehat{Cov}(F)) = \frac{1}{T-1} Tr(w'R'Rw) = \frac{1}{T-1} Tr(ww'R'R) = Tr(\frac{1}{T-1}R'R) = \sum_{i=1}^k \widehat{cov(r_i,r_i)}=k$$
+As for standardised returns $\widehat{cov(r_i,r_i)}=1$.
+
+`r unhide()`
+
+
+## PCA regression
+
+In `Xpca$x` you now have the principal components and you could decide to attempt to explain variation in daily DJI index returns by regressing it against the one day lagged first, say, two principal components. But how do you know how many principal components you should use? This calls for a cross validation approach!
+
+To facilitate this we shall use the `pcr()` function, which is part of the `pls` library (which was loaded at the top of the code). `pcr` is short for Principal components regression. We now apply PCR to the Dow Jones data, imported in section one, in an attempt to predict one-day-ahead Dow Jones returns using 28 out of its 30 previous day constituents (recall that we dropped `DOW` and `V`).
+
+First, we need to construct a vector of dependent variables and a (lagged) matrix of explanatory variables.
+
+```{r}
+set.seed(2) # as we are using cross validation (which uses random datasplits)
+            # we set a random sees such that repeated applications
+            # produce identical results
+
+T = dim(djret)[1]
+y = djret[-1] # remove first observation, y_{t}
+X = Xret[-T,] # remove last observation, X_{t-1}
+```
+
+We can test that the data are aligned correctly now (i.e. with one day lag for `X`) by looking at the start and end dates.
+
+```{r}
+print(c(start(y),start(X)))
+print(c(end(y),end(X)))
+```
+
+Now we can apply the principal component regression.
+
+```{r}
+out_full <- pcr(y~.,data = X, scale = TRUE, validation = "CV")
+```
+
+The syntax for the `pcr()` function is similar to that for `lm()`, with a few additional options. Setting `scale = TRUE` has the same effect as `scale. = TRUE` in `prcomp()`. Setting `validation = "CV"` causes `pcr()` to compute the ten-fold cross-validation error for each possible value of $M$, the number of principal components used.
+
+```{r}
+summary(out_full)
+```
+
+The $CV$ score is provided for each possible number of components, ranging from $M = 0$ onwards. Please note that `pcr()` reports the _root mean squared error_. We can plot the cross-validation scores using the `validationplot()` function. In particular, to visualize the _mean squared error_:
+
+```{r}
+validationplot(out_full, val.type = "MSEP")
+```
+The smallest cross-validation error occurs when $M =`r  which.min(MSEP(out_full,estimate = "CV")$val[1,1,])-1`$. This suggests the optimal number of factors for the model. 
+
+`r hide("How do I find the component number that delivers the minimum MSEP?")` 
+
+All of the information you need to figure out what number of components delivers the minimum cross-validated error is contained in `out_full` although that does not directly report the mean squared prediction error (MSEP). THat can be done by 
+
+```{r, eval = FALSE}
+MSEP(out_full,estimate = "CV")
+```
+
+This has now calculated the cross-validated MSEP. You can plot this and identify the minimum (as you could identify the minimum in the earlier plot to see that it is associated to a 6 component regression).
+
+If you wish to have R identify this directly you could for instance do this with the following command:
+
+```{r}
+names(which.min(MSEP(out_full,estimate = "CV")$val[1,1,]))
+```
+This tells you that the 6 component model worked best.
+
+`r unhide()`
+
+The `summary()` function also provides the _percentage of variance explained_ in the predictors and in the response using different numbers of components (see the previous section). Say, the first factor explains `r out_full$Xvar[1]/sum(out_full$Xvar)*100`% of all the variance in `X` with the corresponding $R^2 = `r R2(out_full, estimate = "train")$val[1,1,2]*100`$%. For $M=6$ these numbers are, accordingly, $`r sum(out_full$Xvar[1:6])/sum(out_full$Xvar)*100`$% and 
+$`r R2(out_full, estimate = "train")$val[1,1,7]*100`$%.
+
+## Predictability of returns
+
+As you can see, even though the explanatory power of the PCA is small, it is statistically significant, which contradicts the Efficient Market Hypothesis discussed briefly before. Let's take a closer look at the returns distribution:
+
+```{r}
+hist(y,breaks = 50)
+```
+
+
+Most of the returns are concentrated around 0. However, there are outliers with 5% to 10% daily (!) returns. These outliers are typically attributed to times of financial crises, when all stocks tend to move together in the same (negative) direction, followed by positive corrections. Let's check whether these outliers are the main driver for the predictability of returns.
+
+```{r}
+# indicator variables to indicate which obs to include
+insample1 <- (abs(y) < 5) # only use obs where returns are smaller than 5
+insample2 <- (abs(y) < 4)
+insample3 <- (abs(y) < 3)
+
+sum(!insample1)
+sum(!insample2)
+sum(!insample3)
+
+out1 <- pcr(y~.,data = X, scale = TRUE, validation = "CV",subset = insample1)
+out2 <- pcr(y~.,data = X, scale = TRUE, validation = "CV",subset = insample2)
+out3 <- pcr(y~.,data = X, scale = TRUE, validation = "CV",subset = insample3)
+summary(out1)
+#summary(out2)
+#summary(out3)
+
+validationplot(out1,val.type = "MSEP")
+
+```
+
+By dropping `r sum(!insample1)`, `r sum(!insample2)`, `r sum(!insample3)`  observations, the full explanatory power goes down from $`r R2(out_full, estimate = "train")$val[1,1,28]*100`$% to $`r R2(out1, estimate = "train")$val[1,1,28]*100`$%, $`r R2(out2, estimate = "train")$val[1,1,28]*100`$%, $`r R2(out3, estimate = "train")$val[1,1,28]*100`$%. The validation plot that corresponds to the last subsample with $M =`r  which.min(MSEP(out3,estimate = "CV")$val[1,1,])-1`$ and $`r R2(out3, estimate = "train")$val[1,1,8]*100`$%..
+```{r}
+validationplot(out3,val.type = "MSEP")
+```
+
+
+**Extra Question**
+
+Repeat the analysis using S&P 500 index and S&P 500 constituents.
+
+
+**ECLR**
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+
+
+
+
