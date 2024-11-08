@@ -1,0 +1,375 @@
+---
+title: "Mapping in R"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
+library(webexercises)
+```
+
+This walkthrough is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+## Introduction
+
+In this workthrough we will create some maps. What do you mean here, we will take some data and make their features visible on a map.
+
+We need to load some libraries.
+
+```{r}
+# install.packages("tidyverse","readxl") # only use this line once on your computer (and not at all in Comp labs)
+library(tidyverse)    # for almost all data handling tasks
+library(readxl)       # to import Excel data
+library(ggplot2)      # for nice graphs
+```
+
+In this walkthrough we will only scratch the surface of what is possible in terms of mapping data. A great resource you may want to refer to if you do this more seriously is [Geocomputing in R](https://r.geocompx.org/).  
+
+## Using Coordinates, Road Accident locations
+
+We shall use some data on road traffic accidents in Greater Manchester. The government provides detailed data on these. The datafile comes from [the Government Data website](https://data.gov.uk/dataset/25170a92-0736-4090-baea-bf6add82d118/gm-road-casualty-accidents-full-stats19-data). Download the 'Road Safety Data - Accident 1979 2020.csv` file. This file contains information on every recorded road traffic accident between 2010 and 2021 in Greater Manchester. 
+
+Save this file (`STATS19AccDataJan2010Dec2021forGMServers.csv`) in your working directory and load it into your environment.
+
+```{r, echo = FALSE}
+setwd("C:/Rcode/ECLR")
+accdata <- read.csv("C:/Rcode/ECLR/data/STATS19AccDataJan2010Dec2021forGMServers.csv")
+```
+
+```{r, eval = FALSE}
+setwd("C:/YOUR/DIRECTORY")
+accdata <- read.csv("STATS19AccDataJan2010Dec2021forGMServers.csv")
+```
+
+Let's look at the structure of the dataset.
+
+```{r}
+head(accdata)
+```
+
+`accdata` has 45,626 observations (or rows) and 27 variables (or columns). Each row represents an accident and for each accident we have the following information.
+
+
+```{r}
+names(accdata)
+```
+
+Let's look at a particular accident. Let's randomly pick the 201st accident in our dataset.
+
+```{r}
+accdata[201,]  # this used [row,cols] as cols is empty it picks all cols
+```
+The accident took place in 2010, involved 2 vehicles and happened in an area with a 30km/h speed limit. But then there are some variable values which as such don't make sense. What does it mean that the Lightning Condition was "4", or the "WeatherCondition" was "1"? To figure out what this means you need to look at the [Data Dictionary](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/995422/stats19.pdf). From there we can find out that it was dark but street lights were present and lit (Lightning Condition = 4) and that the weather was fine without high winds (WeatherCondition = 1).
+
+The information we will use in this walkthrough is the location of the accident which is encapsulated in the `Easting` and `Northing` variable.
+
+```{r}
+accdata[201,c("Easting","Northing")]  
+```
+
+`r hide("Where is this? And where is E-0, N-0?")`
+
+You will need to fiind a place which helps you to locate where this place (Easting 392197, Northing 404013) is. You can search the internet for a useful reference. One such possible place is this [Grid Reference Finder](https://gridreferencefinder.com/). This lace is on Chamber Rd in Greater Manchester.
+
+Using that reference to identify where E-0, N-0 is you will find this place to be in the Atlantic Ocean to the south west of Great Britain.
+
+The Easting and Northing reference is basically some measure of distance from the (0,0) reference point.
+
+`r unhide()`
+
+Here we are using the extremely powerful `ggplot` function. This is a general plotting package in R and not really specialised for mapping. However, you will see that, given the `Easting` and `Northing` information is sufficient to display geographic features of this dataset.
+
+```{r}
+ggplot(accdata, aes(x = Easting, y=Northing)) + geom_point(size=0.5)
+```
+
+You can basically see where in Manchester accidents happened. In essence you can see the Manchester Road network. The next image adds a few flourishes to the picture.
+
+```{r}
+ggplot(accdata, aes(x = Easting, y=Northing,color = Road1Class)) + 
+  geom_point(size=0.5) +
+  ggtitle("Locations of vehicle accidents in Greater Manchester")
+```
+
+Darker roads (with lower `Road1Class` category) are main roads. You can clearly identify the motorway ring road.
+
+## Using maps to illustrate regional differences 
+
+A great tool to visualise the differences between regional entities (e.g. countries) is to produce a map where a color scale represents the values of some statistic. The first time you create maps, we are afraid, you will have to struggle a little. But the rewards are great!
+
+We start by uploading a few libraries we will need to work with maps. We follow the advice of the [Lovelace et al.](https://geocompr.robinlovelace.net/) and use the `tmap` package. Recall that you will have to install these packages first in case you havn't done so yet.
+
+```{r}
+library(tmap) # mapping package
+library(sf) # required to deal with shape files
+library(spData) # delivers shape files
+library(maps)
+```
+
+In order to display maps we need a crucial ingredient, we need to tell R how the countries or regions we wish to display are shaped. Such information is saved in shape files. The `tmp` package has shape information for countries preloaded and you can access those as follows, calling `world`:
+
+```{r}
+d_world <- world # save country shape files
+head(world)
+```
+
+Let's see what information is contained in this file.
+
+```{r}
+names(d_world)
+```
+
+There are a number of variables and pieces of iformation associated to the each country, such as the name, a two letter abbreviation (`iso_a2`), but also its size (`area_km2`) and its population (`pop`). The core of the geographic information is in the `geom` variable. Let's look at Norway.
+
+```{r}
+nor.geom <- d_world$geom[d_world$name_long == "Norway"]
+nor.geom
+```
+
+There is a lot of detail (not all shown). But it is useful to understand how the geographic information is stored. It is stored as polygons, where the coordinates of the edge points are saved. 
+
+```{r}
+length(nor.geom[[1]])
+nor.geom[[1]][[1]]
+```
+
+You can see here that, for the purpose of a world map, the shape of Fiji is saved in 4 polygons and futrher you can see that the first of these is described by 18 edge points.
+
+```{r map1}
+d_nor <- d_world %>% filter(name_long == "Norway")
+
+map1 <- tm_shape(d_nor) +  # basic map
+  tm_borders()             # adds borders 
+map1
+```
+Here you can indeed see that Norway is described by four shapes.
+
+How many shapes are required to descripe the Philippines? `r fitb(7)`
+
+`r hide("Hint")`
+
+Repeat what we did for Norway. Create an object which isolates the `geom` information for the Philippines and then check its length, using `length(nor.geom[[1]])`.
+
+`r unhide()`
+
+Of course, just creating a map of one country is somewhat boring. Let's create a map for only the countries in Africa. Replace the `XXXX` with the appropriate code.
+
+```{r, eval = FALSE}
+d_africa <- d_world %>% filter(XXXX == "Africa")
+
+map2 <- tm_shape(XXXX) +  # basic map
+  tm_borders()             # adds borders 
+map2
+```
+
+```{r, echo = FALSE}
+d_africa <- d_world %>% filter(continent == "Africa")
+
+map2 <- tm_shape(d_africa) +  # basic map
+  tm_borders()             # adds borders 
+map2
+```
+
+So far we are merely displaying geograhic information. Let's add some other information and colour the countries according to some variable, for instance the GDP per capita (`gdpPercap` in the `d_world` file).
+
+```{r}
+map3 <- tm_shape(d_africa) +
+  tm_borders() +
+  tm_fill(col = "gdpPercap") +
+  tm_style("cobalt") +
+  tm_layout(title = "GDP per capita across Africa") 
+map3
+```
+As usual there are multiple ways in which you can plot information. The `ggplot` package also has a function with which to plot information in shape files. Here is how you can create a similar plot using `ggplot`.
+
+```{r}
+ggplot() + 
+  geom_sf(data = d_africa, aes(fill = gdpPercap)) + 
+  ggtitle("Per Capita GDP in Africa") + 
+  coord_sf()
+```
+This is already very interesting. You should try and replace the GDP per capita information with the other variables contained in the `d_world` dataset.
+
+This was fairly straightforward as the `world` function presented all of this information on a platter for us. What if you wish to show regions in the UK rather than countries? And what if you want to show some other variable?
+
+In the next section you will learn how to do that. But from this example you should already be able to see what we need for that purpose.
+
+1. A file with the shape information for the geographic entities (the equivalent to the `$geom` variable).
+2. An object that contains the information (for every regional entity) we wish to display.
+3. A variable we can use to match (merge) the above two pieces of information. In the above example that could be the country names, or better the two letter country identifier.
+
+
+### Using imported shape files
+
+Let's work on an example where we need want to use geographic entities for which we first need to import the shape file. The package that will facilitate this is the `sf` package/
+
+```{r}
+library(sf)
+```
+
+On this occasion we will want to display information for small areas in the UK, in particular Lower Layer Super Output Area (LSOAs). In order to find the shape files for these areas you will have to search the internet for such a file, for instance search for "UK LSOA shape file" and you will eventually find a place, such as [data.gov.uk](https://www.data.gov.uk/dataset/fa883558-22fb-4a1a-8529-cffdee47d500/lower-layer-super-output-area-lsoa-boundaries).
+
+From there you can download a shp file. Here we downloaded the "Full_Clipped" file. This will download a zipped folder called "infuse_lsoa_lyr_2011_clipped". You need to unzip/extract this entire folder into your working directory. In your working directory you then have a folder called "infuse_lsoa_lyr_2011_clipped" and in that folder will be four files with extensions `dbf`, `prj`, `shp` and `shx`. Make sure all these files are in that folder. Then you can load the shape file using the following line.
+
+```{r, eval = FALSE, echo = FALSE}
+# this file is too big to be stored on github
+# hence work with selection below
+uk.lsoa <- st_read("C:/Rcode/ECLR/data/infuse_lsoa_lyr_2011_clipped/infuse_lsoa_lyr_2011_clipped.shp")
+```
+
+```{r, eval = FALSE}
+uk.lsoa <- st_read("C:/YOUR/WORKING/DIRECTORY/infuse_lsoa_lyr_2011_clipped/infuse_lsoa_lyr_2011_clipped.shp")
+```
+
+This should have downloaded 42,619 LSOAs and for each you have four pieces of information, the `geo_code` which is a unique identifier, `geo_label` which is a name, `geo_labelw` (which is a secondary label, NA for most LSOAs) and finally `geometry` which contains the multipolygon information for each LSOAs.
+
+As there are so many LSOAs the above file is rather big. We have selected the LSOAs which we want to use below (using data on ) and saved these in the `NEcities.lsoa` object which you can load from [here](). Place that file in your working directory.
+
+```{r, eval = FALSE}
+load("NEcities_lsoa.Rdata")
+```
+
+```{r, echo = FALSE}
+load("C:/Rcode/ECLR/data/NEcities_lsoa.Rdata")
+```
+
+For instance the first entry is:
+
+```{r}
+NEcities.lsoa[1,]
+```
+
+You could plot this with any of the mapping techniques above, for instance using `ggplot`. 
+
+```{r, eval = FALSE}
+ggplot() + 
+  geom_sf(data = uk.lsoa) + # or data = NEcities.lsoa
+  ggtitle("LSOAs in the UK") + 
+  coord_sf()
+```
+
+But there is no need to do this yet. And if you tried it with `data = uk.lsoa` it would take quite a long time. We will create a useful map shortly.
+
+### Merging in data
+
+Now that we have the geometry information for LSOAs we can merge this with some information characterising these areas. Here we shall import information on the level of deprivation in each LSOAs. The index of multiple deprivation (IMD) is a measure which attempts to express how deprived (on a number of issues) an area is. Performing a web search "UK index of multiple deprivation" will lead you to a number of places where you can download this information, for instance this [www.gov.uk site](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019) from which you can download the 2019 version of the IMD ("File 1: Index of multiple deprivation"). Download the xlsx file and save it to your working directory.
+
+The actual data are in the "IMD2019" worksheet.
+
+```{r}
+imd <- read_excel("C:/Rcode/ECLR/data/IMD2019_Index_of_Multiple_Deprivation.xlsx", sheet = "IMD2019")
+names(imd) <- make.names(names(imd)) # this removes spaces from names
+str(imd)
+```
+
+The variable names are all on the long side, so let's change the names to shorter ones.
+
+```{r}
+names(imd) <- c("geo_code", "LSOA.name", "LAD.code", "LAD.name", "IMD.rank", "IMD.decile")
+str(imd)
+```
+
+Note how we gave the LSOA code the same name as that code has in the Shape file. This will make the next step easier. 
+
+We now have two datasets (`ul.lsoa` and `imd`) which both have information on LSOAs. The former the geometry and the latter the IMD. As both have the `geo_code` we can use that to merge the data. 
+
+Before merging we shall reduce the dataset somewhat. As the `imd` dataset also has information on local authorities (e.g. "Liverpool") we will first create a subset of these.
+
+```{r}
+imd.north <- imd %>% filter(LAD.name %in% c("Sheffield", "Leeds", "Liverpool", "Newcastle upon Tyne"))
+```
+
+How many LSOAs are in this dataset? `r fitb(dim(imd.north)[1])`
+
+Now we shall merge the data with `NEcities.lsoa`. In fact `NEcities.lsoa` only contains geometries for these four northern cities.
+
+```{r}
+north.lsoa <- merge(NEcities.lsoa, imd.north)
+str(north.lsoa)
+```
+
+We have now a new object with the merged information on these LSOAs.
+
+```{r, eval = FALSE}
+ggplot() + 
+  geom_sf(data = north.lsoa, aes(fill = IMD.decile)) + 
+  ggtitle("IMD, 2019, Northern Cities") + 
+  coord_sf()
+```
+
+As the four cities are quite dispersed the map is not so informative yet. It would be better to plot four separate maps. In `ggplot` this is easily achieved using the `facet` method.
+
+```{r}
+ggplot() + 
+  geom_sf(data = north.lsoa, aes(fill = IMD.decile)) + 
+  facet_wrap(vars(LAD.name)) +
+  ggtitle("IMD, 2019, Northern Cities") + 
+  coord_sf()
+```
+
+It appears as the default of the `facet_wrap` function is to keep identical scales for all four sub plots. On many occasions this is a very sensible default. Here, however, it isn't. Going to the help function (type `?facet_wrap` in the console) it appears as if one may want to try the option `scales = "free"` in `facet_wrap`.
+
+```{r, eval = FALSE}
+ggplot() + 
+  geom_sf(data = north.lsoa, aes(fill = IMD.decile)) + 
+  facet_wrap(vars(LAD.name), scales = "free") +
+  ggtitle("IMD, 2019, Northern Cities") +
+  coord_sf()
+```
+
+If you do that you will receive an error message
+
+"Error in `draw_panels()`:
+! `facet_wrap()` can't use free scales with `coord_sf()`."
+
+So, it appears as if free scales do not work with this. There are multiple ways to deal with this. Here we use the following strategy. First we create subsets of `north.lsoa`, one for each city. Then we create four separate pictures, which we then arrange into one bigger one.
+
+```{r}
+she <- north.lsoa %>% filter(LAD.name == "Sheffield")
+leeds <- north.lsoa %>% filter(LAD.name == "Leeds")
+liv <- north.lsoa %>% filter(LAD.name == "Liverpool")
+newc <- north.lsoa %>% filter(LAD.name == "Newcastle upon Tyne")
+
+p.she <- ggplot() + 
+  geom_sf(data = she, aes(fill = IMD.decile),size = 0) + 
+  ggtitle("IMD, 2019, Sheffield") 
+
+p.leeds <- ggplot() + 
+  geom_sf(data = leeds, aes(fill = IMD.decile),linewidth = 0.01) + 
+  ggtitle("IMD, 2019, Leeds") 
+
+p.liv <- ggplot() + 
+  geom_sf(data = liv, aes(fill = IMD.decile)) + 
+  ggtitle("IMD, 2019, Liverpool") 
+
+p.newc <- ggplot() + 
+  geom_sf(data = newc, aes(fill = IMD.decile)) + 
+  ggtitle("IMD, 2019, Newcastle") 
+
+```
+
+Now we have the four graphs and want to combine them into one. You can use the `grid.arrange` function for this purpose.
+
+```{r}
+library(gridExtra)
+p.imd <- grid.arrange(p.she, p.leeds, p.liv, p.newc, nrow = 2)
+```
+
+Low deciles (dark shading) corresponds to the most deprived areas.
+
+## Summary
+
+In this walkthrough you learned how to create maps in R. Importantly you need a shape file that describes the geography of your entities you want to show. You can then colour these on a pap according to certain variables. Usually you will have to
+
+1. Find and download the shape files
+2. Find and download the variable for your geographic entities
+3. Merge that information (the variable) into the shape file
+4. Use `tmp` or `ggplot` to create the map
+
+Enjoy this new skill.
+
+This walkthrough is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+## References
+
+Lovelace, R., Nowosad, J and Muenchow, J., Geocomputation with R,  [https://r.geocompx.org/](https://r.geocompx.org/).
