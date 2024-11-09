@@ -224,7 +224,7 @@ uk.lsoa <- st_read("C:/YOUR/WORKING/DIRECTORY/infuse_lsoa_lyr_2011_clipped/infus
 
 This should have downloaded 42,619 LSOAs and for each you have four pieces of information, the `geo_code` which is a unique identifier, `geo_label` which is a name, `geo_labelw` (which is a secondary label, NA for most LSOAs) and finally `geometry` which contains the multipolygon information for each LSOAs.
 
-As there are so many LSOAs the above file is rather big. We have selected the LSOAs which we want to use below (using data on ) and saved these in the `NEcities.lsoa` object which you can load from [here](https://github.com/datasquad/ECLR/blob/gh-pages/data/NEcities_lsoa.RData). Place that file in your working directory.
+As there are so many LSOAs the above file is rather big. We have selected the LSOAs which we want to use below (using data on ) and saved these in the `NEcities.lsoa` object which you can load from [the ECLR page](https://github.com/datasquad/ECLR/blob/gh-pages/data/NEcities_lsoa.RData). Place that file in your working directory.
 
 ```{r, eval = FALSE}
 load("NEcities_lsoa.Rdata")
