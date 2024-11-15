@@ -32,6 +32,7 @@ We will also use a standard set of libraries.
 ```{r}
 library(tidyverse)
 library(ggplot2)
+library(stargazer)
 ```
 
 ## Data upload
@@ -206,7 +207,7 @@ data.md.select$date[!(data.md.select$date %in% data.md.select.2$date)]
 
 You can see that 12 of the dates arise from the entire year 1959 scratched. The only coherent period of missing data arose from March to July 2020 and basically the first half of 2021. This is likely related to some missing data from the Covid period.
 
-In fact, for this exercis we will reduce the sample to include data until March 2014. This results in a data period which has also been used in the [McCracken and Ng (2016)](https://www.tandfonline.com/doi/full/10.1080/07350015.2015.1086655) paper intruducing the FRED-MD dataset.
+In fact, for this exercis we will reduce the sample to include data until March 2014. This results in a data period which has also been used in the [McCracken and Ng (2016)](https://www.tandfonline.com/doi/full/10.1080/07350015.2015.1086655) paper introducing the FRED-MD dataset.
 
 ```{r}
 data.md.select.2 <- as.data.frame(data.md.select.2)
@@ -273,6 +274,154 @@ lambda.1[1:10]
 ```
 
 It is important to understand that the signs of the factor loadings do not have a useful interpretation. These are the 10 variables with the largest loadings on factor 1. This can be compared to those reported in McCracken and Ng (2016, Table 2). Of the ten variables loading highest (as reported in Table 2) seven appear on the above list. The three variables that are not identified here (`NAPM`, `NAPMNOI`, `NAPMPI`) are all variables that are no longer on the FRED-MD database ([see the change log for confirmation](https://files.stlouisfed.org/files/htdocs/uploads/fredmdchanges0324.pdf)).
+
+### Replicate Table 2 from McCracken and Ng
+
+Here we will attempt to replicate Table 2 in the McCracken and Ng (2016) paper.
+
+![](../images/McC_Ng_Tab2.png)
+
+After the factors are estimated, we regress the $i$th series in the dataset on a set of $r$ (orthogonal) factors. For $k = 1,\ldots,r$, this yields $R_i(k)^2$ for series $i$. The incremental explanatory power of factor $k$ is $incR_i^2(k) = R_i^2(k)-R_i^2(k-1), k = 2, \ldots, r$. The average importance of factor-$k$ is $mR^2(k)=\frac{1}{N}\sum_{i=1}^N incR_i^2(k)$. We compute these quantities using two approaches. First, as described, regressing series $n$ on $k$ factors at each iteration. Second, regressing series $n$ on $k$th factor. After that, I will construct incremental $R^2$.
+
+```{r}
+K = dim(out$Fhat)[2] # extracts the number of Factors, same as kmax as set in rpca
+N = dim(out$X)[2]    # extracts number of series
+
+# create a matrix which stores various R^2
+# dimension KxN
+R2.ik <- matrix(0,K,N)  # stores R_i^2(k)
+colnames(R2.ik)  <-  colnames(out$X)
+R2.inc.ik <- R2.ik      # version 1
+
+# loop through all factors (k) and all series (n)
+ for (k in seq(1,K)) {
+   for (i in seq(1,N)){
+     # regress series i on factors 1 to k
+     temp = summary(lm(out$X[,i]~ out$Fhat[,1:k]))
+     R2.ik[k,i] = temp$r.squared
+     # regress series i on factor k only
+     temp = summary(lm(out$X[,i]~ out$Fhat[,k]))
+     R2.inc.ik[k,i] = temp$r.squared
+   }
+ }
+
+# Alternative way to calculate the contribution of the kth factor
+R2.inc.ik.alt <- R2.inc.ik  # version 2
+R2.inc.ik.alt[2:K,] <- R2.ik[2:K,] - R2.ik[1:K-1,]
+
+```
+
+At this stage we have saved $R_i(k)^2$ in `R2.ik` and $incR_i^2(k)$ in `R2.inc.ik` as well as `R2.inc.ik.alt`. We could calculate the contribution of the $k$th factor by either $incR_i^2(k) = R_i^2(k)-R_i^2(k-1), k = 2, \ldots, r$ (as implemented in `R2.inc.ik.alt`) or by merely regressing the $i$th variable on the $k$th factor (as implemented in `R2.inc.ik`). The latter version works only as the factors are orthogonal. Compare `R2.inc.ik` and `R2.inc.ik.alt` to convince yourself that they are identical.
+
+Also compare `R2.ik` and `R2.inc.ik`. Looking at these two matrices you should see that the first row is identical but subsequent rows are not.
+
+Now we are in a position to use that information to calculate $mR^2(k)$. This will be saved in `R2.m.k` and `R2.m.alt` as we use two ways to calculate the same quantity.
+
+```{r}
+# Storage vectors
+R2.m.k <- matrix(0,K,1)
+
+# Importance of factors 1 to K
+for (i in seq(1,K)){
+  R2.m.k[i] = mean(R2.inc.ik[i,])
+}
+
+# an alternative way to calculate this would be
+# R2.m.k <- rowMeans(R2.m.k)
+print(R2.m.k)
+```
+
+Here you can see that the first factor explains almost 14% of the variation in the variables. The second factor contributes close to 8% explanation of variation. This compares to 16% and 7% for the first two factors in the McCracken and Ng paper in Table 2. 
+
+Next we wish to identify the 10 variables that load most heavily on the first 8 factors (also replicating the 8 subtables in Table 2). In fact we will only show the first two, but you can replicate this for all 8.
+
+```{r}
+for (k in seq(1,2)){
+  names(k) = "Factor" #  this gives k a name, for display reasons only
+  # order starting with variable loading heaviest onto the kth factor
+  temp <- sort(R2.inc.ik[k,],decreasing = TRUE)  
+  temp2 <- c(k,temp[1:10])
+  stargazer(temp2,type = "text")  # stargazer produces a good looking table
+}
+```
+
+You can compare these to the ones shown in Table 2. You will find that there is a lot of overlap with the variables loading on Factor 1 and indeed the loadings are in the same ballpark (between 0.5 and 0.7). For the second factor you can see that some variables are similar, but there is fewer overlap for factor 2. Also the loadings are markedly lower (here between 0.25 and 0.33; between 0.2 and 0.6 in Table 2).
+
+
+### Best number of factors 
+
+A practical question in Factor analysis is how many factors one should use. When calling the `rpca` function earlier we did set `kmax = 8` indicating that we wanted the 8 strongest factors. But should we have used 6 instead, or perhaps more, like 10?
+
+The information criterion used to determine the number of factors is stored in `out$IC2`.
+
+```{r}
+plot(out$IC2)
+out$IC2
+```
+As you can see there are 9 such values. The minimum value is the 7th, which is associated with 7 factors. The last value, here the 9th (`kmax + 1`), is the information criterion for not using any Factor. You can also find the optimal number of factors from `out$ic2 =` `r out$ic2`.
+
+The optimal number of factors depends on the estimated covariance matrix and the metric used. The covariance matrix does vary over time. The result above was for the data from Jan 1960 to March 2014. Let's attempt to replicate the top panel of Figure 2. In here McCracken and Ng estimate the optimal number of factors for a recursive sample. 
+
+![](../images/McC_Ng_Fig2.png)
+
+We have to re-estimate the model using different time spans. In order to ensure that results do not change we shall download a particular vintage of data, the October 2024 vintage, for this analysis.
+
+```{r}
+filepath <- "https://files.stlouisfed.org/files/htdocs/fred-md/monthly/2024-10.csv"
+data.md <- fredmd(filepath, date_start = NULL, date_end = NULL, transform = TRUE)
+
+data.md.clean <- rm_outliers.fredmd(data.md)
+col_na_prop <- apply(is.na(data.md.clean), 2, mean)
+col_na_prop[col_na_prop>0.05]
+data.md.select <- data.md.clean[, (col_na_prop < 0.05)]
+data.md.select.2 <- na.omit(data.md.select)
+```
+
+This has applied the same data-cleaning procedure as discussed earlier, removing outliers and removing series with too many missing values.
+
+```{r}
+dates <- data.md.select.2$date
+data.md.select.2 <- data.md.select.2[,2:ncol(data.md.select.2)] # removes date variable
+rownames(data.md.select.2) <- dates   # adds date info as rownames
+data.md.select.2 <- as.data.frame(data.md.select.2)
+dates <- as.Date(dates)       # date variable
+date.years <- year(dates)     # years corresponding to each observation
+
+T = dim(data.md.select.2)[1]
+N = 2023-1969     # Number of Years for which we will re-estimate
+
+# create results storage vector
+IC <- matrix(0,N,1)
+ddate <- matrix(0,N,1)
+
+# We re-estimate the factors for samples ending in 1970, 1971, ..., 2023
+
+for (t in seq(1970,2023)) {
+  count <- t-1969
+  T.sel <- (date.years <= t)
+  temp.data <- data.md.select.2[1:sum(T.sel),]
+  out1 <- rpca(temp.data, kmax = 12, standardize = TRUE, tau = 0)
+  IC[count] = out1$ic2
+  ddate[count] <- t
+}
+```
+
+We have now stored in `IC` the optimal factor numbers from an increasing sample with sample end-points starting from 1970, ending in 2023.
+
+```{r}
+IC <- ts(IC, start = c(year(ddate[1]), frequency = 1)) # Define IC as an annual time-series
+plot(IC)
+```
+
+You can see from the plot that the pattern is roughly similar to that shown in McCracken and Ng (2016). It is not exactly the same for the following reasons
+
+* that they have used different data vintages whereas we have used only the Oct 2024 data vinatage and only changed the sample end-point. As discussed earlier, different data vintages actually also have different variable compositions.
+* Our data sample extends beyond the availability in McCracken and Ng (2016).
+* They re-estimated more frequently than just annually as we have done here.
+
+## Summary
+
+In this walkthrough you learned about the very valuable FRED-MD dataset which is very useful to produce reproducible macroeconomic research. We illustrated its use by replicating and updating the factor model estimation in McCracken, M. and Ng, S. (2016).
 
 ## Reading
 

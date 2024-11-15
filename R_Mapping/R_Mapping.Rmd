@@ -8,7 +8,7 @@ knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
 library(webexercises)
 ```
 
-This walkthrough is part of the [ECLR](https://datasquad.github.io/ECLR/) page. Avideo walkthrough is available from [YouTube, 32 min](https://youtu.be/0GmYu4SKmSo).
+This walkthrough is part of the [ECLR](https://datasquad.github.io/ECLR/) page. A video walkthrough is available from [YouTube, 32 min](https://youtu.be/0GmYu4SKmSo).
 
 ## Introduction
 
