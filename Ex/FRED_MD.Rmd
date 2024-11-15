@@ -207,7 +207,7 @@ data.md.select$date[!(data.md.select$date %in% data.md.select.2$date)]
 
 You can see that 12 of the dates arise from the entire year 1959 scratched. The only coherent period of missing data arose from March to July 2020 and basically the first half of 2021. This is likely related to some missing data from the Covid period.
 
-In fact, for this exercis we will reduce the sample to include data until March 2014. This results in a data period which has also been used in the [McCracken and Ng (2016)](https://www.tandfonline.com/doi/full/10.1080/07350015.2015.1086655) paper introducing the FRED-MD dataset.
+In fact, for this exercise we will reduce the sample to include data until March 2014. This results in a data period which has also been used in the [McCracken and Ng (2016)](https://www.tandfonline.com/doi/full/10.1080/07350015.2015.1086655) paper introducing the FRED-MD dataset.
 
 ```{r}
 data.md.select.2 <- as.data.frame(data.md.select.2)
@@ -397,10 +397,12 @@ ddate <- matrix(0,N,1)
 # We re-estimate the factors for samples ending in 1970, 1971, ..., 2023
 
 for (t in seq(1970,2023)) {
-  count <- t-1969
-  T.sel <- (date.years <= t)
-  temp.data <- data.md.select.2[1:sum(T.sel),]
+  count <- t-1969   # this keeps track of the iteration we are in: 1,2,3, etc
+  T.sel <- (date.years <= t)  # boolean variable indicating which obs is "in-sample"
+  temp.data <- data.md.select.2[1:sum(T.sel),]  # Selects the first sum(T.sel) obs
   out1 <- rpca(temp.data, kmax = 12, standardize = TRUE, tau = 0)
+  
+  # Save the optimal factor number
   IC[count] = out1$ic2
   ddate[count] <- t
 }
@@ -418,6 +420,12 @@ You can see from the plot that the pattern is roughly similar to that shown in M
 * that they have used different data vintages whereas we have used only the Oct 2024 data vinatage and only changed the sample end-point. As discussed earlier, different data vintages actually also have different variable compositions.
 * Our data sample extends beyond the availability in McCracken and Ng (2016).
 * They re-estimated more frequently than just annually as we have done here.
+
+Also note that this analysis uses an increasing sample size which may well explain the generally increasing number of factors.
+
+## Extension
+
+Repeat the above analysis but keep the sample size the same as you move through time. This is instead of using an increasing sample size as we did above. Do you still find an increasing number of factors?
 
 ## Summary
 
