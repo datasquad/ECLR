@@ -1,0 +1,186 @@
+---
+title: "Web Exercises"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(webexercises)
+```
+
+
+```{r, echo = FALSE, results='asis'}
+# Uncomment to change widget colours:
+#style_widgets(incorrect = "goldenrod", correct = "purple")
+```
+
+## Introduction
+
+Autoregressive processes are a basic building block of much of time-series econometrics. In this walkthrough we shall learn how to simulate such processes. This will also help with a good basic understanding of the properties of such processes. 
+
+As you will see, there is a very useful function that will help in simulating these processes, but we shall also use this to learn how to simulate processes yourself. This will be important for non-standard processes. 
+
+## A general autoregressive process
+
+A general autoregressive process is the the following
+
+\begin{equation}
+v_t = \alpha + \beta t + \gamma_1 v_{t-1} + \gamma_2 v_{t-2} + ... + \gamma_p v_{t-p} + w_t
+\end{equation}
+
+where $w_t$ is a white noise process satisfying $E[w_t] = 0$, $Var[w_t] = \sigma^2$ and $Cov[w_t,w_{t-k}] = 0$ for all $k > 0$. 
+
+The above delivers a few well know specific processes
+
+Process Name for $v_t$ | Parameter restrictions
+------------- | -------------
+White noise | $\alpha = \beta = \gamma_i = 0$ for all $i$
+Deterministic Trend model | $\gamma_i = 0$ for all $i$
+Random walk | $\gamma_1 = 1$, $\alpha = \beta = \gamma_i = 0$ for all $i>1$
+Random walk with drift | $\gamma_1 = 1$, $\beta = \gamma_i = 0$ for all $i>1$
+AR(1) model | $\beta = \gamma_i = 0$ for all $i>1$
+AR(p) model | $\beta = 0$
+AR(p) model with deterministic trend | $\beta \ne 0$
+
+
+## Simulating a general AR process
+
+We will now learn how to simulate such processes
+
+### An AR(1) process
+
+An AR(1) process 
+
+\begin{equation}
+v_t = \alpha + \gamma_1 v_{t-1} + w_t
+\end{equation}
+
+requires a number of pieces of information before we can simulate it. We need parameter values ($\alpha$ and $\gamma_1$). For now we shall set these to $\alpha=0$ and $\gamma_1=0.8$. We also need random terms $w_t$. In order to draw the latter we will need to know what distribution we should draw these from. For now we shall assume $w_t \sim N(0,1)$ although one could chosse different distributions as well. You also need to know how many $t$s you want to simulate, as $t$ goes from $t=1,...,T$. 
+
+In order to simulate the first observation $v_1$ we need to know what $v_0$ is. We call this value the starting value $v_0$. This is often set to 0. However, as you will soon see this may not always be an appropriate value.
+
+```{r}
+# Simulation parameters
+T = 1000
+alpha = 0
+gamma = 0.8
+v0 = 0
+
+# Draw random terms, we draw T+1 to make life easier below
+w = rnorm(T+1, 0, 1)   # draws T+1 values from the standard normal distribution
+
+# store the simulated series here, T+1 elements as the first is v0
+v = matrix(v0,T+1,1)
+```
+
+The last line created a container in which we save the simulated series. For now all values take the same value as $v0$ but soon we will replace values in cells 2 to $T+1$ with randomly simulated values following the above AR(1) process.
+
+```{r}
+for (t in seq(2,T+1)){
+  v[t] = alpha + gamma * v[t-1] + w[t]
+}
+```
+
+You can see that inside the loop we basically implemented the AR(1) process.
+
+Why does the loop start with `t=2`? `r mcq(c("This is a mistake and we should change it to 1", answer = "Because we need to use the previous value and the first available value is v[1]"))`
+
+Now we can plot this series.
+
+```{r}
+plot(v, type = "l")  # type = "l" produces a line graph
+```
+
+This is your first simulated autoregressive series. 
+
+Experiment with the values the parameters take. 
+
+As $\gamma_1$ gets closer and closer to 0 (from the initial $\gamma_ = 0.8$), the process looks `r mcq(c("more persistent", answer = "less persistent"))`.
+
+As $\gamma_1$ gets closer and closer to 1 (from the initial $\gamma_ = 0.8$), the process looks `r mcq(c(answer = "more persistent", "less persistent"))`.
+
+Comparing two simulated paths, one with $\gamma_1 = 0.97$ and another with $\gamma_1 = 1$, the following is true: `r mcq(c(answer = "The simulated series for gamma1 = 0.97 frequently returns to the value 0, while the series for gamma1 = 1 does not frequently return to 0", "Both series frequently return to 0."))`
+
+`r hide("Why is this the case")`
+When $|\gamma_1|<1.0$ the process is stationary and always returns back to its unconditional mean, here 0. When $\gamma_1 = 1.0$ we have a random walk process which has no tendency to return to its unconditional mean.
+`r unhide()`
+
+With $\gamma_1 = 1.1$ the process looks `r mcq(c(answer = "very similar to a process with gamma1=1.0", answer = "explosive (towards positive or negative infinity)"))`.
+
+
+### An AR(2) process
+
+How would you have to change the code to simulate this AR(2) process:
+
+$v_t = 10 + 0.5 v_{t-1} + 0.4 v_{t-2} + w_t$?
+
+
+`r hide("Solution")`
+
+This requires a change in some parameters but also the addition of a second lag inside the loop.
+
+```{r}
+# Simulation parameters
+T = 1000
+alpha = 10
+gamma1 = 0.5
+gamma2 = 0.4
+v0 = 0
+
+# Draw random terms, we draw T+2 to make life easier below
+w = rnorm(T+2, 0, 1)
+
+# store the simulated series here, T+2 elements as the first two are v0
+v = matrix(v0,T+2,1)
+
+for (t in seq(3,T+2)){
+  v[t] = alpha + gamma1 * v[t-1] + gamma2 * v[t-2] + w[t]
+}
+```
+
+`r unhide()`
+
+Your series should look something like this.
+
+```{r}
+plot(v, type = "l")
+```
+
+The choice of starting value $v_0=0$ is still appropriate. `r torf(FALSE)`
+
+`r hide("Why is this the case?")`
+
+You can see that the process starts with 0 but then moves up to fluctuate around the value of 100. The reason for that is that for a stationary AR(2) process the unconditional mean value of the process will be $E[v_t]=\frac{\alpha}{1-\gamma_1-\gamma_2}$, which with our parameter values is 100. A better starting value would be $v0 = alpha/(1-gamma1-gamma2)$. 
+
+Previously we used a value of $\alpha = 0$ which meant that the the unconditional mean was also equal to 0.
+
+Also note that the loop now started with `t=3` as we needed two starting values.
+
+`r unhide()`
+
+## Using `arima.sim`
+
+The `arima.sim` function (part of the `stats` package) makes simulating such models very straightforward without you having to write any loops.
+
+```{r}
+v.AR1 <- arima.sim(n = 1000, list(ar = c(0.8),ma = c()), sd = sqrt(1))
+plot(v.AR1, type = "l")
+```
+
+Note that `list(ar = c(0.8), ma = c())` set's and AR(1) model parameter of $gamma_1=0.8$. There is provision for also allowing for moving average processes, but we leave that empty (`ma = c()`) as we are not using MA components here.
+
+The AR(2) process we simulated earlier is now simulated as follows:
+
+```{r}
+v.AR2 <- arima.sim(n = 1000, mean = 10, list(ar = c(0.5,0.4),ma = c()), sd = sqrt(1))
+plot(v.AR2, type = "l")
+```
+
+Here the input `mean = 10` sets $\alpha = 10$ and `ar = c(0.5,0.4)` sets $\gamma_1 = 0.5$ and $\gamma_2 = 0.4$.
+
+## Extension 1
+
+* How would you have to change the code (in which you write the loop) to simulate an AR model with deterministic trend?
+* How would you have to change the code (in which you write the loop) to simulate an ARMA model?
+
+
