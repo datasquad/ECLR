@@ -1,5 +1,5 @@
 ---
-title: "Web Exercises"
+title: "Simulating Ar Processes"
 output: webexercises::webexercises_default
 ---
 
@@ -13,6 +13,8 @@ library(webexercises)
 # Uncomment to change widget colours:
 #style_widgets(incorrect = "goldenrod", correct = "purple")
 ```
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
 
 ## Introduction
 
@@ -150,7 +152,7 @@ The choice of starting value $v_0=0$ is still appropriate. `r torf(FALSE)`
 
 `r hide("Why is this the case?")`
 
-You can see that the process starts with 0 but then moves up to fluctuate around the value of 100. The reason for that is that for a stationary AR(2) process the unconditional mean value of the process will be $E[v_t]=\frac{\alpha}{1-\gamma_1-\gamma_2}$, which with our parameter values is 100. A better starting value would be $v0 = alpha/(1-gamma1-gamma2)$. 
+You can see that the process starts with 0 but then moves up to fluctuate around the value of 100. The reason for that is that for a stationary AR(2) process the unconditional mean value of the process will be $E[v_t]=\frac{\alpha}{1-\gamma_1-\gamma_2}$, which, with our parameter values, is 100. A better starting value would be `v0 = alpha/(1-gamma1-gamma2)`. Alternatively you could still start with `v0 = 0` but simulate, say, 1200 observations and then discard the first 200 observations.
 
 Previously we used a value of $\alpha = 0$ which meant that the the unconditional mean was also equal to 0.
 
@@ -167,7 +169,7 @@ v.AR1 <- arima.sim(n = 1000, list(ar = c(0.8),ma = c()), sd = sqrt(1))
 plot(v.AR1, type = "l")
 ```
 
-Note that `list(ar = c(0.8), ma = c())` set's and AR(1) model parameter of $gamma_1=0.8$. There is provision for also allowing for moving average processes, but we leave that empty (`ma = c()`) as we are not using MA components here.
+Note that `list(ar = c(0.8), ma = c())` sets and AR(1) model parameter of $\gamma_1=0.8$. There is provision for also allowing for moving average processes, but we leave that empty (`ma = c()`) as we are not using MA components here.
 
 The AR(2) process we simulated earlier is now simulated as follows:
 
@@ -178,9 +180,13 @@ plot(v.AR2, type = "l")
 
 Here the input `mean = 10` sets $\alpha = 10$ and `ar = c(0.5,0.4)` sets $\gamma_1 = 0.5$ and $\gamma_2 = 0.4$.
 
-## Extension 1
+Also note that the function does automatically take care of the starting value problem we encountered when we simulated the series "by hand".
 
+## Extension
+
+* Consult the help function (`?arima.sim`) to see what type of processes can be simulated. 
 * How would you have to change the code (in which you write the loop) to simulate an AR model with deterministic trend?
 * How would you have to change the code (in which you write the loop) to simulate an ARMA model?
 
 
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.

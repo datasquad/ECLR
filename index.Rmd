@@ -61,6 +61,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Topic | Workthrough | Data used |
 |:------|:-----|:-----|
 | Simulating AR Models | [Workthrough in R](https://datasquad.github.io/ECLR/R_Simulate_AR_processes/R_Simulate_AR_processes.html) | in code simulated
+| Unit Root Testing | [Workthrough in R](https://datasquad.github.io/ECLR/R_UnitRootTesting/R_UnitRootTesting.html) | in code download
 | Basic TS modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/EUROSTATtimeseries.csv) 
 | GARCH modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_GarchModelling.html) | in code data download 
 

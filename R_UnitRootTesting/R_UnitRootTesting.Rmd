@@ -1,0 +1,313 @@
+---
+title: "Unit Root Testing"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(webexercises)
+```
+
+
+```{r, echo = FALSE, results='asis'}
+# Uncomment to change widget colours:
+#style_widgets(incorrect = "goldenrod", correct = "purple")
+```
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+## Introduction
+
+In time-series modelling it is crucial to understand the properties of the time-series used. It is now well understood that (standard) statistical inference in regression models relies on the series used in regression models being stationary. 
+
+In this walkthrough we will demonstrate how to use appropriate statistical tests (here the Augmented Dickey-Fuller, ADF, tests), to establish whether a series, or some differences version of a series, is stationary.
+
+## Data and Library upload
+
+In order to work on this problem we upload a range of libraries.
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(stargazer)
+library(fbi)      # for easy access to the FRED-MD database
+library(tseries)  # for ADF test
+library(urca)     # Another package for unit root testing
+library(zoo)      # to transform data into ts format
+library(quantmod) # to download data from FRED
+```
+
+The data we shall use come from the FRED-MD database. This is a prepared database of macro variables for the U.S. (see McCracken and Ng, 2016). If you wish to learn more about this very useful dataset refer to this [walkthrough](https://datasquad.github.io/ECLR/Ex/FRED_MD.html) which discusses the finer detail of this dataset.
+
+```{r}
+filepath <- "https://files.stlouisfed.org/files/htdocs/fred-md/monthly/2024-10.csv"
+# for the most up to date dataset use
+# filepath <- "https://files.stlouisfed.org/files/htdocs/fred-md/monthly/current.csv"
+
+data.md <- fredmd(filepath, date_start = NULL, date_end = NULL, transform = FALSE)
+```
+
+The dataset contains 126 macro variables and the variable `date` in which the dates are stored. When applying time-series techniques, such as the ADF test below, to series, it is often advantageous for R to know that the data are time-series data. From `data.md` R does not know that. Yes, there is a variable called `date` and that variable does have a `Date` format (check `str(data.md)` to confirm), but all other series are merely numerical variables.
+
+There are many different ways in which we can format all of the series as a time-series. The simplest uses the `zoo` package. That is a package designed to deal with time-series data.
+
+```{r}
+data.md.ts <- read.zoo(data.md) # create a new object with ts objects
+head(data.md.ts,2)
+```
+
+In addition to the series in the FRED-MD dataset we also wish to look at GDP. We use the series with id `GDPC1` from [FRED](https://fred.stlouisfed.org/series/GDPC1), which is an inflation adjusted and seasonally adjusted real GDP measnured in Billions of 2017 Dollars. 
+
+```{r}
+# Download U.S. Real GDP data from FRED
+# after running just this line you will not see GDPC1 in your environment,
+# but it is there, you can use it in the next line
+getSymbols("GDPC1", src = "FRED")
+
+# View the first few rows of the GDP data
+GDPC1 <- GDPC1["1975/2024-07"]
+# calculate log GDP
+logGDPC1 <- log(GDPC1)
+```
+
+Let's plot the series.
+
+```{r}
+plot(GDPC1)
+```
+Or as the logged series:
+
+```{r}
+plot(logGDPC1)
+```
+
+## ADF test
+
+Recall that, if you wish to apply an ADF test to a series $y$, you will be estimating the following regression:
+
+\begin{equation}
+\delta y_t = \mu + \beta t + \gamma y_{t-1} + \sum_{j=1}^p \theta_j \delta y_{t-j} + w_t
+\end{equation}
+
+It is the coefficient $\gamma$ that will reveal if series $y$ is stationary ($\gamma < 0$) or not ($\gamma \geq 0$). We use the t-test statistic
+
+
+\begin{equation}
+t_{\gamma} = \frac{\hat{\gamma}}{se_{\gamma}}
+\end{equation}
+
+to test $H_0: \gamma = 0$ against $H_A: \gamma <0$. If we can reject the null hypothesis we conclude that the series is stationary. However, we need to recognise that the distribution of this test statistic does not follow a t-distribution or asymptotic normal distribution. They follow what is often called a Dickey-Fuller distribution. This distribution also depends on whether a constant and a time trend are included.
+
+We start by applying the ADF test procedure from the `tseries` package.
+
+```{r}
+y <- logGDPC1
+# Perform ADF test with default settings
+adf_test_tseries <- adf.test(y, alternative = "stationary")
+
+# Display the results
+print(adf_test_tseries)
+```
+
+The lag length used in the `adf.test` function is purely dependent on the sample size, `lag order = trunc((n-1)^(1/3))` where `n` is the sample length, here `r length(logGDPC1)`.
+
+The ADF test implemented in the `adf.test` function includes (check the help `?adf.test`)
+
+`r mcq(c("no constant, no trend", "a constant, no trend", "no constant, a trend", answer = "a constant, a trend"))`
+
+This function does not give you control over which deterministic terms you want to include. 
+
+If you wish to be specific over the choice of deterministic terms, then the unit root tests from the `urca` package are a better choice. Replicating the same test as above (i.e. including a constant and a time trend) this is used as follows.
+
+```{r}
+y <- logGDPC1
+adf.urca.lG.trend <- ur.df(y, type = "trend",  lags = 5)
+summary(adf.urca.lG.trend)
+```
+
+The test statistic is identical -1.7308. You can find the 10%, 5% and 1% critical values in the `tau3` row of the table for critical values. The null hypothesis is that the series does have a unit root. This null hypothesis is rejected in favour of the alternative hypothesis of stationarity if the test statistic is smaller than the critical value. Here the test statistic is not smaller even than the 10% critical value and therefore we cannot reject the null hypothesis of a unit root. 
+
+After seeing a plot of the time-series that is not a surprise.
+
+When thinking of GDP, stationarity around a constant time trend is not very plausible and hence we may want to repeat the analysis wth a ADF test that does not include a time trend.
+
+```{r}
+y <- logGDPC1
+adf.urca.lG.drift <- ur.df(y, type = "drift",  lags = 5)
+summary(adf.urca.lG.drift)
+```
+
+Note that the test statistic, but also the critical values have changed. The critical values do depend on the deterministic terms that are being included. Yet the conclusion remains the same.
+
+We still set the lag length to five, but the `ur.df` function has the option to let an information criterion decide how many lag lengths should be included. Recall that we include lag terms to ensure that the ADF regresison error terms are uncorrelated.
+
+```{r}
+y <- logGDPC1
+adf.urca.lG.drift <- ur.df(y, type = "drift",  selectlags = "BIC")
+summary(adf.urca.lG.drift)
+```
+As we conclude that the series is certainly not ststionary (I(0)) we now check whether it is I(1) or I(2). This is done by applying the same test statistic to the difference of the series, `diff(logGDPC1)`. Judging by the plot for this series, there seems to be no drift and hence we will not include any deterministic term into the ADF regresison.
+
+```{r}
+dy <- diff(logGDPC1)[2:length(logGDPC1)] # remove first obs which is NA
+plot(dy)
+adf.urca.dlG.drift <- ur.df(dy, type = "none",  selectlags = "BIC")
+summary(adf.urca.dlG.drift)
+```
+
+The test statistic is now -6.545. We reject the null hypothesis that `diff(logGDPC1)` has a unit root (c.v. at 1% is -2.58). It is therefore stationary, I(0), which in turn implies that `logGDPC1` is I(1).
+
+## Revisiting FRED-MD stationarity properties
+
+Let us now return to the data series which are included in the FRED-MD dataset, which we already loaded into the `data.md` dataframe. We use the `describe_md` function (part of the `fbi` package) to obtain information on the variables.
+
+```{r}
+var.info <-describe_md(names(data.md),name.only = FALSE)
+```
+
+### Industrial Production
+
+Let's look at the variable describing industrial production.
+
+```{r}
+var.info[var.info$fred == "INDPRO",]
+```
+
+In the `ttype` variable you see that this series' transformation type is `First difference of natural log: ln(x)-ln(x-1)`. What this says is that to obtain a stationary series for this variable, the first difference of the series' log is calculated. This is exactly the same we found for the GDP variable avove. We should therefore also expect to find `diff(log(INDPRO))` to be I(0) and `log(INDPRO)` to be I(1).
+
+```{r}
+y = log(data.md.ts$INDPRO)
+dy = diff(log(data.md.ts$INDPRO))
+dy = dy[!is.na(dy)]  # remove missing observations
+plot(y)
+plot(dy)
+```
+
+Let's calculate the ADF tests.
+
+```{r}
+adf.dip <- ur.df(dy, type = "none",  selectlags = "BIC")
+summary(adf.dip)
+```
+
+So, `diff(log(INDPRO))` is I(0).
+
+```{r}
+adf.ip <- ur.df(y, type = "trend",  selectlags = "BIC")
+summary(adf.ip)
+```
+
+The ADF test statistic here is -2.634. So in fact, the null hypothesis of a unit root in `log(INDPRO)` can be rejected at the 10% significance level, but not at the 5% one. Concluding that the evidence to reject the null hypothesis of a unit root in `log(INDPRO)` is not strong enough, we conclude that the series is I(1).
+
+If you include a time trend into the ADF regression, do you find `log(INDPRO)` to have a unit root? 
+
+`r mcq(c("No, the H0 of a unit root is clearly rejected.", answer = "Yes, the test stat is not smaller than any of the stansard critical values.", "Unclear, H0 can be rejected at 10% but not at 5% significance."))`
+
+It is important to note that the conclusions from the ADF testing strategy is not always crystal clear.
+
+### Corporate bond rates
+
+Let's have a look at the different transformation types associated to the time-series in FRED-MD.
+
+```{r}
+unique(var.info$ttype)
+```
+
+Let's find a series which has transformaton `Level (i.e. no transformation)`.
+
+```{r}
+var.info$fred[var.info$ttype == "Level (i.e. no transformation): x(t)"]
+```
+
+Let's pick the `AAAFFM` series.
+
+```{r}
+var.info[var.info$fred == "AAAFFM",]
+y <- data.md.ts$AAAFFM
+```
+
+It is the difference between the Corporate bond rate for AAA rated companies and the federal funds rate.
+
+```{r}
+plot(y)
+```
+
+Given the transformation (or in this case absence of transformation) we should find this series to be stationary, I(0).
+
+```{r}
+adf.aaa <- ur.df(y, type = "drift",  selectlags = "BIC")
+summary(adf.aaa)
+```
+
+Indeed, the test statistic is -4.72, which is statistically significant even at the 1% level. Hence we reject the H0 of non-stationarity in favour of the alternative of stationarity.
+
+This explains why no transformation is required to achieve stationarity.
+
+### Oil prices
+
+Next we chose a series which requires differencing twice to achieve stationarity.
+
+```{r}
+var.info$fred[var.info$ttype == "Second difference of natural log: (ln(x)-ln(x-1))-(ln(x-1)-ln(x-2))"]
+```
+
+You can see that there are many. Let's select `OILPRICEx`, which measures the oil price.
+
+```{r}
+var.info[var.info$fred == "OILPRICEx",]
+y <- log(data.md.ts$OILPRICEx)
+dy <- diff(y)
+d2y <- diff(dy)
+dy <- dy[!is.na(dy)]  # remove NAs
+d2y <- d2y[!is.na(d2y)]
+```
+
+Let's plot the three series.
+
+```{r}
+plot(y)
+plot(dy)
+plot(d2y)
+```
+
+The first thing you notice when looking at these plots is that until 1980 oil prices moved in distinct discrete steps, mainly determined by OPEC. From 1980 onwards there are more continuous price changes. 
+
+```{r}
+y <- window(y, start = as.Date("1981-01-01"), end = as.Date("2024-09-01"))  # cut sample
+dy <- diff(y)
+d2y <- diff(dy)
+dy <- dy[!is.na(dy)]  # remove NAs
+d2y <- d2y[!is.na(d2y)]
+```
+
+Let's only look at the post 1980 oil prices
+
+Just looking at the plots we would certainly entertain the possibility that `log(OILPRICEx)` could be I(1). Let's run the ADF tests.
+
+```{r}
+adf.oil <- ur.df(y, type = "drift",  selectlags = "BIC")
+summary(adf.oil)
+```
+
+```{r}
+adf.doil <- ur.df(dy, type = "drift",  selectlags = "BIC")
+summary(adf.doil)
+```
+
+```{r}
+adf.d2oil <- ur.df(d2y, type = "drift",  selectlags = "BIC")
+summary(adf.d2oil)
+```
+Judging from these results one would judge that `diff(log(OILPRICEx))`
+is actually stationary and hence that differencing once would be sufficient to create a stationary series. Proces are often seen as I(2) series. This implies that inflation is then a non-stationary I(1) series. While the McCracken and Ng (2016) paper does not discuss their choice of transformation for achieving stationarity in detail. You can see from their Appendix Table "Group 7 - Prices" that almost all proce series are being treated as I(2) series. 
+
+## Extension
+
+Explore the stationarity properties of more series in the FRED-MD database and compare those against the transformation chosen in FRED-MD.
+
+
+##  Reading
+
+[McCracken, M. and Ng, S. (2016) FRED-MD: A Monthly Database for Macroeconomic Research, Journal of Business & Economic Statistics, 34, 574-589.](https://www.tandfonline.com/doi/full/10.1080/07350015.2015.1086655)
+
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+

@@ -14,6 +14,8 @@ library(webexercises)
 #style_widgets(incorrect = "goldenrod", correct = "purple")
 ```
 
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
 # Introduction and Learning Outcomes
 
 In this workthrough you will explore methods which are useful to support your variable selection. 
@@ -436,3 +438,4 @@ Kaggle_credit_test <- read.csv("../data/Kaggle_credit_test.csv")
 
 Now apply a similar analysis to find the optimal model. Here we have 4 observations for each of the 12,500 customers. Each customer, identified by their unique `Customer_ID` has four months of observations. Select the data relating to `Month == "September"` and perform a similar analysis to the above to explain variation in the credit card balance variable, `Outstanding_Dept`.
 
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
