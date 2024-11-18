@@ -1,5 +1,5 @@
 ---
-title: "Introduction to Data Handling and Statistics"
+title: "FRED-MD - Introduction to Data Handling and Statistics"
 output:
   html_document:
     toc: true

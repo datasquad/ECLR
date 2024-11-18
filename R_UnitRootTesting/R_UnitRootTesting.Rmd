@@ -82,10 +82,10 @@ plot(logGDPC1)
 
 ## ADF test
 
-Recall that, if you wish to apply an ADF test to a series $y$, you will be estimating the following regression:
+In this workthrough we will not cover all details you may learn in yoru econometrics class about ADF tests. If that is what you are after you should refer to your Time-Series Econometrics textbook of your choice. However, recall that, if you wish to apply an ADF test to a series $y$, you will be estimating the following regression:
 
 \begin{equation}
-\delta y_t = \mu + \beta t + \gamma y_{t-1} + \sum_{j=1}^p \theta_j \delta y_{t-j} + w_t
+\Delta y_t = \mu + \beta t + \gamma y_{t-1} + \sum_{j=1}^p \theta_j \Delta y_{t-j} + w_t
 \end{equation}
 
 It is the coefficient $\gamma$ that will reveal if series $y$ is stationary ($\gamma < 0$) or not ($\gamma \geq 0$). We use the t-test statistic
@@ -200,7 +200,7 @@ The ADF test statistic here is -2.634. So in fact, the null hypothesis of a unit
 
 If you include a time trend into the ADF regression, do you find `log(INDPRO)` to have a unit root? 
 
-`r mcq(c("No, the H0 of a unit root is clearly rejected.", answer = "Yes, the test stat is not smaller than any of the stansard critical values.", "Unclear, H0 can be rejected at 10% but not at 5% significance."))`
+`r mcq(c("No, the H0 of a unit root is clearly rejected.", answer = "Yes, the test stat is not smaller than any of the standard critical values.", "Unclear, H0 can be rejected at 10% but not at 5% significance."))`
 
 It is important to note that the conclusions from the ADF testing strategy is not always crystal clear.
 
@@ -212,7 +212,7 @@ Let's have a look at the different transformation types associated to the time-s
 unique(var.info$ttype)
 ```
 
-Let's find a series which has transformaton `Level (i.e. no transformation)`.
+Let's find a series which has no transformation `Level (i.e. no transformation)` applied, hence is deemed stationary as is. Note that the variable name is saved in `varinfo$fred`.
 
 ```{r}
 var.info$fred[var.info$ttype == "Level (i.e. no transformation): x(t)"]
@@ -244,7 +244,7 @@ This explains why no transformation is required to achieve stationarity.
 
 ### Oil prices
 
-Next we chose a series which requires differencing twice to achieve stationarity.
+Next we chose a series which, according to the FRED-MD guidance, requires differencing twice to achieve stationarity.
 
 ```{r}
 var.info$fred[var.info$ttype == "Second difference of natural log: (ln(x)-ln(x-1))-(ln(x-1)-ln(x-2))"]
@@ -269,7 +269,7 @@ plot(dy)
 plot(d2y)
 ```
 
-The first thing you notice when looking at these plots is that until 1980 oil prices moved in distinct discrete steps, mainly determined by OPEC. From 1980 onwards there are more continuous price changes. 
+The first thing you notice when looking at these plots is that until 1980 oil prices moved in distinct discrete steps, mainly determined by OPEC. From 1980 onwards there are more continuous price changes. So, let's restrict the series to start in 1981.
 
 ```{r}
 y <- window(y, start = as.Date("1981-01-01"), end = as.Date("2024-09-01"))  # cut sample
@@ -298,7 +298,7 @@ adf.d2oil <- ur.df(d2y, type = "drift",  selectlags = "BIC")
 summary(adf.d2oil)
 ```
 Judging from these results one would judge that `diff(log(OILPRICEx))`
-is actually stationary and hence that differencing once would be sufficient to create a stationary series. Proces are often seen as I(2) series. This implies that inflation is then a non-stationary I(1) series. While the McCracken and Ng (2016) paper does not discuss their choice of transformation for achieving stationarity in detail. You can see from their Appendix Table "Group 7 - Prices" that almost all proce series are being treated as I(2) series. 
+is actually stationary and hence that differencing once would be sufficient to create a stationary series. Prices are often seen as I(2) series. This implies that inflation is then a non-stationary I(1) series. While the McCracken and Ng (2016) paper does not discuss their choice of transformation for achieving stationarity in detail, you can see from their Appendix Table "Group 7 - Prices" that almost all proce series are being treated as I(2) series. 
 
 ## Extension
 
