@@ -1,5 +1,5 @@
 ---
-title: "Simulating Ar Processes"
+title: "Simulating Autoregressive (AR) Processes"
 output: webexercises::webexercises_default
 ---
 
@@ -24,7 +24,7 @@ As you will see, there is a very useful function that will help in simulating th
 
 ## A general autoregressive process
 
-A general autoregressive process is the the following
+A general autoregressive process is represented by the following model
 
 \begin{equation}
 v_t = \alpha + \beta t + \gamma_1 v_{t-1} + \gamma_2 v_{t-2} + ... + \gamma_p v_{t-p} + w_t

@@ -63,11 +63,18 @@ In addition to the series in the FRED-MD dataset we also wish to look at GDP. We
 # but it is there, you can use it in the next line
 getSymbols("GDPC1", src = "FRED")
 
-# View the first few rows of the GDP data
-GDPC1 <- GDPC1["1975/2024-07"]
+# Let's restrict the series to be pre-Covid
+GDPC1 <- GDPC1["1975/2019"]
 # calculate log GDP
 logGDPC1 <- log(GDPC1)
 ```
+
+
+`r hide("How should I know how to restrict the sample?")`
+The GDPC1 object comes as a `xts` time series object. There are different types of time series formats and you will typically have to check up how to restrict sample sizes depending on the format.
+
+One quick way to find out is to search for "R xts cheatsheet". You are likely to find [this cheatsheet](https://www.datacamp.com/cheat-sheet/xts-cheat-sheet-time-series-in-r) and on there you can find out how to restrict the sample for subperiods from the "Selecting, Subsetting & Indexing" section.
+`r unhide()`
 
 Let's plot the series.
 
@@ -128,7 +135,7 @@ The test statistic is identical -1.7308. You can find the 10%, 5% and 1% critica
 
 After seeing a plot of the time-series that is not a surprise.
 
-When thinking of GDP, stationarity around a constant time trend is not very plausible and hence we may want to repeat the analysis wth a ADF test that does not include a time trend.
+When thinking of GDP, stationarity around a constant time trend is not very plausible and hence we may want to repeat the analysis with a ADF test that does not include a time trend.
 
 ```{r}
 y <- logGDPC1
@@ -138,7 +145,7 @@ summary(adf.urca.lG.drift)
 
 Note that the test statistic, but also the critical values have changed. The critical values do depend on the deterministic terms that are being included. Yet the conclusion remains the same.
 
-We still set the lag length to five, but the `ur.df` function has the option to let an information criterion decide how many lag lengths should be included. Recall that we include lag terms to ensure that the ADF regresison error terms are uncorrelated.
+We still set the lag length to five, but the `ur.df` function has the option to let an information criterion decide how many lag lengths should be included. Recall that we include lag terms to ensure that the ADF regression error terms are uncorrelated.
 
 ```{r}
 y <- logGDPC1
@@ -181,6 +188,8 @@ dy = dy[!is.na(dy)]  # remove missing observations
 plot(y)
 plot(dy)
 ```
+
+For now we are using the full available sample, but you could again think about restricting the sample. For instance you may want to consider whether your conclusions change if you exclude the Covid period.
 
 Let's calculate the ADF tests.
 
