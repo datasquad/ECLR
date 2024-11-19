@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2024-11-19" />
+
+<title>R_MonteCarloSimulations</title>
+
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">HOME</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="examples.html">Examples</a>
+</li>
+<li>
+  <a href="Datasets.html">Datasets</a>
+</li>
+<li>
+  <a href="resources.html">Resources</a>
+</li>
+<li>
+  <a href="Author.html">Author</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">R_MonteCarloSimulations</h1>
+<h4 class="date">2024-11-19</h4>
+
+</div>
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>In this walkthrough we will learn why you may be interested in
+running Monte Carlo simulations and how to implement them.</p>
+<p>The issue we are tackling here is that we wish to understand how a
+certain statistic behaves. Let’s set a context here. Say you are running
+an Augmented Dickey Fuller test to check whether a certain series <span
+class="math inline">\(y_t\)</span> is stationary or has a unit-root
+(More on <a
+href="https://datasquad.github.io/ECLR/R_UnitRootTesting/R_UnitRootTesting.html">unit
+root testing</a>).</p>
+<p>So, being a good econometrics student you know that you should be
+running the following regression model (here we ignore a trend and
+augmentation terms)</p>
+<p><span class="math display">\[\begin{equation}
+\Delta y_t = \mu + \gamma y_{t-1} + w_t
+\end{equation}\]</span></p>
+<p>It is the coefficient <span class="math inline">\(\gamma\)</span>
+that will reveal if series <span class="math inline">\(y\)</span> is
+stationary (<span class="math inline">\(\gamma &lt; 0\)</span>) or not
+(<span class="math inline">\(\gamma \geq 0\)</span>). We use the t-test
+statistic to test this.</p>
+<p><span class="math display">\[\begin{equation}
+t_{\gamma} = \frac{\hat{\gamma}}{se_{\gamma}}
+\end{equation}\]</span></p>
+<p>to test <span class="math inline">\(H_0: \gamma = 0\)</span> against
+<span class="math inline">\(H_A: \gamma &lt;0\)</span>.</p>
+<p>Recall that to test any hypothesis we need to know what the
+distribution of the test statistic is if <span
+class="math inline">\(H_0\)</span> is valid.</p>
+<p>Famously, <span class="math inline">\(t_{\gamma}\)</span> does not
+have a standard distribution (like a t-distribution one would normally
+assume such tests for regression coefficients to have).</p>
+<p>In this walkthrough we shall illustrate how you can simulate the
+actual distribution of this test statistics.</p>
+</div>
+<div id="monte-carlo-simulation---the-idea" class="section level2">
+<h2>Monte-Carlo simulation - The Idea</h2>
+<p>When yo apply the ADF test you will estimate the above regression
+using a particular series, say a time-series of interest rates. You then
+get one estimated test statistic. Just from one such series you cannot
+get an actual distribution of that test statistic. In order to complete
+your inference, i.e. decide whether on the basis of this one test
+statistics you should reject the <span
+class="math inline">\(H_0\)</span>.</p>
+<p>As an applied researcher you rely on someone either having done some
+theoretical work to figure out what the distribution of the test
+statistic (assuming <span class="math inline">\(H_0\)</span> is true)
+is. If you cannot derive the theoretical distribution you may want to
+simulate a distribution (this will not always work, see the note
+below).</p>
+<p>To do that you need to be clear what the null hypothesis is. Here it
+is</p>
+<p><span class="math display">\[\begin{equation}
+\Delta y_t = \mu + 0 y_{t-1} + w_t
+\end{equation}\]</span></p>
+<p>or alternatively that</p>
+<p><span class="math display">\[\begin{equation}
+y_t = \mu + 1 \cdot y_{t-1} + w_t
+\end{equation}\]</span></p>
+<p>This is what is called a random walk with drift (the drift being
+<span class="math inline">\(\mu\)</span>). The steps of a Monte-Carlo
+simulation are as follows:</p>
+<ol style="list-style-type: decimal">
+<li>Define the data generating process, say <span
+class="math inline">\(y_t = 0 + 1 \cdot y_{t-1} + w_t\)</span>, where we
+set <span class="math inline">\(\mu = 0\)</span> and the random process
+<span class="math inline">\(w_t\)</span> follows a standard normal
+distribution <span class="math inline">\(w_t \sim N(0,1)\)</span>.</li>
+<li>Simulate the process defined in 1) many times (<span
+class="math inline">\(N\)</span> times)</li>
+<li>For each of the <span class="math inline">\(N\)</span> simulated
+data sets you apply the ADF test and save the test statistic.</li>
+<li>Describe the distribution of simulated test statistics from step
+3).</li>
+</ol>
+<p>In step 4) you then obtain the distribution of the test statistic if
+the <span class="math inline">\(H_0\)</span> is true.</p>
+<blockquote>
+<p>CAUTION: This general approach only works if the choice of parameters
+in step 1 (here <span class="math inline">\(\mu = 0\)</span> and <span
+class="math inline">\(Var(w_t)=1\)</span>) does not change the
+distribution. If that is the case, the test statistic is called a
+pivotal statistic. It turns out that <span
+class="math inline">\(t_{\gamma}\)</span> is pivotal, i.e. its
+distribution does not depend on the actual values of <span
+class="math inline">\(\mu0\)</span> and <span
+class="math inline">\(Var(w_t)\)</span>. Demonstrating that a particular
+test statistic is pivotal is not straightforward and goes beyond what we
+wish to achieve in this walkthrough.</p>
+</blockquote>
+</div>
+<div id="random-processes-and-random-variables" class="section level2">
+<h2>Random Processes and Random Variables</h2>
+<p>In the above recipe for a Monte-Carlo study we need to simulate
+random processes <span class="math inline">\(y_t\)</span>. This requires
+the generation of random variables <span class="math inline">\(w_t \sim
+N(0,1)\)</span>. In R you can draw random variables from <a
+href="https://www.geeksforgeeks.org/how-to-generate-random-numbers-in-r/">many
+different distributions</a>. To generate random variables from a
+standard normal distribution we use the <code>rnorm</code> function.</p>
+<p>It is important to understand that random numbers generated by
+computers are actually not real random numbers. Let’s demonstrate this.
+First we generate three random numbers from a standard normal
+distribution.</p>
+<pre class="r"><code>rnorm(3)</code></pre>
+<pre><code>## [1] 0.1005 2.3506 0.3519</code></pre>
+<p>Let’s generate another set of three.</p>
+<pre class="r"><code>rnorm(3)</code></pre>
+<pre><code>## [1]  0.4076  1.7377 -0.6720</code></pre>
+<p>So far all is good. Every time we get new random values. Let’s repeat
+the above exercise, but precede the random number generation with the
+<code>set.seed()</code> command</p>
+<pre class="r"><code>set.seed(1)
+rnorm(3)</code></pre>
+<pre><code>## [1] -0.6265  0.1836 -0.8356</code></pre>
+<pre class="r"><code>rnorm(3)</code></pre>
+<pre><code>## [1]  1.5953  0.3295 -0.8205</code></pre>
+<p>So far nothing seems changed. Now run the same three lines again</p>
+<pre class="r"><code>set.seed(1)
+rnorm(3)</code></pre>
+<pre><code>## [1] -0.6265  0.1836 -0.8356</code></pre>
+<pre class="r"><code>rnorm(3)</code></pre>
+<pre><code>## [1]  1.5953  0.3295 -0.8205</code></pre>
+<p>What do you observe? The simulated values are identical to the
+previous random values.</p>
+<p>So now the random values don’t look as random anymore. For all
+intends and purposes, random draws after calling the
+<code>set.seed(1)</code> command are random. But you can always go back
+to the same random draws by resetting the seed to the same number (here
+<code>1</code>, but it could be any number). You could think of this as
+a infinitely long list of random numbers. When you start R and do not
+<code>set.seed()</code> then R will start at some random place on that
+line. By using <code>set.seed()</code> you can return to any particular
+place on that line.</p>
+<p>When you do a simulation study we typically set a seed at the
+beginning so that the next time you run the simulation you can replicate
+your results.</p>
+</div>
+<div id="monte-carlo-simulation-classical-regression-setup"
+class="section level2">
+<h2>Monte Carlo Simulation, Classical Regression Setup</h2>
+<p>Let’s start with a simple example where we know how a test statistic
+should be distributed. Consider the linear regression model</p>
+<p><span class="math display">\[\mathbf{y} = \mathbf{X} \mathbf{\beta} +
+\mathbf{u}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{X}\)</span> is a <span
+class="math inline">\((T \times (k+1))\)</span> matrix of regressors
+(one constant and <span class="math inline">\(k\)</span> variables) and
+<span class="math inline">\(u\)</span> is a <span
+class="math inline">\((T \times 1)\)</span> vector of white noise error
+terms, here drawn from a standard normal distribution and <span
+class="math inline">\(T\)</span> is the sample size. For a <span
+class="math inline">\(k=1\)</span> this can also be written as</p>
+<p><span class="math display">\[\mathbf{y} = \beta_0 + \mathbf{x}\beta_1
++ \mathbf{u}\]</span></p>
+<p>or in observation wise form</p>
+<p><span class="math display">\[y_t=\beta_o + \beta_1
+x_t+u_t.\]</span></p>
+<p>If the regressor is exogenous then we know that the distribution of
+the t-test for <span class="math inline">\(\beta_1\)</span>, testing a
+correct null hypothesis <span
+class="math inline">\(t=(\hat{\beta_1}-\beta_1)/se_{\hat{\beta_1}}\)</span>
+is t-distributed with <span class="math inline">\(T-2\)</span> degrees
+of freedom. Let’s verify this with a Monte-Carlo simulation study.</p>
+<p>Let’s implement the four steps of a Monte-Carlo simulation listed
+above:</p>
+<ol style="list-style-type: decimal">
+<li>Define the data generating process</li>
+<li>Simulate the process defined in 1) many times (<span
+class="math inline">\(N\)</span> times)</li>
+<li>For each of the <span class="math inline">\(N\)</span> simulated
+data sets you apply the appropriate statistic.</li>
+<li>Describe the distribution of simulated test statistics from step
+3).</li>
+</ol>
+<div id="step-1---specify-the-data-generating-process-dgp"
+class="section level3">
+<h3>Step 1 - Specify the Data Generating Process (DGP):</h3>
+<p>Let’s set the DGP as follows</p>
+<p><span class="math display">\[\mathbf{y} = 0 + \mathbf{x} \cdot 0.5 +
+\mathbf{u}\]</span></p>
+<p>with sample size <span class="math inline">\(T = 10\)</span> let the
+<span class="math inline">\(N\)</span> values of <span
+class="math inline">\(\mathbf{x}\)</span> be drawn from a uniform
+distribution on <span class="math inline">\([0,1]\)</span> and draw the
+<span class="math inline">\(N\)</span> values of <span
+class="math inline">\(\mathbf{u}\)</span> from a standard normal
+distribution.</p>
+</div>
+<div id="step-2---simulate-the-process-n-times" class="section level3">
+<h3>Step 2 - Simulate the process N times</h3>
+<pre class="r"><code>N = 10000  # number of simulations
+T = 10    # Sample size
+beta0 = 0
+beta1 = 0.5
+set.seed(123)
+
+
+start.time1 &lt;- Sys.time() # not essential just to check running time
+
+# creates the x values from uniform random values
+x = matrix(runif(T*N,min=0,max = 1),T,N)
+# creates the error terms from standard normal
+u = matrix(rnorm(T*N),T,N)
+# creates the y values according to the DGP
+y = beta0 + x*beta1 + u
+
+end.time1 &lt;- Sys.time()
+time.taken1 &lt;- end.time1 - start.time1
+time.taken1</code></pre>
+<pre><code>## Time difference of 0.009683 secs</code></pre>
+<p>This generated <span class="math inline">\(N\)</span> series each of
+length <span class="math inline">\(T\)</span>. They are stored in the
+columns of <code>y</code> and the values for <span
+class="math inline">\(\mathbf{x}\)</span> are in the respective columns
+of <code>x</code>. At first sight it may not be super intuitive how we
+can create 10000 series with just three lines of code.</p>
+<p>You could think of achieving the same using a loop.</p>
+<pre class="r"><code>start.time2 &lt;- Sys.time() # not essential just to check running time
+
+# create storage matrix for y and x
+y2 &lt;- matrix(0,T,N)
+x2 &lt;- matrix(0,T,N)
+# Note that we would typically not have to save the error terms
+
+for (n in seq(1,N)) {
+  x2temp &lt;- runif(T,min=0,max = 1)
+  x2[,n] &lt;- x2temp
+  u2temp &lt;- rnorm(T)
+  y2temp &lt;- beta0 + beta1 * x2temp + u2temp
+  y2[,n] &lt;- y2temp
+}
+
+end.time2 &lt;- Sys.time()
+time.taken2 &lt;- end.time2 - start.time2
+time.taken2</code></pre>
+<pre><code>## Time difference of 0.05241 secs</code></pre>
+<p>Going through the loop achieved the same think, and may initially be
+more intuitive, but it also took a lot longer.</p>
+<p>Whenever you can avoid loops you should.</p>
+</div>
+<div id="step-3---apply-test-statistic" class="section level3">
+<h3>Step 3 - Apply test statistic</h3>
+<p>In <code>y</code> and <code>x</code> we now have our data saved,
+<code>N</code> versions (saved in <code>N</code> columns). Now we need
+to go to each of these <code>N</code> columns and calculate the test
+statistic. Here we will test <span class="math inline">\(H_0: \beta_1 =
+0.5\)</span> versus <span class="math inline">\(H_A:\beta_1 \ne
+0.5\)</span>, hence we are testing a correct null hypothesis.</p>
+<pre class="r"><code># storage matrix for estimated t-tests
+tbeta1hat &lt;- matrix(0,N,1)
+
+for (n in seq(1,N)) {
+  lmtemp &lt;- summary(lm(y[,n]~x[,n]))
+  # when storing a regression summary coefficients are stored in 
+  # the first column of $coefficients and standard errors in the 2nd column
+  tbeta1hat[n,1] &lt;- (lmtemp$coefficients[2,1] - beta1)/lmtemp$coefficients[2,2]
+}</code></pre>
+<p>In <code>tbeta1hat</code> we have now saved the t-test statistics
+testing <span class="math inline">\(H_0: \beta_1 = 0.5\)</span> versus
+<span class="math inline">\(H_A:\beta_1 \ne 0.5\)</span>. As we
+simulated <code>N</code> datasets, we also have <code>N</code> of these
+test statistics. All of which are testing a correct null hypothesis,
+i.e. that <span class="math inline">\(\beta_1=0.5\)</span>.</p>
+</div>
+<div id="step-4---describe-the-distribution" class="section level3">
+<h3>Step 4 - Describe the distribution</h3>
+<p>Now that we do have <code>N</code> test statistics we can describe
+these. Given our assumptions we know that the t-tests are t-distributed
+with 8 (<span class="math inline">\(=T-2\)</span>) degrees of freedom.
+For instance, if we tested at a 5% significance level we would reject
+the null hypothesis if the absolute value of t-test was larger than
+2.306. You can get that critical value from a table or from:</p>
+<pre class="r"><code># note, as two tailed we need 2.5% in each tail 
+cv &lt;- qt(0.975,8) 
+cv</code></pre>
+<pre><code>## [1] 2.306</code></pre>
+<p>Now we can check how many of our simulated t-tests would reject <span
+class="math inline">\(H_0\)</span>. We would expect, if testing at a 5%
+significance level that 5% of our tests (incorrectly) reject the correct
+<span class="math inline">\(H_0\)</span>. Recall that the null
+hypothesis is true for all our simulated processes.</p>
+<pre class="r"><code>H0rejrate &lt;- sum(abs(tbeta1hat)&gt;cv)/N
+print(H0rejrate)</code></pre>
+<pre><code>## [1] 0.0515</code></pre>
+<p>Here we reject 0.0515, ie in 5.15% of our simulations the correct
+<span class="math inline">\(H_0\)</span> is incorrectly rejected. This
+is exactly as it should be, a well calibrated or correctly sized
+test.</p>
+<p>We can also display the distribution. We call the
+<code>density</code> function which estimates the empirical distribution
+of <code>tbeta1hat</code>. Then we display this (black line), along with
+the theoretical distribution (<span
+class="math inline">\(t_{8}\)</span>) which we get using the
+<code>dt</code> function which gives us the density of the
+t-distribution.</p>
+<pre class="r"><code># get empirical density
+tbeta1hat.den &lt;- density(tbeta1hat)
+
+# use the x and y outputs from the density function
+plot(tbeta1hat.den$x,tbeta1hat.den$y,type = &quot;l&quot;)
+lines(tbeta1hat.den$x,dt(tbeta1hat.den$x,8),col = &quot;blue&quot;)</code></pre>
+<p><img src="R_MonteCarloSimulations_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>You can see that the simulated test distribution is very close to the
+theoretical distribution</p>
+</div>
+<div id="extension" class="section level3">
+<h3>Extension</h3>
+<p>To solidify your understanding you could do the following</p>
+<ul>
+<li>Also compare the above distribution to a normal distribution</li>
+<li>Do your conclusions depend on the values of the parameters <span
+class="math inline">\(\beta_0\)</span> and the error variance <span
+class="math inline">\(Var(u)\)</span>? Is the test statistic
+pivotal?</li>
+<li>Do your conclusions depend on the distribution from which you
+simulated the variable <span class="math inline">\(x\)</span>?</li>
+</ul>
+</div>
+</div>
+<div id="monte-carlo-simulation-dickey-fuller-test-distributions"
+class="section level2">
+<h2>Monte-Carlo Simulation, Dickey-Fuller Test Distributions</h2>
+<div id="background" class="section level3">
+<h3>Background</h3>
+<p>The simplest non-stationary proccess integrated of order one would be
+<span class="math display">\[y_t = y_{t-1}+e_t\]</span> It has a special
+name, they are called a random walk. Also note that this implies <span
+class="math inline">\(\Delta y_t = e_t\)</span>. Let’s simulate a few
+random walks of length <code>T=12610</code> (this specific
+<code>T</code> is for a reason soon becoming apparent).</p>
+<pre class="r"><code>N = 10
+T = 12610
+set.seed(1234)
+y.rw = apply(matrix(rnorm(T * N),T,N), 2, cumsum)</code></pre>
+<p>In <code>y.rw</code> we now have 10 simulated random walks. Clearly
+we managed to do that without a loop. What the code did was to first
+simulate a <span class="math inline">\((T \times N)\)</span> matrix of
+error terms (<code>matrix(rnorm(T * N),T,N)</code>). Then we take this
+matrix and apply the <code>cumsum</code> function to dimension
+<code>2</code>, i.e. to each column of data. This means that function
+<code>cumsum</code> is applied across rows.</p>
+<p>In order to understand why this simulates a random walk, note the
+following.</p>
+<p><span class="math display">\[\begin{eqnarray}
+y_0 &amp;=&amp; 0 \text{ by assumption}\\
+y_1 &amp;=&amp; y_{0}+\epsilon_1\\
+y_2 &amp;=&amp; y_{1}+\epsilon_2 = \epsilon_1 + \epsilon_2\\
+y_3 &amp;=&amp; y_{2}+\epsilon_3 = \epsilon_1 + \epsilon_2 + \epsilon_3
+\end{eqnarray}\]</span></p>
+<p>or in general</p>
+<p><span class="math display">\[y_t =  \Sigma_{\tau=1}^t
+\epsilon_{\tau}\]</span></p>
+<p>So what we need to get <span class="math inline">\(Y_t\)</span> is to
+sum up all error terms up to time <span
+class="math inline">\(t\)</span>. That is exactly what the
+<code>cumsum</code> function does.</p>
+<p>So let’s have a look at the 10 simulated random walks. Plotting
+columns in matrices is done by the <code>matplot</code> function.</p>
+<pre class="r"><code>matplot(y.rw, type = &quot;l&quot;, main = &quot;Examples of simulated random walks&quot;)</code></pre>
+<p><img src="R_MonteCarloSimulations_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>As it turns out, many economic processes possess characteristics not
+unlike those of a random walk. Take for example the Pound/USD exchange
+rate:</p>
+<pre class="r"><code>library(pdfetch)
+gbpusd &lt;- pdfetch_BOE(&quot;XUDLUSS&quot;,from = &quot;1965-01-01&quot;, to = &quot;2024-11-18&quot;)
+plot(gbpusd,col=&quot;blue&quot;, main = &quot;GBP to USD Exchange Rate&quot;)</code></pre>
+<p><img src="R_MonteCarloSimulations_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>The type of variation we see in the exchange rate is quite similar to
+that in the simulated random walks. Moreover, once you try to fit one
+series using the other as explanatory variable, you might find that the
+relationship would be statistically significant.</p>
+<p>Let’s briefly demonstrate this by running regressions that regress
+the exchange rate (in turn) on each of the 10 simulated random walks.
+Incidentally this is why we simulated random waks with
+<code>T = 12610</code> such that they have the same length as the
+exchange rate series we downloaded. After running each of the 10
+regressions we save the t-statistic.</p>
+<pre class="r"><code>save.ttest &lt;- matrix (0,10,1)
+
+for (j in seq(1,10)) {
+  tempx &lt;- y.rw[,j]
+  lm.temp &lt;- summary(lm(gbpusd~tempx))
+  # saves the t-test (3rd column, of the 2nd coefficient, the slope)
+  save.ttest[j] &lt;- lm.temp$coefficients[2,3] 
+}
+
+print(save.ttest)</code></pre>
+<pre><code>##          [,1]
+##  [1,] -61.332
+##  [2,]  42.154
+##  [3,] -52.382
+##  [4,] -12.159
+##  [5,]  70.606
+##  [6,]   1.784
+##  [7,] -43.964
+##  [8,] -71.169
+##  [9,] -61.084
+## [10,]  72.295</code></pre>
+<p>We now have 10 t-statistics. If you said that these are not correct
+as the coefficient standard error does not take care of the residual
+autocorrelation you would be right. But no robust standard error will
+fix the problem here. The message to get from here is that in 9 of the
+10 regressions we get really large t-tests and applying any standard
+inference would tell you that the exchange rates and 9 of these random
+walks are statistically related.</p>
+<p>This fit, however, would be spurious. We know that the exchange rate
+and the random walks are unrelated. We simulated the random walks
+totally randomly. It is a common situation once you regresses one
+non-stationary series on another. This is due to the fact that for
+non-stationary series statistical inference cannot, in general, rely on
+standard central limit theorem aka asymptotic normality. The above is
+the shocking consequence. We cannot apply standard inference
+procedures.</p>
+<p>This is why it is so important to understand whether you are dealing
+with stationary or non-stationary variables. One of the tools to help
+the applied economist to determine this is the Augmented Dickey Fuller
+or ADF test. In the next section we will demonstrate how to use
+Monte-Carlo simulations to establish the distribution of ADF-test
+statistics. If you want to know more about how ADF tests are applied you
+can refer to this <a
+href="https://datasquad.github.io/ECLR/R_UnitRootTesting/R_UnitRootTesting.html">walkthrough</a>.</p>
+</div>
+<div id="simulating-adf-test-distributions" class="section level3">
+<h3>Simulating ADF-test distributions</h3>
+<p>The most popular test that is used to identify whether a series is
+stationary or non-stationary is the ADF test. It is the t-test to test
+<span class="math inline">\(H_0: \alpha = 0\)</span> versus <span
+class="math inline">\(H_A: \alpha &lt; 0\)</span> in the following
+regression</p>
+<p><span class="math display">\[\Delta y_t = \alpha y_{t-1} +
+e_t\]</span></p>
+<p>Now we will simulate the sample distribution of a the ADF test
+statistic</p>
+<p><span
+class="math display">\[t_{\alpha}=\frac{\hat{\alpha}-0}{se_{\hat{\alpha}}}\]</span></p>
+<p>Recall that the null hypothesis (<span class="math inline">\(\alpha =
+0\)</span>) implies <span class="math inline">\(\Delta y_t =
+e_t\)</span> which means that the process is a random walk, a
+non-stationary process. If <span class="math inline">\(\alpha &lt;
+0\)</span> the process is stationary.</p>
+<p>We now simulate <code>N</code> processes, and calculate the test
+statistic for each of these. Then we compare the distribution of these
+with the standard normal distribution. In fact there are two more common
+specifications for these Dickey-Fuller test statistic</p>
+<p><span class="math display">\[\Delta y_t = \delta + \alpha  y_{t-1} +
+e_t\]</span></p>
+<p><span class="math display">\[\Delta y_t = \delta + \gamma t +
+\alpha  y_{t-1} + e_t\]</span></p>
+<p>depending on which deterministic terms (constant and/or trend) you
+include. But each time the relevant test is the t-test <span
+class="math inline">\(t_{\hat{\alpha}}\)</span>.</p>
+<blockquote>
+<p>Note: In practice we often add lagged terms of <span
+class="math inline">\(\Delta y_{t}\)</span> to acocunt for residual
+autocorrelation. These are then called Augmented Dickey-Fuller tests.
+But in this simulated context this is not needed.</p>
+</blockquote>
+<pre class="r"><code>N = 10000 # number of simulations
+T = 1000  # Length of each series
+
+set.seed(1234)
+data = matrix(rnorm(T * N),T,N)
+y0 = apply(data, 2, cumsum) </code></pre>
+<p><code>y0</code> now contains <code>N</code> simulated random walks
+each of length T. For the Dickey-Fuller regression we need <span
+class="math inline">\(\Delta y_t\)</span> as the explained and <span
+class="math inline">\(y_{t-1}\)</span> as the explanatory variable. We
+will first create new matrices with these (<code>yy</code> and
+<code>xx</code>) and then loop through all of the <code>N</code>
+columns.</p>
+<pre class="r"><code>yy = y0[-1,] - y0[-T,] # matrix with N cols of \Delta y_t
+xx = y0[-T,]            # matrix with N cols of y_{t-1}
+tt = seq(1,T-1)         # creates a trend variable
+
+# create storage matrices
+tau1 &lt;- tau2 &lt;- tau3 &lt;- matrix(0,N,1)
+
+# Now loop through the N columns
+for (i in seq(1,N)){
+  y = yy[,i]
+  x = xx[,i]
+  
+  # +0 excludes the constant
+  temp = summary(lm(formula =  y ~ x+0)) 
+  tau1[i] = temp$coefficients[3] 
+  # only one coefficient hence 3rd element is t-test
+  
+  # constant is automatically included in lm
+  temp = summary(lm(formula =  y ~ x)) 
+  tau2[i] = temp$coefficients[2,3]
+  # alpha is 2nd coefficients, 3rd col has t-value
+  
+  # includes constant and trend
+  temp = summary(lm(formula =  y ~ x+tt))
+  tau3[i] = temp$coefficients[2,3]
+}</code></pre>
+<p>The matrices <code>tau1</code>, <code>tau2</code> and
+<code>tau3</code> now contain the <code>N</code> simulated test
+statistics. They were all estimated from data that were simulated from a
+non-stationary process (a random walk). Therefore we know that <span
+class="math inline">\(H_0\)</span> is correct.</p>
+<p>Frst we will find the empirical quantiles of a normal distribution
+and the three different test statistic’s distributions.</p>
+<pre class="r"><code># Empirical critical values for normally distributed r.v.
+quantile(rnorm(10000), probs = c(0.01,0.05,0.1))</code></pre>
+<pre><code>##     1%     5%    10% 
+## -2.312 -1.629 -1.268</code></pre>
+<pre class="r"><code># Empirical critical values for DF model 1 r.v.
+quantile(tau1, probs = c(0.01,0.05,0.1))</code></pre>
+<pre><code>##     1%     5%    10% 
+## -2.513 -1.883 -1.592</code></pre>
+<pre class="r"><code># Empirical critical value s for DF model 2 r.v.
+quantile(tau2, probs = c(0.01,0.05,0.1))</code></pre>
+<pre><code>##     1%     5%    10% 
+## -3.485 -2.871 -2.558</code></pre>
+<pre class="r"><code># Empirical critical values for DF model 3 r.v.
+quantile(tau3, probs = c(0.01,0.05,0.1))</code></pre>
+<pre><code>##     1%     5%    10% 
+## -4.022 -3.423 -3.126</code></pre>
+<p>As you can see we get different quantiles than a standard normal
+distribution. So, to establish whether <span
+class="math inline">\(H_0\)</span> should be rejected or not you cannot
+rely on critical values from a normal distribution.</p>
+<p>Let’s compare the quantiles you got above with the tabulated critical
+values from the Dickey-Fuller test distributions.</p>
+<pre class="r"><code>library(urca)  # to get critical values for Dickey-Fuller tests
+
+# Critical values for DF using urca package for Models 1, 2, 3
+qunitroot(c(0.01,0.05,.1), trend = &quot;nc&quot;,N = 1000)</code></pre>
+<pre><code>## [1] -2.567 -1.941 -1.617</code></pre>
+<pre class="r"><code>qunitroot(c(0.01,0.05,.1), trend = &quot;c&quot;,N = 1000)</code></pre>
+<pre><code>## [1] -3.437 -2.864 -2.568</code></pre>
+<pre class="r"><code>qunitroot(c(0.01,0.05,.1), trend = &quot;ct&quot;,N = 1000)</code></pre>
+<pre><code>## [1] -3.967 -3.414 -3.129</code></pre>
+<p>You can see that</p>
+<ol style="list-style-type: decimal">
+<li>Critical values for Dickey-Fuller test are significantly different
+from Normal/t-distributions</li>
+<li>Critical values for Dickey-Fuller test depend on the model
+fitted</li>
+<li>The simulated ones are very close to the simulated ones from
+<code>urca</code> package. If you wish to see ADF tests in action then
+you should refer to this <a
+href="https://datasquad.github.io/ECLR/R_UnitRootTesting/R_UnitRootTesting.html">walkthrough</a>.</li>
+</ol>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>In this walkthrough we demonstrated the value of Monte-Carlo
+simulations. Initially we used the Monte-Carlo technique to replicate a
+test statistic’s distribution for which we do actually know what type of
+distribution the test statistic follows, in our case a
+t-distribution.</p>
+<p>Then, however, we applied the simulation technique to a problem where
+the actual distribution is not a well established distribution. By using
+that technique we could replicate the distribution of the ADF test
+statistics.</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

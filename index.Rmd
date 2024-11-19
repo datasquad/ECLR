@@ -32,9 +32,6 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Basic Data Analysis (Tidyverse) | [Workthrough in R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
 | Basic Data Visualisation (ggplot) | [Workthrough in R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [mlb1.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/mlb1.csv) 
 | Loops | [Workthrough in R](https://datasquad.github.io/ECLR/R_LoopPractice/R_LoopPractice.html) | in code upload
-| Creating Maps | [Workthrough in R](https://datasquad.github.io/ECLR/R_Mapping/R_Mapping.html) | in code upload
-| Law of Large Numbers and Central Limit Theorem | [Workthrough in R](https://datasquad.github.io/ECLR/R_LLN_and_CLT.html) | in code simulated data
-
 
 # Regression models and related techniques
 
@@ -65,10 +62,19 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Basic TS modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | [EUROSTATtimeseries.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/EUROSTATtimeseries.csv) 
 | GARCH modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_GarchModelling.html) | in code data download 
 
+# Miscallaneous 
+
+These workthroughs demonstrate coding techniques that are useful in a range of different contexts.
+
+| Topic | Workthrough | Data used |
+|:------|:-----|:-----|
+| Creating Maps | [Workthrough in R](https://datasquad.github.io/ECLR/R_Mapping/R_Mapping.html) | in code upload
+| Law of Large Numbers and Central Limit Theorem | [Workthrough in R](https://datasquad.github.io/ECLR/R_LLN_and_CLT.html) | in code simulated data
+| Monte-Carlo Simulations | [Workthrough in R](https://datasquad.github.io/ECLR/R_MonteCarloSimulations.html) | in code simulated data
 
 # Examples
 
-On the [Examples section](https://datasquad.github.io/ECLR/examples.html) of this page we collate empirical examples which can be used to help students understand a range of statistical and econometric techniques. This page benefits from a range of empirical examples which have been implemented in a range of books.
+In the [Examples section](https://datasquad.github.io/ECLR/examples.html) of this page we collate empirical examples which can be used to help students understand a range of statistical and econometric techniques. This page benefits from a range of empirical examples which have been implemented in a range of books.
 
 - [The Art of Statistics](https://dspiegel29.github.io/ArtofStatistics/) by David Speigelhalter
 - [Mastering Metrics](https://www.masteringmetrics.com/) by Joshua Angrist and J&ouml;rn-Steffen Pischke

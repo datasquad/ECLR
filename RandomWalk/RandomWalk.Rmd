@@ -1,0 +1,376 @@
+---
+title: ""
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen=1, digits=3)
+library(webexercises)
+library(pdfetch)
+library(urca)
+library(fbi)
+```
+
+### Random Variables
+
+Formally, a random variable can be identified by a triple $(\Omega,\mathcal{F},P)$. Here ($\Omega$) consists of all possible elementary outcomes, ($\mathcal{F}$), sigma algebra, is a special collection of all possible events from $\Omega$ that have non-zero probabilities, $P$, probability, is a function that assigns a positive number to every event in $\mathcal{F}$ while satisfying probability constraints. 
+
+- Example of discrete distribution: Rolling a fair die
+
+  - $\Omega = \{1, 2, 3, 4, 5, 6\}$
+  
+  - Events: All combinations of elementary outcomes $\{1, 2, 3, 4, 5, 6\}$
+  
+  - $P(\text{elementary event}) = 1/6$
+  
+- Example of continuous distributions:
+
+  - $\Omega = \mathbb{R}$
+  
+  - Events: All combinations of semi-closed intervals $[a, b)$
+  
+  - $P([a, b]) = \text{CDF}(b) - \text{CDF}(a)$
+  
+Once you know the CDF, $P(x \leq a), \forall a$, you know everything about the random variable. However, we **cannot observe probabilities in real life**. They are mathematical abstractions. In practice, we observe **some numbers (observations)** from the (unknown) distribution of interest. How do we recover the CDF from observations? Population moments? We can estimate those using the empirical CDF:
+  $$P(X \leq a) = \frac{\sum_{i=1}^N I(x_i \leq a)}{N}$$
+Once the CDF is known, we can:
+
+  - Approximate the PDF (prone to outliers!)
+  
+  - Construct sample moments that converge to population moments (assuming population moments exist)
+  
+  - Construct critical values, compare distributions of interest etc. 
+  
+  The code below shows empirical cumulative distribution function for $N = 10, 1000$ of a mixture 
+  $$x \sim 0.5 \times N(4,1) + 0.5 \times \chi^2_{20}$$
+  
+```{r,out1}
+N = 5
+xrange = seq(0,40,0.01)
+yrange = 0.5 * pnorm(xrange,4,1) + 0.5 * pchisq(xrange,20)
+
+x_data1 = c(rchisq(N, 20), rnorm(N,mean = 4))
+x_emp = ecdf(x_data1)
+plot(xrange,x_emp(xrange), type = "l", main = "N = 10", ylab = "CDF(x)", xlab = "x")
+lines(xrange, yrange, col = "blue")
+
+```
+```{r, out2}
+N = 500
+xrange = seq(0,40,0.01)
+yrange = 0.5 * pnorm(xrange,4,1) + 0.5 * pchisq(xrange,20)
+
+x_data2 = c(rchisq(N, 20), rnorm(N,mean = 4))
+x_emp = ecdf(x_data2)
+plot(xrange,x_emp(xrange), type = "l", main = "N = 1000", ylab = "CDF(x)", xlab = "x")
+lines(xrange, yrange, col = "blue")
+
+```
+
+```{r, out3}
+
+N = 500000
+x_data3 = c(rchisq(N, 20), rnorm(N,mean = 4))
+
+s1 = density(x_data1)
+s2 = density(x_data2)
+s3 = density(x_data3)
+
+plot(xrange[-1],diff(yrange)/0.01,type = "l")
+lines(s1$x,s1$y,type = "l",col = "green")
+lines(s2$x,s2$y,type = "l",col = "blue")
+lines(s3$x,s3$y,type = "l",col = "red")
+legend("topright",legend = c("True","N = 10","N = 1000","N = 1000000"), col = c("black","green","blue","red"),lty = 1)
+```
+  
+  
+  
+  
+  
+
+### Importance of Uniform Distribution
+
+How can we simulate observations from a given univariate monotone distribution? There is a well known fact: For any continuous random variable $X$ with a monotone CDF $F_X$:
+
+  $$F_X(X) \sim U(0, 1)$$
+  $$F_X^{-1}(U) \sim F_X(X)$$
+
+Thus, we need to figure out how to generate observations from uniform $(0,1)$.
+
+- Algorithm:
+
+  1. Generate an observation from $U(0,1)$.
+  2. Apply the inverse CDF of the distribution of interest.
+  3. Report the result.
+
+- Generating iid observations from $U(0,1)$:
+  - Physical devices (e.g., RAND 1955, "A Million Random Digits with 100,000 Normal Deviates", 8 years to create, electronic roulette with additional adjustments; hardware noise) are expensive and not always needed.
+  - Pseudo-random number generators provide a cost-effective alternative.
+
+### Pseudo-Random Number Generators (Software Implementation)
+
+They generates deterministic periodic sequences **that appear** iid from $U(0,1)$.
+One of the oldest is Linear Congruential Generator.  
+  $$X_{i+1} = (aX_i + c) \mod m$$
+  $$R_{i+1} = X_{i+1}/m$$
+  where $a$, $c$, and $m$ are carefully chosen constants.  The period (up to $10^{64}$)  and properties depend on the parameters.Modern generators (e.g., Mersenne Twister) produce high-quality uniform-looking sequences with periods of up to $4.3 \times 10^{6001}$ and looks like
+  $$X_{i+n} = f(X_{i+n-1},X_{i+n-2},\ldots,X_i )$$
+- Pros: Once the initial states ($X_i$, $X_{i+n-1},X_{i+n-2},\ldots,X_i$) are known, the following sequence of pseudo random numbers can be replicated. 
+- Cons: Cyclic behavior, deviations from uniformity, and correlations (mostly resolved in modern algorithms), predictability once the state is known.
+
+To set a random state in R, you have to use `set.seed()` command. Once the state is set, every call of the random number generator shifts the state further down the line. 
+```{r}
+set.seed(1)
+rnorm(3)
+rnorm(3)
+
+set.seed(1)
+rnorm(6)
+
+```
+
+Moreover, every time you start R, the state resets to the same position. Say, running `rnorm(1)` as a first command gives you $-0.1612836$.
+
+### Benefits of (Monte Carlo) simulations
+
+Real-world data **always** have only one sample. We **never** know if observations come from the same DGP. The true relationships between variables are unknown. The distribution and dependence of error terms are unknown.
+
+In the simulations you **know** the DGP. You **know** whether regressors are endogenous or exogenous.
+You **know** the distribution of error terms. You can generate as many samples as you want.
+
+### Monte Carlo Simulation Steps
+
+1. Specify the Data Generating Process (DGP):  
+   Define $y$, $X$, coefficients $\beta$, sample size $N$, and the error term $u$.
+2. Generate $N$ observations of $u$ from the chosen error distribution.
+3. Generate $N$ observations of $y$ from the DGP:  
+   $$y = f(X, \beta) + u$$
+4. Apply the estimator (e.g., $\beta_{\text{OLS}}$) and record the estimate.
+5. Repeat Steps 2–4 for 10,000–1,000,000 samples.
+6. Analyze results (distributions, graphs, etc.).
+
+In this meeting we will study some properties of stationary/non-stationary processes.
+
+### Stationary/non-stationary processes
+
+The simplest non-stationary proccess integrated of order one would be 
+$$y_t = y_{t-1}+\epsilon_t$$
+It has a special name random walk. 
+
+```{r, bm}
+N = 1000
+T=1000
+set.seed(1)
+y = apply(matrix(rnorm(T * N),T,N), 1, cumsum)
+#y_sqrtt <- y/(sqrt(matrix(1:T,T,1))%*%matrix(1,1,N))
+y_sqrtT <- y/sqrt(T)
+
+#layout(matrix(c(1,2,3,4,5,6), 2, 3, byrow = TRUE))
+matplot(y,type = "l",main = "Random Walk")
+#matplot(y_sqrtt,type = "l",main = "Normalised random Walk by sqrt(t)")
+matplot(y_sqrtT,type = "l",main = "Normalised random Walk by sqrt(T)")
+axis(1, at = c(10, 100))
+abline(v=c(10,100,1000),col="blue")
+
+t = 10
+hist(y_sqrtT[t,],breaks = 40,freq = FALSE,main = "Histogram for t=10")
+x <- seq(-sqrt(t/T)*3,sqrt(t/T)*3,t/T/100)
+lines(x,dnorm(x,0,sqrt(t/T)),type = "l")
+
+t = 100
+hist(y_sqrtT[t,],breaks = 40,freq = FALSE,main = "Histogram for t=100")
+x <- seq(-sqrt(t/T)*3,sqrt(t/T)*3,t/T/100)
+lines(x,dnorm(x,0,sqrt(t/T)),type = "l")
+
+t = 1000
+hist(y_sqrtT[t,],breaks = 40,freq = FALSE,main = "Histogram for t=1000")
+x <- seq(-sqrt(t/T)*3,sqrt(t/T)*3,t/T/100)
+lines(x,dnorm(x,0,sqrt(t/T)),type = "l")
+
+#matplot(y_sqrtT[,c(1,3,10,20)],type = "l",main = "Normalised random Walk by sqrt(T)")
+gbpusd <- pdfetch_BOE("XUDLUSS",from = "1965-01-01")
+plot(gbpusd,col="blue", main = "GBP to USD Exchange Rate")
+
+matplot(y_sqrtT[,c(11)],type = "l",main = "Exchange-like BM",col = "blue")
+
+
+UK_GDP <- pdfetch_FRED("UKNGDP")
+plot(UK_GDP["2005::"],col="blue", main = "UK GDP")
+matplot(y_sqrtT[,c(6)],type = "l",main = "Trend-like BM",col="blue")
+
+
+
+```
+
+```{r}
+gbpusd <- pdfetch_BOE("XUDLUSS",from = "1965-01-01")
+plot(gbpusd,col="blue", main = "GBP to USD Exchange Rate")
+```
+
+The last two pairs of the data look quite similar. Moreover, once you try to fit one series using the other as explanatory variable, you might find that the relationship would be statistically significant there. This fit, however, would be spurious. It is a common situation once a person regresses one non-stationary series on another. This is due to the fact that for non-stationary series statistical inference cannot, in general, rely on standard central limit theorem aka asymptotic normality. Let's look at it in more details.  
+
+### Random Walk Dickey-Fuller $\tau$-distribution
+
+Now we will obtain sample distribution of $\hat\alpha$ and $\widehat{se(\hat\alpha)}$ statistics from three Dickey-Fuller specifications and compare them with standard normal. $T = 1000$, $N = 1000$:
+$$\Delta y_t = \alpha y_{t-1} + e_t$$
+$$\Delta y_t = \delta + \alpha  y_{t-1} + e_t$$
+$$\Delta y_t = \delta + \gamma t + \alpha  y_{t-1} + e_t$$
+```{r}
+N = 10000
+T = 1000
+set.seed(1)
+data = matrix(rnorm(T * N),T,N)
+y0 = apply(data, 2, cumsum)
+xx = y0[-T,]
+yy = y0[-1,] - y0[-T,]
+tt = seq(1,T-1)
+tau <- tau1 <- tau2 <- tau3 <- matrix(0,N,1)
+for (i in seq(1,N)){
+  y = yy[,i]
+  x = xx[,i]
+  temp = ur.df(y0[,i], type = "drift", lags = 0)
+  tau[i] = temp@teststat[1]
+  temp = summary(lm(formula =  y ~ x+0))
+  tau1[i] = temp$coefficients[3]
+  temp = summary(lm(formula =  y ~ x))
+  tau2[i] = temp$coefficients[2,3]
+  temp = summary(lm(formula =  y ~ x+tt))
+  tau3[i] = temp$coefficients[2,3]
+}
+# Critical values for normally distributed r.v.
+quantile(rnorm(10000), probs = c(0.01,0.05,0.1))
+# Critical values for DF model 1 r.v.
+quantile(tau1, probs = c(0.01,0.05,0.1))
+# Critical values for DF model 2 r.v.
+quantile(tau2, probs = c(0.01,0.05,0.1))
+# Critical values for DF model 3 r.v.
+quantile(tau3, probs = c(0.01,0.05,0.1))
+
+# Critical values for DF using urca package for Models 1, 2, 3
+qunitroot(c(0.01,0.05,.1), trend = "nc",N = 1000)
+qunitroot(c(0.01,0.05,.1), trend = "c",N = 1000)
+qunitroot(c(0.01,0.05,.1), trend = "ct",N = 1000)
+```
+As you can see, 
+
+1. Critical values for Dickey-Fuller test are significantly different from Normal/t-distributions
+2. Critical values for Dickey-Fuller test depend on the model fitted
+3. The simulated ones are very close to the simulated ones from `urca` package. 
+
+Below you can see simulated pdfs for these four cases with corresponding critical values. 
+
+```{r}
+require(urca)
+zcrit = qnorm(0.05)
+plot(seq(-4.99,3,0.01),diff(punitroot(seq(-5,3,0.01),trend = "ct"))*100,type = "l",col = "green",xlab = "x", ylab = "pdf")
+x = c(-4.99,seq(-4.99,zcrit,0.01),zcrit)
+y = c(0,diff(punitroot(seq(-5,zcrit,0.01),trend = "ct")*100),0)
+polygon(x,y,col = "green")
+text(-4,0.1,paste(round(punitroot(zcrit,trend = "ct"),digits = 3)),col = "green")
+
+
+lines(seq(-4.99,3,0.01),diff(punitroot(seq(-5,3,0.01),trend = "c"))*100,type = "l",col = "red")
+y = c(0,diff(punitroot(seq(-5,zcrit,0.01),trend = "c")*100),0)
+polygon(x,y,col = "red")
+text(-3,0.2,paste(round(punitroot(zcrit,trend = "c"),digits = 3)),col = "red")
+
+lines(seq(-4.99,3,0.01),diff(punitroot(seq(-5,3,0.01),trend = "nc"))*100,type = "l",col = "blue")
+y = c(0,diff(punitroot(seq(-5,zcrit,0.01),trend = "nc")*100),0)
+polygon(x,y,col = "blue")
+text(-2.5,0.1,paste(round(punitroot(zcrit,trend = "nc"),digits = 3)),col = "blue")
+
+
+lines(seq(-3,3,0.01),dnorm(seq(-3,3,0.01)),type = "l",col = "black")
+x = c(-3,seq(-3,zcrit,0.01),zcrit)
+y = c(0,dnorm(seq(-3,zcrit,0.01)),0)
+polygon(x,y,col = "black")
+text(-2,0.05,paste(round(pnorm(zcrit),digits = 3)),col = "white")
+
+legend("topright",c("Normal","No constant","Constant","Constant and trend"),fill = c("black","blue","red","green"))
+```
+
+### Empirical applications.
+
+Last time we were discussing FRED-MD dataset. The authors applied different transformations to different variables in the dataset. Some transformed to logs, some - first differences, some - the second. Lets download the dataset and check for transformed series:
+
+```{r}
+
+cleaned_data <- function(data){
+data.md.clean <- rm_outliers.fredmd(data)
+col_na_prop <- apply(is.na(data.md.clean), 2, mean)
+data.md.select <- data.md.clean[, (col_na_prop < 0.05)]
+data.md.select.2 <- na.omit(data.md.select)
+return(data.md.select.2)
+}
+
+filepath <- "https://files.stlouisfed.org/files/htdocs/fred-md/monthly/2024-09.csv"
+data.md <- fredmd(filepath, date_start = NULL, date_end = NULL, transform = TRUE) |> cleaned_data()
+data.md.0 <- fredmd(filepath, date_start = NULL, date_end = NULL, transform = FALSE) |> cleaned_data()
+data_des <- describe_md(names(data.md))
+```
+
+Lets select the variables that are not transformed and plot one of those
+
+```{r}
+ind_no_transform = data_des$tcode == 1
+data_no_transform = data.md.0[,ind_no_transform]
+temp = names(data_no_transform)
+for (i in seq(1,3)){
+  print(temp[i])
+  summary(ur.df(data_no_transform[,i],type = "drift",selectlags = "AIC")) |> print()
+}
+
+plot(data_no_transform$T5YFFM, type = "l")
+
+```
+
+As you can see from the ADF tests, these series are either marginally stationary or marginally non-stationary. 
+
+Let's check the second difference series of natural logs, "INVEST"
+
+```{r}
+describe_md("INVEST")
+plot(data.md.0$INVEST, type = "l")
+l_Invest <- log(data.md.0$INVEST)
+plot(diff(l_Invest), type = "l")
+plot(diff(diff(l_Invest)), type = "l")
+
+
+  summary(ur.df(l_Invest,type = "trend",selectlags = "AIC")) 
+  summary(ur.df(diff(l_Invest),type = "drift",selectlags = "AIC")) 
+  summary(ur.df(diff(diff(l_Invest)),type = "drift",selectlags = "AIC"))   
+
+```
+
+### Trend-stationarity and Overdifferencing
+
+Overdifferencing happens when you take differences of data that’s already trend-stationary, which can mess up your analysis. For example, if your time series \( y_t \) can be written as 
+
+$$ y_t = \alpha + \beta t + u_t $$
+
+where \( \alpha + \beta t \) is the trend and \( u_t \) is white noise, differencing it once gives \( \Delta y_t = \beta + \Delta u_t \). This removes the trend (the \(\beta t\)) and leaves a stationary series, which is fine. But instead, it introduces artificial dependence between times $t$ and $t-1$, as $Cov(\Delta u_t,\Delta u_{t-1}) \ne 0$. This makes it harder to interpret or model the data correctly, and any forecasts could become unreliable. A way better strategy would be to test for non-stationarity vs trend-stationarity using proper non-stationarity tests. The same logic applies for stationary \( u_t \) and for arbitrary deterministic trend $f(t)$.
+
+In the following example, the correct relationship is as above, however the researcher decided to use first differenced series.
+
+```{r}
+T = 10000
+e = rnorm(T,1)
+t = seq(1,T) 
+a = 1
+b = 2
+y = a + b * t + e
+y_obs = y[-1]
+x_obs = y[-T]
+t_obs = t[-1]
+summary(lm(formula = y_obs~x_obs+t_obs))
+plot(t_obs,y_obs)
+
+summary(lm(formula = diff(y_obs)~diff(x_obs)+t_obs[-1]))
+plot(diff(y_obs))
+```
+
+The same applies once seasonal non-stationarity is present, say
+
+$$y_t = y_{t-2}+u_t$$
+First-differencing this series will lead to introducing artificial structure to the process. 
