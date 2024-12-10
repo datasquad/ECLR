@@ -24,4 +24,5 @@ There is a plethora of resources if you want to learn R or Python (which is one 
 * [Python for Econometrics by Fabian Raters (Copenhagen)](https://pyecon.org/down/pyecon.pdf)
 * [Introduction to Python for Econometricians by Kevin Sheppard](https://www.kevinsheppard.com/teaching/python/notes/)
 * [Empirical projects for Economists in Python, CORE-ECON](https://www.core-econ.org/doing-economics/index.html)
+* [Coding for Economists by Arthur Turrell](https://aeturrell.github.io/coding-for-economists/intro.html)
 
