@@ -366,4 +366,4 @@ p.clt3 <- ggplot(results.clt3.long, aes(x=sm, fill=Sample.size)) +
 p.clt3
 ```
 
-Qualitatively you can see the same result as for the standardised sample mean earlier. That is now not a surprise any more as the OLS coefficient estimate in a linear regression model is really nothing else but a sample estimate.
+Qualitatively you can see the same result as for the standardised sample mean earlier. That is now not a surprise any more as the OLS coefficient estimate in a linear regression model is really nothing else but a sample estimate of an average.

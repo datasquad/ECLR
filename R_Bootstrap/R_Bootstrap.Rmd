@@ -1,0 +1,633 @@
+---
+title: "Introduction to the Bootstrap"
+output: webexercises::webexercises_default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(webexercises)
+```
+This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
+
+# Introduction
+
+The Bootstrap is an ingenious technique to allow an applied researcher to quantify the amount of uncertainty in a statistic when traditional methods of inference are not available and sometimes it does provide improvements even if we do know (asymptotically) the distribution of a statistic.
+
+It goes without saying that this does not always work and you got to be careful to apply the bootstrap appropriately. In this workthrough we will investigate some basic applications of the bootstrap to help you understand its workings.
+
+We will use the following packages:
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(ISLR2)    # to use data from the ISLR package
+library(boot)     # for easy bootstrapping
+library(lmboot)   # for bootstrapping in linear regression models
+library(AER)      # for regression inference
+library(matlib)   # for matrix calculations
+options(digits = 4) # to set decimal points in display
+```
+
+
+
+## Initial Example Setup
+
+The example here is taken from Section 5.3.4 in [An Introduction to Statistical Learning by James et. al](https://www.statlearning.com/). The R package `ISLR2` which we loaded above includes a function `Portfolio` which loads a simulated set of asset returns for two assets `Y` and `X`. 
+
+```{r}
+Port.data <- Portfolio  # Portfolio loads data
+plot(Port.data$X,Port.data$Y)
+cor(Port.data$X,Port.data$Y)
+```
+
+What is the correlation between the `X` and `Y`? (rounded to 3 decimal pooints) `r fitb(round(cor(Port.data$X,Port.data$Y),3))`
+
+
+### Calculating the minimum variance portfolio
+
+A quintessential problem in finance is that of finding a minimum variance portfolio. Consider the portfolio returns
+
+$$P = \alpha X + (1-\alpha) Y$$
+
+which are a mixture of returns $X$ and $Y$ depending on the weight $\alpha$. The challenge is to find the $\alpha$ that minimises $Var(P)$. The solution to that is well known and depends on $Var(X)= \sigma^2_X$, $Var(Y)= \sigma^2_Y$ and $Cov(X,Y)= \sigma_{XY}$ as follows:
+
+$$\alpha^{\ast} = \frac{\sigma^2_Y-\sigma_{XY}}{\sigma^2_X + \sigma^2_Y-\sigma_{XY}}$$
+
+Let's write a short function that calculates $\alpha^{\ast}$. Complete the following function by replaceing the `XXXX` terms  appropriately.
+
+```{r, echo = FALSE}
+# this function takes two inputs
+# data, a dataframe with variables called X and Y
+# index, this allows to calculate alpha on the basis of a subsample
+#        if this input is not used then the default is defined to use all data
+
+alpha.fn <- function(data, index = seq(1:dim(data)[1])){
+  X <- data$X[index]
+  Y <- data$Y[index]
+  alpha <- (var(Y) - cov(X,Y))/(var(X)+var(Y)-2*cov(X,Y))
+  return(alpha)
+}
+```
+
+```{r, eval = FALSE}
+# this function takes two inputs
+# data, a dataframe with variables called X and Y
+# index, this allows to calculate alpha on the basis of a subsample
+#        if this input is not used then the default is defined to use all data
+
+alpha.fn <- function(data, index = seq(1:dim(data)[1])){
+  X <- XXXX$X[index]
+  Y <- data$Y[XXXX]
+  alpha <- (var(Y) - cov(XXXX))/(var(X)+var(XXXX)-2*XXXX(XXXX))
+  return(XXXX)
+}
+```
+
+You got the function right if the result of calling `alpha.fn(Port.data)` is `r alpha.fn(Port.data)`.
+
+So the optimal $\alpha^{\ast}=$ `r alpha.fn(Port.data)`. But note, this is a sample statistic based on the 100 observations in `Port.data`. We need to recognise that there is sampling uncertainty which comes along with that estimate. If the estimate was calculated as a mean of some sample information we could invoke a Central Limit Theorem (CLT) to conclude that for sufficiently large sampels the statistic is normally distributed and we could also devise the sampling standard error.
+
+However, the above statistic is not such an average and hence it is not obvious how we would calculate a standard error.
+
+### Bootstrap
+
+The idea of the bootstrap is simple. Let's create a lot of artificial samples (that mirror the important properties of the actual data set we have in `Port.data`). Say we create $B$ such samples and index them by $b=1,...,B$. Then we calculate the optimal $\alpha^{\ast}_b$ in each of these $B$ samples, which will all be different. Finally we see how much variability we did have in the optimal $\alpha^{\ast}_b$. This will be an estimate of the sampling variability.
+
+Let's do that. A function we use in this context is the `sample` function which can be used to randomly sample from a dataset. Let's call `sample(100,5)`
+
+```{r}
+sample(100,5)
+```
+
+What does this function do? 
+
+`r mcq(c("Draws 100 random samples of all positive integers up to 5",answer = "Draws 5 random samples of all positive integers up to 100", "Draws 100 random samples of rational numbers in the interval [0,5]", "Draws five random samples of rational numbers in the interval [0,100]"))`
+
+When calling `sample(100,5)` I could get a `0`. `r torf(FALSE)`
+
+When calling `sample(100,5)` repeatedly I get always the same numbers. `r torf(FALSE)`
+
+When calling `sample(100,5)` I could get the same number twice. `r torf(FALSE)`
+
+`r hide("I need a hint")`
+
+See the documentation for `sample()` (`?sample`) to see that the option `replace` has a default of `FALSE`. That means that once `sample` drew a number it will not draw it again. If you want this to be a possibility you need to set `replace = TRUE`.
+
+`r unhide()`
+
+Why is that function useful in the context of bootstrapping? It allows us to draw a random sample from our original dataset. So for instance 
+
+```{r}
+T <- dim(Port.data)[1] # how many observations do we have in Port.data
+sel <- sample(T, 20, replace = TRUE)
+Port.boot <- Port.data[sel,]
+```
+
+In `Port.boot` we now have a random sample of size 20 from the original dataset. This could contain repeated observations as we set `replace = TRUE`. What we do for bootstrapping, however, is that we draw samples of the same size as the original dataset, i.e. `T`. As we are allowing repeated draws of the same observations this guarantees bootstrap samples different to the original sample.
+
+So let's do that $B=1000$ times and for each sample calculate the optimal $\alpha^{\ast}$.
+
+```{r}
+B <- 1000
+alpha.star.boot <- matrix(NA,B,1)
+set.seed(1)
+for (b in seq(B)){
+  sel <- sample(T, T, replace = TRUE)
+  Port.boot <- Port.data[sel,]
+  alpha.star.boot[b] <- alpha.fn(Port.boot)
+}
+
+paste("Original statistic = ", round(alpha.fn(Port.data),4))
+paste("Average bootstrap stat = ", round(mean(alpha.star.boot),4))
+paste("Bootstrap sd =", round(sd(alpha.star.boot),4))
+```
+
+Recall that in the `alpha.fn` function there was an option to include an index. This basically allows for the randomisation to happen inside the `alpha.fn` function. Therefore, the same as the above can be achieved
+
+```{r}
+B <- 1000
+alpha.star.boot <- matrix(NA,B,1)
+set.seed(1)
+for (b in seq(B)){
+  alpha.star.boot[b] <- alpha.fn(Port.data, index = sample(T, T, replace = TRUE))
+}
+
+paste("Original statistic = ", round(alpha.fn(Port.data),4))
+paste("Average bootstrap stat = ", round(mean(alpha.star.boot),4))
+paste("Bootstrap sd =", round(sd(alpha.star.boot),4))
+```
+
+As taking bootstraps is a common task, a package (`boot`) has been written to facilitate this task. While we produced the bootstraps and then calculated the statistics ourselves, the following function does the job in one line of code.
+
+```{r}
+set.seed(1)
+boot(Port.data, alpha.fn, R = 1000)
+```
+
+Despite setting the same seed the numerical results are slightly different (although not in substance) as the way in which random numbers are drawn inside this function is not the same as in `sample`.
+
+## Bootstrapping in a Regression Context
+
+Let us consider a regression context and how bootstrapping can be used in to support statistical inference. 
+
+### Regression setup
+
+Consider the following regression model:
+
+$$y_i = \beta_0 + \beta_1 x_i + \epsilon_i$$
+
+A common empirical problem in this context is to make statistical inference on the coefficient $\beta_1$.
+
+In this context, let us work with simulated data.
+
+```{r}
+set.seed(12)
+T = 15
+dof = 3 # degrees of freedom for error distribution
+x <- rnorm(T,1)     # x are standard normally distributed
+eps <- rchisq(T,dof)  # errors come from a chi-square distribution with 3 dof 
+                    # which is very skewed
+eps <- eps - mean(eps)
+beta0 <- 5
+beta1 <- 1.7
+y <- beta0 + beta1*x  + eps
+data.sim <- data.frame(y,x)
+```
+
+This has simulated a set of `r T` observations that follow the above model, i.e. where the true coefficient $\beta_1$ is equal to `r beta1`. Let's pretend that we did not know that truth and estimate the model using OLS.
+
+```{r}
+ols1 <- lm(y~x, data = data.sim)
+s.ols1 <- summary(ols1)
+s.ols1
+```
+
+From the regression output we can see that the coefficient to `x` is statistically significantly different from 0 (p-value = 0.00155). That is good to know, after all we know that the coefficient is actually `r beta1`.
+
+What if we tested $H_0: \beta_1 = 1.7$ versus $H_A: \beta_1 \neq 1.7$, in other words we test a correct null hypothesis. Here we would calculate the t-statistic as 
+
+$$t-stat = \frac{2.5000-1.7}{0.729}=1.097$$
+
+We could also use the `lht` function (loaded with the `AER` package), to get this test stat and the p-value.
+
+```{r}
+t.stat <- (coefficients(s.ols1)[2,1]-beta1)/coefficients(s.ols1)[2,2]
+p.val <- 2*(1-pt(abs(t.stat), df = T-2))
+paste("T-test = ", t.stat, ", p-val = ", p.val)
+```
+
+An experienced applied econometrician realises that this t-statistic is not large enough to reject this (correct) null hypothesis. Again that is exactly what we expect.
+
+So for so good. But there is a snag in the story. What distribution did R use to calculate the p-values it displayed above?
+
+`r mcq(c("N(0,1)", "Chi-Square(2)", "t(15)", answer = "t(13)"))`
+
+`r hide("I need a hint")`
+
+The assumption that is made is that the error terms are normally distributed in which case t-statistics are distributed as t-distribution with degrees of freedom equal to number of observations minus number of estimated coefficients.
+
+`r unhide()`
+
+Why is that not appropriate here?
+
+`r mcq(c("the sample size is smaller than 30", answer = "the error distribution is not normal", "we actually know the true value of beta1"))`
+
+
+`r hide("I need a hint")`
+
+The t-tests reported in the regression summary only have a t-distribution in small samples (and 15 could be considered a small sample) if the error terms are normally distributed. Here we know that the error distribution is a $\Chi^2$ distribution. While for large samples the t-tests will still be normally distributed, the distribution in small samples is unclear.
+
+`r unhide()`
+
+What is the consequence of us using an inappropriate test distribution?
+
+### Incorrect test size
+
+In what follows we will illustrate the effect of using an incorrect distribution for testing a hypothesis. We shall now basically repeat the above experiment (`Nsim =`) 10,000 times. Each time we shall perform a hypothesis test of the correct $H_0: \beta_1 = 1.7$. That means that if we test evertime at a 5% significance level we should expect 5% of the 10,000 tests to reject the correct $H_0$, or in other words we would expect 500 p-values smaller than 0.05. 
+
+In the simulations we simulate new `x` and `eps` values in every loop.
+
+```{r}
+Nsim = 1000
+pval.save <- matrix(NA,Nsim,1)
+
+for (i in seq(Nsim)){
+  # simulate process, new y, 
+  x <- rnorm(T,1)     # x are standard normally distributed
+  eps <- rchisq(T,3)  
+  eps <- eps - mean(eps)
+  y <- beta0 + beta1*x  + eps
+  data.sim <- data.frame(y,x)
+  ols1 <- lm(y~x, data = data.sim)
+  s.ols1 <- summary(ols1)
+  t.stat <- (coefficients(s.ols1)[2,1]-beta1)/coefficients(s.ols1)[2,2]
+  pval.save[i] <- 2*(1-pt(abs(t.stat), df = T-2))
+}
+```
+
+So let's see how often we rejected the correct $H_0$?
+
+```{r}
+paste("Number of rejected H0s: ", sum(pval.save<0.05))
+```
+
+We would have expected 50 (5% of `Nsim`). Let's look at the distribution of p-values. For a correctly sized test we would expect that to be uniformly distributed on (0,1).
+
+Here is a histogram with bins of width 0.05.
+
+```{r}
+pval.save <- data.frame(pval =pval.save)
+ggplot(pval.save, aes(x=pval)) +
+    geom_histogram(fill="#69b3a2", color="#e9ecef", binwidth = 0.05, boundary = 0)
+
+```
+This looks close to uniform but we can see that we have somewhat too few rejections (p-value < 0.05). Such a test is not correctly sized, i.e. it does not reject the correct null hypothesis $\alpha$% of times when performing inference at a $\alpha$ significance level.
+
+### Pair bootstrapped regression t-tests
+
+Let's see how bootstrapping can help us in situations where we hope to improve the inference quality (i,e, produce correctly sized inference).
+
+Instead of comparing the test statistic in the data to its assumed distribution, we can attempt to generate the test's distribution from the data. We do that by generating bootstrapped data samples. For each of these we calculate the test statistic. If we do that `Nboot` times then we have `Nboot` realisations of the test statistic. If we are careful we will have calculated test statistics that represent test statistics under a valid null hypothesis.
+
+Then we compare the actual test statistic, calculated from the actual data, to that distribution to obtain a p-value.
+
+#### A single application
+
+Let's simulate a single data set.
+
+```{r}
+# simulate process, new y, leave x as previous
+set.seed(123)
+x <- rnorm(T,1)     # x are standard normally distributed
+eps <- rchisq(T,dof)  
+eps <- eps - mean(eps)
+y <- beta0 + beta1*x  + eps
+data.sim <- data.frame(y,x)
+```
+
+The correct slope coefficient takes the value $\beta_1 =$ `r beta1`. We will be testing $H_0: \beta_1 = 1.7$ against a two tailed alternative. Hence are testing a correct null hypothesis.
+
+The t-test we will calculate 
+
+$$t-stat = \frac{\hat{\beta}_1-1.7}{se_{\hat{\beta}_1}}$$
+
+```{r}
+# estimate model
+ols1 <- lm(y~x, data = data.sim)
+s.ols1 <- summary(ols1)
+  
+# calculate t-test on simulated data
+beta1.est <- coefficients(s.ols1)[2,1]
+t.stat <- (beta1.est-beta1)/coefficients(s.ols1)[2,2]
+```
+
+To apply the bootstrap we can use the `boot` function instead of writing a loop as in the earlier example. But we still need to define a function which calculates the statistic we need. Let's start by writing that function. 
+
+In fact we are writing two functions. One will calculate, for each bootstrapped sample the following t-stat:
+
+$$t-stat = \frac{\hat{\beta}^{b}_1-1.7}{se_{\hat{\beta}^{b}_1}}$$
+
+where $\hat{\beta}^{b}_1$ is the estimated slope coefficient of the $b$th bootstrap. This is an incorrect way to calculate the t-stat in the bootstrap as it is uncentered. But we will calculate it for illustration purposes (`tstat.unc`).
+
+The second function (`tstat.cen`) does calculate the centered test stat
+
+$$t-stat = \frac{\hat{\beta}^{b}_1-\hat{\beta}_1}{se_{\hat{\beta}^{b}_1}}$$
+
+which ensures that we center the test around the estimated slope coefficient in the data sample.
+
+```{r, eval = TRUE}
+# this function takes two inputs
+# data, a dataframe with variables called X and Y
+# index, this allows to estimate the regression on the basis of a subsample
+#        if this input is not used then the default 
+#        is defined to use all data
+# Output: t-test for slope coefficient on x, uncentered, H0: betahat.b = beta1
+
+tstat.unc <- function(data, index = seq(1:dim(data)[1])){
+  data.b <- data[index,]
+  ols.b <- lm(y~x, data = data.b)
+  s.ols.b <- summary(ols.b)
+  t.stat <- (coefficients(s.ols.b)[2,1]-beta1)/coefficients(s.ols.b)[2,2]
+  return(t.stat)
+}
+
+# this function takes two inputs
+# data, a dataframe with variables called X and Y
+# index, this allows to estimate the regression on the basis of a subsample
+#        if this input is not used then the default 
+#        is defined to use all data
+# Output: t-test for slope coefficient on x, centered, H0: betahat.b = betahat
+
+tstat.cen <- function(data, index = seq(1:dim(data)[1])){
+  data.b <- data[index,]
+  ols.b <- lm(y~x, data = data.b)
+  s.ols.b <- summary(ols.b)
+  t.stat <- (coefficients(s.ols.b)[2,1]-beta1.est)/coefficients(s.ols.b)[2,2]
+  return(t.stat)
+}
+```
+
+We can then call the `boot` function as follows:
+
+```{r}
+# create bootstrapped t-tests
+Nboot = 200
+t.stat.b <- boot(data.sim, tstat.unc, R = Nboot)$t
+t.stat.b2 <- boot(data.sim, tstat.cen, R = Nboot)$t
+```
+
+Now we can compare the actual t-stat to the set of simulated t-tests stored in `t.stat.b2`. As we are looking at a two-tailed test we check the proportion of bootstrapped t-tests that are larger (in absolute terms) than the data based t-test. That proportion is the bootstrapped p-value. 
+
+```{r}
+sum(abs(t.stat)<abs(t.stat.b2))/Nboot
+```
+
+```{r}
+sum(abs(t.stat)<abs(t.stat.b))/Nboot
+```
+
+As you can see the p-value can be  different for the uncentered test stat. We will ensure that we are looking at centered test statistics.
+
+From this one example we cannot evaluate whether this method actually works. This is what we will do in the next section.
+
+#### A simulation study
+
+Now we repeat the above exercise `Nsim =1000` times to evaluate how this method actually works and whether it is any better than using the t-statistic.
+
+```{r}
+set.seed(1234)
+Nsim = 1000
+Nboot = 199
+# we often use a full hundred -1 to avoid getting bootstrapped
+# p-values exactly equal to say 0.05
+
+pval.save.b2 <- matrix(NA,Nsim,1)
+
+for (i in seq(Nsim)){
+
+  x <- rnorm(T,1)     # x are standard normally distributed
+  eps <- rchisq(T,dof)  
+  eps <- eps - mean(eps)
+  y <- beta0 + beta1*x  + eps
+  data.sim <- data.frame(y,x)
+
+  # estimate model
+  ols1 <- lm(y~x, data = data.sim)
+  s.ols1 <- summary(ols1)
+  
+  # calculate t-test on simulated data
+  beta1.est <- coefficients(s.ols1)[2,1]
+  t.stat <- (beta1.est-beta1)/coefficients(s.ols1)[2,2]
+  
+  # create bootstrapped t-tests
+  # $t retrieves the calculated statistics inside the boot function
+  t.stat.b2 <- boot(data.sim, tstat.cen, R = Nboot)$t
+  pval.save.b2[i] <- sum(abs(t.stat)<abs(t.stat.b2))/Nboot
+  
+}
+```
+
+So now we have `Nsim` bootstrapped p-values. In each cases we tested a correct $H_0$. Hence we should only find 5% of bootstrapped p-values to be smaller than 5%. Let's look at the histogram. We should find the first bar (p-values < 0.05) to end up at around 50 (5% of 1000 simulations).
+
+```{r}
+pval.save.b2 <- data.frame(pval =pval.save.b2)
+ggplot(pval.save.b2, aes(x=pval)) +
+    geom_histogram(fill="#69b3a2", color="#e9ecef", binwidth = 0.05, boundary = 0)
+```
+
+This looks approximately right! The bootstrap seems to have worked. You can repeat the above with more simulations and larger `Nboot` if you wish.
+
+You will have realised that this took quite a while to compute. This is because we did a simulation. For each simulated dataset we calculated 199 bootstraps (= 199 OLS regressions). And then we did this 1,000 times. So that meant 199,000 regressions. 
+
+Further, when you call `lm` the function calculates all sort of things, not only the t-stat. When you perform analysis that either repeats similar estimations many times, or you use large datasets (not the case here), then you will have to ensure that your code is efficient and fast. This implies
+
+* not calculating things you don't need
+* do not repeat identical calculations
+* use code as fast as possible (this often implies the use of matrix algebra)
+
+The next section will introduce you to elements of this.
+
+### Residual bootstrap in regressions
+
+In the previous session we implemented the pairs bootstrap. Each bootstrap sampled pairs of `y` and `x`. That is what the `boot` function did. This meant that for each bootstrap we had different samples of `x`.
+
+There is an alternative way to generate bootstraps, residual based bootstraps.
+
+Let's assume you estimated the following regression model
+
+$$y_i = \hat{\beta_0} + \hat{\beta}_1 x_i + \hat{\epsilon}_i$$
+
+or in matrix form (which will come in handy)
+
+$$\mathbf{y} = \mathbf{X} \hat{\mathbf{\beta}}  + \hat{\mathbf{\epsilon}}$$
+
+where $\mathbf{y}$ is a $(T \times 1)$ vector with the dependent variable, $\mathbf{X}$ is a $(T \times 2)$ matrix where the first column is a vector of ones and the 2nd column is the vector of x observations and $\hat{\mathbf{\epsilon}}$ is a $(T \times 1)$ vector with estimated residuals. 
+
+$\hat{\mathbf{\beta}}$ is the OLS estimate of the $(2 \times 1)$ parameter vector $(\beta_0, \beta_1)$ which is calculated from 
+
+$$\hat{\mathbf{\beta}} = (\mathbf{X}^{\prime}\mathbf{X})^{-1}\mathbf{X}^{\prime}\mathbf{y}.$$
+
+For what follows and to make computational savings it is important to understand the matrix form of this regression.
+
+We could now obtain bootstrapped versions of the data by keeping the values in $\mathbf{X}$ fixed but generate randomised versions of the dependent variable from 
+
+$$y^{\ast}_i(b) = \hat{\beta_0} + \hat{\beta}_1 x_i + \hat{\epsilon}^{\ast}_i(b)$$
+
+The bootstrapped values for the dependent variable are generated by randomising the residuals.
+
+#### A single example
+
+```{r}
+Nboot = 199
+
+x <- rnorm(T,1)     # x are standard normally distributed
+eps <- rchisq(T,dof)  
+eps <- eps - mean(eps)
+y <- beta0 + beta1*x  + eps
+data.sim <- data.frame(y,x)
+Y <- as.matrix(y)
+
+# create matrix terms useful for estimation and bootstrap
+X <- cbind(rep(1,T),x) # creates matrix with first col 1s and then x
+XpX <- t(X) %*% X
+iXpX <- inv(XpX)
+Xpy <- t(X) %*% Y
+betahat <- iXpX %*% Xpy
+res <- (Y-X%*%betahat)
+se.betahat <- sqrt(diag((sum(res^2)/(T-2))*iXpX))
+  
+# calculate t-test on simulated data
+beta1.est <- betahat[2,1]
+t.stat <- (beta1.est-beta1)/se.betahat[2]
+
+# now the bootstrap loop
+# container to save bootstrapped t-tests
+save.tstat.b1.cen <- matrix(NA,nrow = Nboot, ncol = 1)
+
+for (b in seq(Nboot)){
+    res.b1 <- sample(res[,1],T, replace = TRUE) # random draw of residuals
+    y.b1 = (X %*% betahat)[,1] + res.b1
+    Xpy.b1 <- t(X) %*% y.b1
+    betahat.b1 <- iXpX %*% Xpy.b1
+    hat.res.b1 <- (y.b1-X%*%betahat.b1)
+    se.betahat.b1 <- sqrt(diag((sum(hat.res.b1^2)/(T-2))*iXpX))
+    save.tstat.b1.cen[b] <- ((betahat.b1[2,1] - betahat[2,1])/se.betahat.b1[2])
+}
+
+paste("p-value = ", sum(abs(t.stat)<abs(save.tstat.b1.cen))/Nboot)
+```
+
+While the above may seem quite complicated, you should note that in the bootstrap loop we did not have to re-calculate $(\mathbf{X}^{\prime}\mathbf{X})^{-1}$ (`iXpX` in the code) as the x values remain unchanged. When calculating regressions, it is often this matrix inversion which takes up most of the computational power. Not having to do that in each bootstrap loop will save a lot of time.
+
+#### Different ways to resample residuals
+
+In the above example we obtained bootstrapped residuals by resampling from the empirical distribution of residuals from the original regression. 
+
+There are different ways to resample residuals. In the above example we used:
+
+```{r}
+res.b1 <- sample(res[,1],T, replace = TRUE) # random draw of residuals
+```
+
+The wild bootstrap does not randomly draw from the empirical residuals but rather premultiplies the estimated residuals with a random variable
+
+$$\hat{\epsilon}^{\ast}_i(b) = v_i \cdot \hat{\epsilon}_i$$
+
+where the random variable $v_i$ could come from different distributions.
+
+```{r}
+va <- matrix(rnorm(T),nrow = T, ncol = 1)
+# rademacher distribution
+vb <- matrix(sample(c(-1,1),T,replace = TRUE),nrow = T, ncol = 1)
+# Mammen's two point distribution
+prob.m <- (sqrt(5)+1)/(2*sqrt(5))
+vc <- matrix(sample(c(-(sqrt(5)-1)/2,(sqrt(5)+1)/2),T,replace = TRUE, prob = c(prob.m, 1-prob.m)),nrow = T, ncol = 1)
+
+res.b.a <- va * res[,1]
+res.b.b <- va * res[,1]
+res.b.c <- va * res[,1]
+```
+
+All of these have in common that $E(v_i)=0$ and $Var(v_1)=1$. Ideally higher order moments are also 1 and the different distributions achieve this to different extends.
+
+#### A simulation
+
+```{r}
+Nsim = 1000
+Nboot = 199  
+# we often use a full hundred -1 to avoid getting bootstrapped
+# p-values exactly equal to say 0.05
+
+pval.save.rb.cen <- matrix(NA,Nsim,1)
+
+for (i in seq(Nsim)){
+  T = 15
+  x <- rnorm(T,1)     # x are standard normally distributed
+  eps <- rchisq(T,dof)  
+  eps <- eps - mean(eps)
+  y <- beta0 + beta1*x  + eps
+  data.sim <- data.frame(y,x)
+
+  # estimate model unrestricted model
+  X <- cbind(rep(1,T),x) # creates matrix with first col 1s and then x
+  Y <- as.matrix(y)
+  XpX <- t(X) %*% X
+  iXpX <- inv(XpX)
+  Xpy <- t(X) %*% Y
+  betahat <- iXpX %*% Xpy
+  res <- (Y-X%*%betahat)
+  se.betahat <- sqrt(diag((sum(res^2)/(T-2))*iXpX))
+    
+  # calculate t-test on simulated data
+  beta1.est <- betahat[2,1]
+  t.stat <- (beta1.est-beta1)/se.betahat[2]
+
+  # in the bootstrap loop we merely have to calculate 
+  # - tstat.b.cen = ((betahat.b - betahat)/se.betahat.b)
+  # note that this will not require a new calculation of (X'X)^(-1)
+  # Storage matrix
+  save.tstat.b1.cen <- matrix(NA,nrow = Nboot, ncol = 1)
+
+  for (b in seq(Nboot)){
+      
+    # wild bootstrap
+    # uncomment the chosen version
+    # random term to pre-multiply residuals with
+    # Normal distr. v ~ N(0,1)
+    # v <- matrix(rnorm(T),nrow = T, ncol = 1)
+    # rademacher distribution, distr -1 with p=0.5, -1 otherwise, 
+    # v <- matrix(sample(c(-1,1),T,replace = TRUE),nrow = T, ncol = 1)
+    # Mammen's two point distribution
+    # prob.m <- (sqrt(5)+1)/(2*sqrt(5))
+    # v <- matrix(sample(c(-(sqrt(5)-1)/2,(sqrt(5)+1)/2),
+    #                    T,replace = TRUE, prob = c(prob.m, 1-prob.m)),
+    #             nrow = T, ncol = 1)
+    # this creates a T x Nboot matrix, in each col we have
+    # v *res , results in T x Nboot matrix
+    # res.b1 <- v * sqrt(T/(T-2)) * res[,1] # wild bootstrap
+    res.b1 <- sample(res[,1],T,replace = TRUE) # random draw of residuals
+  
+    # now we calculate the Nboot cols of y.b s
+    # note that the (X %*% betahat) is identical for all
+    y.b1 = (X %*% betahat)[,1] + res.b1
+    Xpy.b1 <- t(X) %*% y.b1
+    betahat.b1 <- iXpX %*% Xpy.b1
+    hat.res.b1 <- (y.b1-X%*%betahat.b1)
+    se.betahat.b1 <- sqrt(diag((sum(hat.res.b1^2)/(T-2))*iXpX))
+    save.tstat.b1.cen[b] <- ((betahat.b1[2,1] - betahat[2,1])/se.betahat.b1[2])
+
+  }
+  
+  pval.save.rb.cen[i,1] <- sum(abs(t.stat)<abs(save.tstat.b1.cen))/Nboot
+
+}
+```
+
+And now we show the histogram of the bootstrapped p-values. First for the bootstrapped
+
+```{r, eval = FALSE}
+pval.save.rb.cen <- data.frame(pval =pval.save.rb.cen)
+ggplot(pval.save.rb.cen, aes(x=pval)) +
+    geom_histogram(fill="#69b3a2", color="#e9ecef", binwidth = 0.05, boundary = 0)
+
+```

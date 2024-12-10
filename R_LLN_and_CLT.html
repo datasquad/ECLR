@@ -377,9 +377,9 @@ x2 &lt;- rnorm(n, mean=mu, sd=std)  # sampled from normal distribution with mean
 mean1 &lt;- mean(x1)
 mean2 &lt;- mean(x2)
 paste(&quot;Sample 1 mean = &quot;, mean1)</code></pre>
-<pre><code>## [1] &quot;Sample 1 mean =  1.47383712476585&quot;</code></pre>
+<pre><code>## [1] &quot;Sample 1 mean =  1.61224169353954&quot;</code></pre>
 <pre class="r"><code>paste(&quot;Sample 2 mean = &quot;, mean2)</code></pre>
-<pre><code>## [1] &quot;Sample 2 mean =  0.680273493978938&quot;</code></pre>
+<pre><code>## [1] &quot;Sample 2 mean =  -0.0638808665613924&quot;</code></pre>
 <p>As you can see the means are different from the respective population
 means of 1.5 (for the uniform distribution drawing values between 1 and
 2) and 0 (as set when we draw normally distributed random vaiables). The
@@ -474,11 +474,11 @@ p_denpop</code></pre>
 population mean and standard deviation.</p>
 <pre class="r"><code>mu_x = mean(Xpop)
 paste(&quot;Population mean =&quot;, mu_x)</code></pre>
-<pre><code>## [1] &quot;Population mean = 0.75732454960287&quot;</code></pre>
+<pre><code>## [1] &quot;Population mean = 0.759279742632654&quot;</code></pre>
 <pre class="r"><code># as sd calculates sample sd we correct to get pop sd
 std_x = sd(Xpop)*((length(Xpop)-1)/length(Xpop)) 
 paste(&quot;Population standard error =&quot;, std_x)</code></pre>
-<pre><code>## [1] &quot;Population standard error = 1.05335319686199&quot;</code></pre>
+<pre><code>## [1] &quot;Population standard error = 1.04544465314196&quot;</code></pre>
 <p>Let’s start by using two sample sizes, <code>n1=5</code> and
 <code>n2=30</code>. We draw 1000 samples, calculate sample means and
 then show the distribution of the resulting sequences of sample
@@ -716,7 +716,7 @@ p.clt3</code></pre>
 <p>Qualitatively you can see the same result as for the standardised
 sample mean earlier. That is now not a surprise any more as the OLS
 coefficient estimate in a linear regression model is really nothing else
-but a sample estimate.</p>
+but a sample estimate of an average.</p>
 </div>
 
 
