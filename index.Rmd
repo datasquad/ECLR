@@ -35,7 +35,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 
 | Topic | Workthrough in R | Workthrough in Python |
 |:------|:-----|:-----|
-| Basic regression models | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | 
+| Basic regression models | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_RegressionIntro/Py_RegressionIntro.html) 
 | Predicting from a Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html) | 
 | Regression Inference | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionInference.html) | 
 | IV Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIV.html) | 
