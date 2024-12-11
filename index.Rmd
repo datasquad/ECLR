@@ -26,7 +26,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | First Steps |  [Workthrough in R](https://datasquad.github.io/ECLR/R_FirstSteps.html), [Video](https://youtu.be/fPRcu9g7ZTQ) | 
 | Using Packages/Libraries | [Workthrough in R](https://datasquad.github.io/ECLR/R_Packages.html) | 
 | Loading Data | [Workthrough in R](https://datasquad.github.io/ECLR/R_DataDownload.html) | 
-| Basic Data Analysis | [Workthrough in R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_BasicDataAnalysis/Py_BasicDataAnalysis.html) 
+| Basic Data Analysis | [Workthrough in R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_DataAnalysis/Py_BasicDataAnalysis.html) 
 | Basic Data Analysis (Tidyverse) | [Workthrough in R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | 
 | Basic Data Visualisation (ggplot) | [Workthrough in R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | 
 | Loops | [Workthrough in R](https://datasquad.github.io/ECLR/R_LoopPractice/R_LoopPractice.html) | 
@@ -35,7 +35,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 
 | Topic | Workthrough in R | Workthrough in Python |
 |:------|:-----|:-----|
-| Basic regression models | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_RegressionIntro/Py_RegressionIntro.html) 
+| Basic regression models | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIntro.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_Regression/Py_RegressionIntro.html) 
 | Predicting from a Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionPrediction/R_RegressionPrediction.html) | 
 | Regression Inference | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionInference.html) | 
 | IV Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RegressionIV.html) | 
