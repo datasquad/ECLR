@@ -22,14 +22,18 @@ In the following a few basic data techniques are introduced. Where you need to d
 
 | Topic | Workthrough in R | Workthrough in Python |
 |:------|:-----|:-----|
-| Installing R and RStudio |  [Video](https://youtu.be/0HzKf-StvOE?si=obnXCLWVP7sIsDy4) | 
-| First Steps |  [Workthrough in R](https://datasquad.github.io/ECLR/R_FirstSteps.html), [Video](https://youtu.be/fPRcu9g7ZTQ) | 
+| Installing |  [Video](https://youtu.be/0HzKf-StvOE?si=obnXCLWVP7sIsDy4) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_coding/Py_Install.html)
+| First Steps |  [Workthrough in R](https://datasquad.github.io/ECLR/R_FirstSteps.html), [Video](https://youtu.be/fPRcu9g7ZTQ) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_coding/Py_FirstSteps.html)
 | Using Packages/Libraries | [Workthrough in R](https://datasquad.github.io/ECLR/R_Packages.html) | 
 | Loading Data | [Workthrough in R](https://datasquad.github.io/ECLR/R_DataDownload.html) | 
 | Basic Data Analysis | [Workthrough in R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_DataAnalysis/Py_BasicDataAnalysis.html) 
 | Basic Data Analysis (Tidyverse) | [Workthrough in R](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | 
+<<<<<<< HEAD
 | Basic Data Visualisation (ggplot) | [Workthrough in R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_Graphing/Py_GraphIntro.html) 
 | Loops | [Workthrough in R](https://datasquad.github.io/ECLR/R_LoopPractice/R_LoopPractice.html) | 
+=======
+| Basic Data Visualisation (ggplot) | [Workthrough in R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_Graphing/Py_GraphIntro.html)
+| General coding techniques | [Loops in R](https://datasquad.github.io/ECLR/R_LoopPractice/R_LoopPractice.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_coding/Py_BasicCode.html)
 
 # Regression models and related techniques
 
