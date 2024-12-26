@@ -63,7 +63,7 @@ All variables are in the data types we would expect them to be, `num` for numeri
 data_credit[1,]
 ```
 
-Remember thart the data are simulated. The variable `Balance` is the amount of credit card debt (a positive number being a debt). `Education` is measured in years of completed education, `Cards` is the number of credit cards owned by an individual, `Limit` is the credit card limit for the individual and `Income` is the annual income in thousands of dollars by the individual. 
+Remember that the data are simulated. The variable `Balance` is the amount of credit card debt (a positive number being a debt). `Education` is measured in years of completed education, `Cards` is the number of credit cards owned by an individual, `Limit` is the credit card limit for the individual and `Income` is the annual income in thousands of dollars by the individual. 
 
 Let's produce a scatter plot for the variables `Income` and `Age`.
 
@@ -95,7 +95,7 @@ You can see that there are three regions.
 
 # Modelling credit balances
 
-Let's consider whether variation in credit balances can be modeled using a linear regresison model. For instance we can estimate the following model:
+Let's consider whether variation in credit balances can be modeled using a linear regression model. For instance we can estimate the following model:
 
 \begin{equation}
 balances_i = \beta_0 + \beta_1~rating_i + \beta_2~cards_i + \epsilon_i
