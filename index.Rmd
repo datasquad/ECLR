@@ -54,7 +54,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 
 | Topic | Workthrough in R | Workthrough in Python |
 |:------|:-----|:-----|
-| Simulating AR Models | [Workthrough in R](https://datasquad.github.io/ECLR/R_Simulate_AR_processes/R_Simulate_AR_processes.html) | 
+| Simulating AR Models | [Workthrough in R](https://datasquad.github.io/ECLR/R_Simulate_AR_processes/R_Simulate_AR_processes.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_TimeSeries/Py_Simulating_AR_Processes.html)
 | Unit Root Testing | [Workthrough in R](https://datasquad.github.io/ECLR/R_UnitRootTesting/R_UnitRootTesting.html) | 
 | Basic TS modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_TS_Modelling.html) | 
 | GARCH modeling | [Workthrough in R](https://datasquad.github.io/ECLR/R_GarchModelling.html) |  
