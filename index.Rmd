@@ -28,6 +28,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 | Loading Data | [Workthrough in R](https://datasquad.github.io/ECLR/R_DataDownload.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_coding/Py_LoadingData.html)
 | Basic Data Analysis | [Base R](https://datasquad.github.io/ECLR/R_BasicDataAnalysis.html), [Tidyverse](https://datasquad.github.io/ECLR/R_SummaryStatsTidyverse.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_DataAnalysis/Py_BasicDataAnalysis.html) 
 | Basic Data Visualisation (ggplot) | [Workthrough in R](https://datasquad.github.io/ECLR/R_GraphIntro.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_Graphing/Py_GraphIntro.html)
+| Data Organisation and Merging |  | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_coding/Py_DataOrgaMerge.html)
 | General coding techniques | [Loops in R](https://datasquad.github.io/ECLR/R_LoopPractice/R_LoopPractice.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_coding/Py_BasicCode.html)
 
 # Regression models and related techniques
