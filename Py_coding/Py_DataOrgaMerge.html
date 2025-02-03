@@ -482,7 +482,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 
 <div class="pj-input pj-fold fold-show">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> pretty_jupyter
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># ignore this line</span>
+<span class="o">%</span><span class="k">load_ext</span> pretty_jupyter
 </pre></div>
 
 </div>
@@ -521,7 +522,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 
 
-            <div id="jmwgSM"></div>
+            <div id="DaUu8Z"></div>
             <script type="text/javascript" data-lets-plot-script="library">
                 if(!window.letsPlotCallQueue) {
                     window.letsPlotCallQueue = [];
@@ -545,9 +546,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
                         var div = document.createElement("div");
                         div.style.color = 'darkred';
                         div.textContent = 'Error loading Lets-Plot JS';
-                        document.getElementById("jmwgSM").appendChild(div);
+                        document.getElementById("DaUu8Z").appendChild(div);
                     };
-                    var e = document.getElementById("jmwgSM");
+                    var e = document.getElementById("DaUu8Z");
                     e.appendChild(script);
                 })()
             </script>
@@ -1142,7 +1143,7 @@ memory usage: 150.3+ KB
 <p>Anticipating that we will want to merge the data with those in <code>inf_data</code> we will have to work the country variable. In <code>inf_data</code>, we have data from Austria identified as follows</p>
 <table>
 <thead><tr>
-<th style="text-align:left">Country CODE</th>
+<th style="text-align:left">Country Code</th>
 <th style="text-align:center">Country</th>
 </tr>
 </thead>
@@ -1218,7 +1219,7 @@ memory usage: 150.3+ KB
 
 
 <div class="pj-input pj-fold fold-show">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">int_data_annual</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Country CODE2&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;REFERENCE AREA (DESC.)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(.+)\s\((\w</span><span class="si">{2}</span><span class="s1">)\)&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">int_data_annual</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Country Code2&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;REFERENCE AREA (DESC.)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(.+)\s\((\w</span><span class="si">{2}</span><span class="s1">)\)&#39;</span><span class="p">)</span>
 <span class="n">int_data_annual</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
@@ -1247,7 +1248,7 @@ memory usage: 150.3+ KB
       <th>YEAR</th>
       <th>OBS.VALUE</th>
       <th>Country</th>
-      <th>Country CODE2</th>
+      <th>Country Code2</th>
     </tr>
   </thead>
   <tbody>
@@ -1273,7 +1274,7 @@ memory usage: 150.3+ KB
 
 
 
-<p>You can see that indeed the first step has been achieved exactly as we anticipated. You do not have to understand all the details of the above line. The <code>str.extract()</code> function takes the string found in the <code>REFERENCE AREA (DESC.)</code> column and splits it into two new columns <code>Country</code> and <code>Country CODE2</code> (discarding the parentheses). The term <code>r'(.+)\s\((\w{2})\)'</code> is called a regular expression. It basically does what we asked the code to do. These regular expressions are very complicated which is why asking ChatGPT and testing the code is the way to go. You can check the resulting country codes from the following line:</p>
+<p>You can see that indeed the first step has been achieved exactly as we anticipated. You do not have to understand all the details of the above line. The <code>str.extract()</code> function takes the string found in the <code>REFERENCE AREA (DESC.)</code> column and splits it into two new columns <code>Country</code> and <code>Country Code2</code> (discarding the parentheses). The term <code>r'(.+)\s\((\w{2})\)'</code> is called a regular expression. It basically does what we asked the code to do. These regular expressions are very complicated which is why asking ChatGPT and testing the code is the way to go. You can check the resulting country codes from the following line:</p>
 
 
 
@@ -1282,7 +1283,7 @@ memory usage: 150.3+ KB
 
 
 <div class="pj-input pj-fold fold-show">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;Country CODE2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;Country Code2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -1313,7 +1314,7 @@ memory usage: 150.3+ KB
         <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Return None if not found</span>
 
 <span class="c1"># Apply function to get the three-letter code</span>
-<span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;Country CODE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;Country CODE2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_alpha3_code</span><span class="p">)</span>
+<span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;Country Code&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;Country Code2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_alpha3_code</span><span class="p">)</span>
 
 <span class="n">int_data_annual</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
@@ -1343,8 +1344,8 @@ memory usage: 150.3+ KB
       <th>YEAR</th>
       <th>OBS.VALUE</th>
       <th>Country</th>
-      <th>Country CODE2</th>
-      <th>Country CODE</th>
+      <th>Country Code2</th>
+      <th>Country Code</th>
     </tr>
   </thead>
   <tbody>
@@ -1372,7 +1373,7 @@ memory usage: 150.3+ KB
 
 
 
-<p>The code did exactly what we wanted. We now have two potential column on which we could match data from <code>inf_data</code> and <code>int_data</code>, namely the columns <code>Country</code> and <code>Country CODE</code>. In fact, let's drop the other two columns identifying the country.</p>
+<p>The code did exactly what we wanted. We now have two potential column on which we could match data from <code>inf_data</code> and <code>int_data</code>, namely the columns <code>Country</code> and <code>Country Code</code>. In fact, let's drop the other two columns identifying the country.</p>
 
 
 
@@ -1381,7 +1382,7 @@ memory usage: 150.3+ KB
 
 
 <div class="pj-input pj-fold fold-show">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">int_data_annual</span> <span class="o">=</span> <span class="n">int_data_annual</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;REFERENCE AREA (DESC.)&#39;</span><span class="p">,</span><span class="s1">&#39;Country CODE2&#39;</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">int_data_annual</span> <span class="o">=</span> <span class="n">int_data_annual</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;REFERENCE AREA (DESC.)&#39;</span><span class="p">,</span><span class="s1">&#39;Country Code2&#39;</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">int_data_annual</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
@@ -1409,7 +1410,7 @@ memory usage: 150.3+ KB
       <th>YEAR</th>
       <th>OBS.VALUE</th>
       <th>Country</th>
-      <th>Country CODE</th>
+      <th>Country Code</th>
     </tr>
   </thead>
   <tbody>
@@ -1439,7 +1440,7 @@ memory usage: 150.3+ KB
 <table>
 <thead><tr>
 <th style="text-align:left">Country</th>
-<th style="text-align:left">Country CODE</th>
+<th style="text-align:left">Country Code</th>
 <th style="text-align:left">YEAR</th>
 <th style="text-align:left">Indicator Type</th>
 <th style="text-align:left">OBS.VALUE</th>
@@ -1513,7 +1514,7 @@ memory usage: 150.3+ KB
 </pre></div>
 
 </div>
-<p>Finally we are in a position to merge the data. As both datasets are in long format and each country-year-variable has a different row, all we need t odo is to attach the two spreadsheets to each other. Let's just ensure that the columns have the same order.</p>
+<p>Finally we are in a position to merge the data into a new dataframe, <code>comb_data_long</code>. As both datasets are in long format and each country-year-variable has a different row, all we need to do is to attach the two spreadsheets to each other. Let's just ensure that the columns have the same order (look at <code>inf_data_long.columns</code> and <code>int_data_annual.columns</code> ).</p>
 
 
 
@@ -1522,17 +1523,52 @@ memory usage: 150.3+ KB
 
 
 <div class="pj-input pj-fold fold-show">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">inf_data_long</span><span class="o">.</span><span class="n">columns</span>
-<span class="n">inf_data_long</span><span class="o">.</span><span class="n">shape</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">comb_data_long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">inf_data_long</span><span class="p">,</span><span class="n">int_data_annual</span><span class="p">])</span>
 </pre></div>
 
 </div>
-
-
-
-<pre>(11070, 5)</pre>
-
-
+<p>This file now has the desired structure:</p>
+<table>
+<thead><tr>
+<th style="text-align:left">Country</th>
+<th style="text-align:left">Country Code</th>
+<th style="text-align:left">YEAR</th>
+<th style="text-align:left">Indicator Type</th>
+<th style="text-align:left">OBS.VALUE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Austria</td>
+<td style="text-align:left">AUT</td>
+<td style="text-align:left">2003</td>
+<td style="text-align:left">Inflation</td>
+<td style="text-align:left">1.356</td>
+</tr>
+<tr>
+<td style="text-align:left">Austria</td>
+<td style="text-align:left">AUT</td>
+<td style="text-align:left">2003</td>
+<td style="text-align:left">Interest Rate</td>
+<td style="text-align:left">4.095</td>
+</tr>
+<tr>
+<td style="text-align:left">Austria</td>
+<td style="text-align:left">AUT</td>
+<td style="text-align:left">2004</td>
+<td style="text-align:left">Inflation</td>
+<td style="text-align:left">2.061</td>
+</tr>
+<tr>
+<td style="text-align:left">...</td>
+<td style="text-align:left">...</td>
+<td style="text-align:left">...</td>
+<td style="text-align:left">...</td>
+<td style="text-align:left">...</td>
+</tr>
+</tbody>
+</table>
+<p>although the ordering will be different. Also note that the inflation data came from the OECD database and has information for more than 200 countries and more than 50 years. The interest rate data, however, come from the European Central Bank and only contains data from 2003 onwards and only for the 20 countries in the Euro area (plus for the entire Euro area). Let us reduce the dataset to the countries we have available from the ECB and the Years 2003 to 2023 (the last year for which we had inflation data at the time of downloading). We begin by defining <code>sel_countries</code> and <code>sel_years</code> variables which contain the countries and years respectively we wish to keep.</p>
 
 
 
@@ -1541,17 +1577,35 @@ memory usage: 150.3+ KB
 
 
 <div class="pj-input pj-fold fold-show">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">int_data_annual</span><span class="o">.</span><span class="n">columns</span>
-<span class="n">int_data_annual</span><span class="o">.</span><span class="n">shape</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sel_countries</span> <span class="o">=</span> <span class="n">int_data_annual</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+<span class="n">sel_countries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">sel_countries</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span> <span class="c1"># remove element indexed 5 as that is &quot;Euro area (changing composition)&quot;</span>
+
+<span class="n">sel_years</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2003</span><span class="p">,</span><span class="mi">2024</span><span class="p">)</span> <span class="c1"># define the range of years to use</span>
+
+<span class="n">comb_data_long</span> <span class="o">=</span> <span class="n">comb_data_long</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;Country.isin(@sel_countries)&#39;</span><span class="p">)</span>  <span class="c1"># selects all rows where the Country variable is in sel_countries</span>
+<span class="n">comb_data_long</span> <span class="o">=</span> <span class="n">comb_data_long</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;YEAR.isin(@sel_years)&#39;</span><span class="p">)</span>
+<span class="n">comb_data_long</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
 </pre></div>
 
 </div>
 
+<pre>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+Int64Index: 759 entries, 6774 to 401
+Data columns (total 5 columns):
+ #   Column          Non-Null Count  Dtype  
+---  ------          --------------  -----  
+ 0   Country Code    759 non-null    object 
+ 1   Country         759 non-null    object 
+ 2   Indicator Type  759 non-null    object 
+ 3   YEAR            759 non-null    int64  
+ 4   OBS.VALUE       759 non-null    float64
+dtypes: float64(1), int64(1), object(3)
+memory usage: 35.6+ KB
+</pre>
 
 
-<pre>(403, 5)</pre>
-
-
+<p>Now we can do exciting things with the data!!! Let's do plot time series of inflation and interest rates across countries in the Euro area. Afterwards we will estimate a regression model.</p>
+<h3 id="Plotting-data">Plotting data<a class="anchor-link" href="#Plotting-data">&#182;</a></h3><p>Let's create plots with inflation rates across the EURO area and afterwards with interest rates across the EURO area. Before calling on the <code>ggplot</code> function (from the <code>lets_plot</code> library, see <a href="https://datasquad.github.io/ECLR/Py_Graphing/Py_GraphIntro.html">here</a> for an introduction), we create helper variables (<code>sel_inf</code> and <code>sel_int</code> that help us select the inflation and interest rate data respectively).</p>
 
 
 
@@ -1560,10 +1614,278 @@ memory usage: 150.3+ KB
 
 
 <div class="pj-input pj-fold fold-show">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sel_inf</span> <span class="o">=</span> <span class="n">comb_data_long</span><span class="p">[</span><span class="s1">&#39;Indicator Type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Inflation&quot;</span>
+<span class="p">(</span>
+    <span class="n">ggplot</span><span class="p">(</span><span class="n">comb_data_long</span><span class="p">[</span><span class="n">sel_inf</span><span class="p">],</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;YEAR&#39;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;OBS.VALUE&#39;</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;Country&#39;</span><span class="p">))</span> <span class="o">+</span> 
+        <span class="n">geom_line</span><span class="p">()</span> <span class="o">+</span>
+        <span class="n">labs</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Inflation rates in the EURO area&quot;</span><span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 
 </div>
+
+
+   <div id="GagWCw"></div>
+   <script type="text/javascript" data-lets-plot-script="plot">
+       (function() {
+           var plotSpec={
+"data":{
+"Country":["Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain"],
+"YEAR":[2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0],
+"OBS.VALUE":[1.3555521965026855,1.588963270187378,1.7694897651672363,4.138612270355225,1.3349969387054443,0.8774445652961731,2.098475933074951,1.034225344657898,3.5306520462036133,3.4904870986938477,2.672562837600708,2.9426443576812744,-1.1343090534210205,2.049838066101074,1.930999994277954,2.092003583908081,3.2189927101135254,5.544162273406982,3.0392396450042725,2.0612118244171143,2.0972838401794434,2.0497686862945557,2.281700611114502,3.0481016635894775,0.18711966276168823,2.1420845985412598,1.6657299995422363,2.8988475799560547,2.199629545211792,2.206732749938965,6.192381858825684,1.1641021966934204,2.2256808280944824,2.785909652709961,1.2636443376541138,2.3653643131256104,3.59298038482666,3.0391979217529297,2.2991316318511963,2.781432867050171,3.3160665035247803,2.561530351638794,4.079714298248291,0.623876690864563,1.7458690404891968,1.5469136238098145,3.545069694519043,2.429692029953003,1.9852972030639648,6.748446941375732,2.6584863662719727,2.4876930713653564,3.003730535507202,1.6881275177001953,2.2771568298339844,2.451498031616211,3.3684585094451904,1.4415483474731445,1.791200876235962,3.1846189498901367,2.5023467540740967,4.437619686126709,1.5666608810424805,1.6751307249069214,1.5774321556091309,3.1959500312805176,3.9316344261169434,2.090841770172119,6.536197662353516,3.7391183376312256,2.666317939758301,2.7721993923187256,1.1015071868896484,3.107668399810791,2.457925796508789,3.515373945236206,2.16855788230896,1.823056697845459,2.9004323482513428,2.3777711391448975,6.601335525512695,2.5106704235076904,1.4879934787750244,2.2983360290527344,2.8949997425079346,4.897116184234619,1.8297370672225952,10.092982292175293,5.737177848815918,2.31245493888855,1.252483606338501,1.613861083984375,2.453965663909912,3.6574933528900146,2.787031888961792,3.2159464359283447,4.489445209503174,6.079174995422363,4.678836822509766,10.36235237121582,4.065945148468018,2.8128652572631836,2.628387928009033,4.1527910232543945,4.060303211212158,3.3478331565856934,15.402318000793457,10.925877571105957,3.401876926422119,4.263279914855957,2.486495018005371,2.5885086059570313,5.647425174713135,4.075654029846191,0.5063095092773438,-0.05314158275723457,2.3730177879333496,0.33537834882736206,-0.07840658724308014,0.0,0.08761873096227646,0.312738299369812,1.2100766897201538,-4.478102207183838,0.7747665047645569,3.534107208251953,4.453044891357422,0.36804795265197754,2.09028959274292,1.1897834539413452,-0.8355274796485901,0.8392631411552429,-0.28799358010292053,1.8135322332382202,2.1892964839935303,1.0261070728302002,2.4301140308380127,2.972041130065918,1.1841391324996948,1.5311185121536255,1.1038023233413696,4.712983131408691,-0.9220964312553406,1.5255177021026611,-1.0846340656280518,1.319215178489685,2.273672580718994,1.5183237791061401,1.2752996683120728,1.4025702476501465,1.8011683225631714,1.7998849153518677,3.2865872383117676,3.532081127166748,2.2649402618408203,3.2853260040283203,4.981902599334717,3.416808843612671,2.111598014831543,2.07517671585083,3.3298699855804443,2.557188034057617,2.780637741088867,4.370733261108398,4.130279541015625,3.410687208175659,2.7213971614837646,2.3410685062408447,3.653007745742798,1.802852988243103,3.196138858795166,2.485670328140259,2.839660882949829,3.4127304553985596,2.3815207481384277,3.9334025382995605,2.808328866958618,1.954202651977539,2.0084869861602783,1.5015194416046143,1.6962116956710815,3.041360378265381,2.2577922344207764,3.089979648590088,2.6628425121307373,2.415301561355591,2.4555554389953613,2.7733371257781982,2.597414970397949,2.4460043907165527,2.000159502029419,1.1130969524383545,2.2169957160949707,-0.3991768956184387,2.7805678844451904,1.478294014930725,0.8637104034423828,1.5047250986099243,-0.9221663475036621,0.508711576461792,1.219995141029358,-0.029452135786414146,1.047480583190918,1.7340353727340698,1.3778873682022095,2.5068917274475098,0.2744220495223999,1.7692054510116577,1.4085477590560913,1.6058048009872437,0.34000372886657715,-0.20861181616783142,-1.3632817268371582,-0.10618039220571518,1.0411959886550903,0.5077637434005737,0.9067987203598022,-1.3112099170684814,0.18254214525222778,0.24105046689510345,0.6204919219017029,0.10375910997390747,0.6285432577133179,0.31431204080581665,0.9760401844978333,-0.2781588137149811,0.19934077560901642,-0.15087510645389557,0.8965647220611572,0.5614306330680847,-0.46123450994491577,-2.0984785556793213,-0.49232280254364014,-0.20792829990386963,0.03751285374164581,0.5144201517105103,-1.736045002937317,-0.2898753583431244,0.038792017847299576,0.17423799633979797,-0.8840970993041992,0.47474685311317444,1.1001049280166626,0.6002458930015564,0.4879421293735504,-0.5255545377731323,-0.500458300113678,0.8915959596633911,1.9738540649414063,-1.1200960874557495,-1.4275811910629272,0.148681640625,0.3566843867301941,0.18333587050437927,0.4917449951171875,-0.8256607055664063,0.00830841064453125,-0.09402329474687576,0.14063262939453125,0.905525267124176,0.29083251953125,0.6445304751396179,0.3166656494140625,0.6073989868164063,-0.05499984696507454,-0.20267486572265625,2.23,2.224,1.129,0.681,3.651,0.839,1.163,1.711,1.138,0.251,1.326,2.894,3.718,2.111,1.261,1.299,1.556,1.432,1.956,2.0,2.05,1.5,1.43,3.44,1.08,1.85,1.73,0.63,0.49,1.14,2.53,2.7,1.53,1.16,1.7,0.99,1.74,1.68,1.4900000095367432,1.2489999532699585,0.7720000147819519,0.5559999942779541,2.2679998874664307,1.1369999647140503,1.2999999523162842,1.3459999561309814,0.5170000195503235,0.8769999742507935,0.6340000033378601,2.746999979019165,2.242000102996826,1.6540000438690186,1.5230000019073486,2.6730000972747803,0.30000001192092896,1.628000020980835,0.699999988079071,1.3819106335189655,0.7407918122200935,0.2750000059604645,-0.6384227979796395,-0.44453109767990445,0.2905545556537687,0.47649885272516185,0.5066898899535387,-1.247951877013435,-0.33458462542824474,-0.13770757391705762,0.21906490484285218,1.1998944498358577,0.8199573021270316,0.6385449567771556,1.2724603778915136,-0.012438329957616758,-0.05485681576051721,-0.3226710328111976,2.766667,2.440248,2.5545069964204297,0.492,4.653167,2.194574,1.642331,3.14297,1.223826,2.358143,1.873783,3.275814,4.683544,2.52692,1.5,2.67572,1.265657,1.917065,3.093135,8.54687,9.597511,10.7805806758686,8.3954829799334,19.39826,7.123507,5.222367,6.872574,9.645261,7.807375,8.20129,17.31029,19.70505,6.336008,6.15375621933034,10.00121,7.832691,8.833699,8.390576,7.81413417002832,4.04901077613941,7.9412817758683,3.54134188751663,9.452176703507634,6.25064322154763,4.87835726508441,5.94643667725823,3.46480128513405,6.29962157750247,5.62219442195901,8.93804623316637,9.11731962390475,3.74140361983136,5.11092718344357,3.83839354342808,4.31128191898672,7.44687717385838,3.53236133492433]
+},
+"mapping":{
+"x":"YEAR",
+"y":"OBS.VALUE",
+"color":"Country"
+},
+"data_meta":{
+},
+"ggtitle":{
+"text":"Inflation rates in the EURO area"
+},
+"kind":"plot",
+"scales":[],
+"layers":[{
+"geom":"line",
+"mapping":{
+},
+"data_meta":{
+},
+"data":{
+}
+}],
+"metainfo_list":[]
+};
+           var plotContainer = document.getElementById("GagWCw");
+           window.letsPlotCall(function() {{
+               LetsPlot.buildPlotFromProcessedSpecs(plotSpec, -1, -1, plotContainer);
+           }});
+       })();    
+   </script>
+
+
+
+<p>By and large inflation rates seem harmonised across the EURO area. And now for the interest rates.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sel_int</span> <span class="o">=</span> <span class="n">comb_data_long</span><span class="p">[</span><span class="s1">&#39;Indicator Type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Interest rate&quot;</span>
+<span class="p">(</span>
+    <span class="n">ggplot</span><span class="p">(</span><span class="n">comb_data_long</span><span class="p">[</span><span class="n">sel_int</span><span class="p">],</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;YEAR&#39;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;OBS.VALUE&#39;</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;Country&#39;</span><span class="p">))</span> <span class="o">+</span> 
+        <span class="n">geom_line</span><span class="p">()</span> <span class="o">+</span>
+        <span class="n">labs</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Interst rates in the EURO area&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+   <div id="6xRjeP"></div>
+   <script type="text/javascript" data-lets-plot-script="plot">
+       (function() {
+           var plotSpec={
+"data":{
+"Country":["Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Croatia","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain"],
+"YEAR":[2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2023.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0],
+"OBS.VALUE":[4.095,3.6058333333333334,3.4408333333333334,4.013333333333333,5.008333333333334,5.38,2.7583333333333333,2.2883333333333336,2.7916666666666665,2.2675,2.01,1.9733333333333334,1.82,1.7108333333333334,1.5641666666666667,1.4966666666666668,1.4516666666666664,1.4225,1.3983333333333334,1.8466666666666667,4.529166666666667,3.78,3.5841666666666665,3.4333333333333336,4.035,5.150833333333334,5.441666666666666,2.6183333333333336,2.2675,2.8333333333333335,2.3983333333333334,2.2816666666666667,2.2575,1.9391666666666667,1.7425,1.6733333333333331,1.5983333333333334,1.5358333333333334,1.5683333333333334,1.5783333333333334,2.0416666666666665,4.689166666666667,4.574166666666667,6.753333333333334,6.489999999999999,6.110833333333333,6.733333333333333,6.954999999999999,6.302499999999999,5.824166666666667,4.780833333333333,4.179166666666666,3.891666666666667,3.525,3.27,3.125,3.0858333333333334,3.3375,5.4975,4.296666666666667,5.016666666666667,5.930833333333333,6.4991666666666665,4.9991666666666665,4.5225,4.5175,3.705833333333333,3.1566666666666667,2.9683333333333333,2.513333333333333,2.4916666666666667,2.5725000000000002,2.6225,3.1875,2.8983333333333334,2.78,3.43,6.274166666666667,3.5825,3.3375,3.2075,3.9774999999999996,5.003333333333333,5.219166666666667,2.425,2.02,2.7108333333333334,2.2216666666666667,2.0791666666666666,2.0966666666666667,1.7149999999999999,1.5716666666666665,1.5466666666666666,1.5,1.5233333333333334,1.49,1.385,2.0908333333333333,4.8525,3.626666666666667,3.473333333333333,3.3258333333333336,3.9725,4.960833333333333,5.328333333333333,2.9091666666666662,2.4625,3.0400000000000005,2.6058333333333334,2.1808333333333336,2.11,1.7383333333333333,1.6025,1.5258333333333332,1.4783333333333333,1.4475,1.1816666666666666,1.3,1.8375000000000001,4.316666666666666,4.486666666666667,4.201666666666667,3.9875000000000003,4.590833333333333,5.509166666666666,5.699166666666667,3.5700000000000003,3.1625,3.5325,2.9416666666666664,2.57,2.4766666666666666,2.09,1.8783333333333332,1.7441666666666666,1.6341666666666665,1.5433333333333332,1.59,1.5316666666666665,2.2708333333333335,4.910833333333334,5.385833333333333,5.184166666666667,5.1675,5.744166666666666,6.4750000000000005,6.7124999999999995,4.916666666666667,5.21,6.4624999999999995,6.573333333333333,6.2508333333333335,5.826666666666667,5.134166666666666,4.9225,4.506666666666667,4.108333333333333,3.9616666666666664,3.2866666666666666,3.115,3.5133333333333336,5.8691666666666675,4.74,4.319166666666667,4.230833333333334,4.969166666666667,6.0566666666666675,6.3125,3.4633333333333334,3.3508333333333336,4.0275,3.6750000000000003,3.6024999999999996,3.688333333333333,3.015833333333333,2.8041666666666667,2.8241666666666667,2.81,3.060833333333333,2.829166666666667,2.6958333333333333,3.3983333333333334,5.560833333333334,4.63,4.296666666666667,4.176666666666667,4.730833333333333,5.486666666666667,5.982499999999999,3.5400000000000005,2.9275,3.7025,4.141666666666667,4.0025,3.595833333333333,2.714166666666667,2.1883333333333335,1.9000000000000001,1.8091666666666668,1.7233333333333334,1.5133333333333334,1.3383333333333332,1.925,4.888333333333333,3.5050000000000003,3.3341666666666665,2.8683333333333336,2.855,3.0141666666666667,3.2775,3.391666666666667,3.098333333333333,3.2183333333333333,5.904166666666666,2.5025,2.32,2.3041666666666667,2.5875,2.8066666666666666,2.8175000000000003,2.6374999999999997,3.294166666666667,6.048333333333333,3.6133333333333333,3.3033333333333332,3.3383333333333334,4.0216666666666665,4.925833333333333,4.995833333333334,2.5233333333333334,2.6025,2.703333333333333,1.9883333333333333,1.7675,1.6466666666666667,1.5641666666666667,1.3416666666666668,1.3499999999999999,1.3741666666666668,1.2833333333333334,1.2016666666666667,1.2175,1.7116666666666667,3.8216666666666668,6.123333333333334,4.966666666666667,4.816666666666666,4.685,4.4991666666666665,4.484166666666667,4.256666666666667,3.936666666666667,3.525,3.6875,3.8158333333333334,3.775,3.5583333333333336,3.876666666666667,3.8358333333333334,5.011666666666667,3.905,3.625,3.5833333333333335,4.2508333333333335,5.121666666666667,5.343333333333334,2.94,2.5741666666666667,3.0766666666666667,2.5208333333333335,2.3558333333333334,2.313333333333333,1.8666666666666665,1.5241666666666667,1.4716666666666667,1.3216666666666665,1.1766666666666665,1.0975,0.9433333333333334,1.5591666666666668,3.9516666666666667,4.86,4.576666666666667,4.673333333333333,5.201666666666667,6.043333333333333,6.677499999999999,4.743333333333333,4.5175,6.075,6.251666666666666,5.640000000000001,5.0008333333333335,3.9599999999999995,3.285833333333333,2.8074999999999997,2.4808333333333334,2.388333333333333,2.1149999999999998,2.0508333333333333,2.6725,5.359166666666667,5.79,3.984166666666667,3.455833333333333,3.5391666666666666,2.8183333333333334,2.6216666666666666,2.6591666666666667,2.410833333333333,2.236666666666667,2.1491666666666664,2.235,2.1125000000000003,2.0466666666666664,2.0608333333333335,2.5383333333333336,5.328333333333333,3.5841666666666665,3.2116666666666664,3.3841666666666668,4.2175,5.409166666666667,6.3425,5.461666666666667,5.1241666666666665,5.24,4.975833333333333,4.8475,4.388333333333333,3.1158333333333332,2.4325,2.356666666666667,2.185,1.8583333333333334,1.9708333333333332,1.7683333333333333,2.2133333333333334,4.941666666666666,3.720833333333333,3.3641666666666663,3.3375,4.041666666666667,5.170833333333333,5.62,3.029166666666667,2.8058333333333336,3.6966666666666668,3.5908333333333338,3.581666666666667,3.3633333333333333,2.615,2.1233333333333335,1.8875,1.7708333333333333,1.6666666666666667,1.6041666666666667,1.5366666666666668,1.9275,4.535833333333334]
+},
+"mapping":{
+"x":"YEAR",
+"y":"OBS.VALUE",
+"color":"Country"
+},
+"data_meta":{
+},
+"ggtitle":{
+"text":"Interst rates in the EURO area"
+},
+"kind":"plot",
+"scales":[],
+"layers":[{
+"geom":"line",
+"mapping":{
+},
+"data_meta":{
+},
+"data":{
+}
+}],
+"metainfo_list":[]
+};
+           var plotContainer = document.getElementById("6xRjeP");
+           window.letsPlotCall(function() {{
+               LetsPlot.buildPlotFromProcessedSpecs(plotSpec, -1, -1, plotContainer);
+           }});
+       })();    
+   </script>
+
+
+
+<p>There is much more variation in interest rates between the countries of the EURO area.</p>
+<p>Another interesting visualisation to look at would be line graphs in which, for each country, we can see the development of the the interest rate and inflation rate in the same graph. This will give us an idea of the real interest rate (nominal interest rate - inflation).</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span>
+    <span class="n">ggplot</span><span class="p">(</span><span class="n">comb_data_long</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="s1">&#39;YEAR&#39;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;OBS.VALUE&#39;</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;Indicator Type&#39;</span><span class="p">))</span> <span class="o">+</span> 
+        <span class="n">geom_line</span><span class="p">()</span> <span class="o">+</span>
+        <span class="n">facet_wrap</span><span class="p">(</span><span class="s1">&#39;Country&#39;</span><span class="p">)</span> <span class="o">+</span>
+        <span class="n">labs</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Interst rate and inflation rates across the EURO area&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+   <div id="oNZtGD"></div>
+   <script type="text/javascript" data-lets-plot-script="plot">
+       (function() {
+           var plotSpec={
+"data":{
+"Country":["Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Belgium","Croatia","Cyprus","Estonia","Finland","France","Germany","Greece","Ireland","Italy","Latvia","Lithuania","Luxembourg","Malta","Netherlands","Portugal","Slovenia","Spain","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Austria","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Belgium","Croatia","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Cyprus","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Estonia","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","Finland","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","France","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Germany","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Greece","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Ireland","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Italy","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Latvia","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Lithuania","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Luxembourg","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Malta","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Netherlands","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Portugal","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovakia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Slovenia","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain","Spain"],
+"Indicator Type":["Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Inflation","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate","Interest rate"],
+"YEAR":[2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2003.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2004.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2005.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2006.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2007.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2008.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2009.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2010.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2011.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2012.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2013.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2014.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2015.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2016.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2017.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2018.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2019.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2020.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2021.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2022.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2023.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0,2003.0,2004.0,2005.0,2006.0,2007.0,2008.0,2009.0,2010.0,2011.0,2012.0,2013.0,2014.0,2015.0,2016.0,2017.0,2018.0,2019.0,2020.0,2021.0,2022.0,2023.0],
+"OBS.VALUE":[1.3555521965026855,1.588963270187378,1.7694897651672363,4.138612270355225,1.3349969387054443,0.8774445652961731,2.098475933074951,1.034225344657898,3.5306520462036133,3.4904870986938477,2.672562837600708,2.9426443576812744,-1.1343090534210205,2.049838066101074,1.930999994277954,2.092003583908081,3.2189927101135254,5.544162273406982,3.0392396450042725,2.0612118244171143,2.0972838401794434,2.0497686862945557,2.281700611114502,3.0481016635894775,0.18711966276168823,2.1420845985412598,1.6657299995422363,2.8988475799560547,2.199629545211792,2.206732749938965,6.192381858825684,1.1641021966934204,2.2256808280944824,2.785909652709961,1.2636443376541138,2.3653643131256104,3.59298038482666,3.0391979217529297,2.2991316318511963,2.781432867050171,3.3160665035247803,2.561530351638794,4.079714298248291,0.623876690864563,1.7458690404891968,1.5469136238098145,3.545069694519043,2.429692029953003,1.9852972030639648,6.748446941375732,2.6584863662719727,2.4876930713653564,3.003730535507202,1.6881275177001953,2.2771568298339844,2.451498031616211,3.3684585094451904,1.4415483474731445,1.791200876235962,3.1846189498901367,2.5023467540740967,4.437619686126709,1.5666608810424805,1.6751307249069214,1.5774321556091309,3.1959500312805176,3.9316344261169434,2.090841770172119,6.536197662353516,3.7391183376312256,2.666317939758301,2.7721993923187256,1.1015071868896484,3.107668399810791,2.457925796508789,3.515373945236206,2.16855788230896,1.823056697845459,2.9004323482513428,2.3777711391448975,6.601335525512695,2.5106704235076904,1.4879934787750244,2.2983360290527344,2.8949997425079346,4.897116184234619,1.8297370672225952,10.092982292175293,5.737177848815918,2.31245493888855,1.252483606338501,1.613861083984375,2.453965663909912,3.6574933528900146,2.787031888961792,3.2159464359283447,4.489445209503174,6.079174995422363,4.678836822509766,10.36235237121582,4.065945148468018,2.8128652572631836,2.628387928009033,4.1527910232543945,4.060303211212158,3.3478331565856934,15.402318000793457,10.925877571105957,3.401876926422119,4.263279914855957,2.486495018005371,2.5885086059570313,5.647425174713135,4.075654029846191,0.5063095092773438,-0.05314158275723457,2.3730177879333496,0.33537834882736206,-0.07840658724308014,0.0,0.08761873096227646,0.312738299369812,1.2100766897201538,-4.478102207183838,0.7747665047645569,3.534107208251953,4.453044891357422,0.36804795265197754,2.09028959274292,1.1897834539413452,-0.8355274796485901,0.8392631411552429,-0.28799358010292053,1.8135322332382202,2.1892964839935303,1.0261070728302002,2.4301140308380127,2.972041130065918,1.1841391324996948,1.5311185121536255,1.1038023233413696,4.712983131408691,-0.9220964312553406,1.5255177021026611,-1.0846340656280518,1.319215178489685,2.273672580718994,1.5183237791061401,1.2752996683120728,1.4025702476501465,1.8011683225631714,1.7998849153518677,3.2865872383117676,3.532081127166748,2.2649402618408203,3.2853260040283203,4.981902599334717,3.416808843612671,2.111598014831543,2.07517671585083,3.3298699855804443,2.557188034057617,2.780637741088867,4.370733261108398,4.130279541015625,3.410687208175659,2.7213971614837646,2.3410685062408447,3.653007745742798,1.802852988243103,3.196138858795166,2.485670328140259,2.839660882949829,3.4127304553985596,2.3815207481384277,3.9334025382995605,2.808328866958618,1.954202651977539,2.0084869861602783,1.5015194416046143,1.6962116956710815,3.041360378265381,2.2577922344207764,3.089979648590088,2.6628425121307373,2.415301561355591,2.4555554389953613,2.7733371257781982,2.597414970397949,2.4460043907165527,2.000159502029419,1.1130969524383545,2.2169957160949707,-0.3991768956184387,2.7805678844451904,1.478294014930725,0.8637104034423828,1.5047250986099243,-0.9221663475036621,0.508711576461792,1.219995141029358,-0.029452135786414146,1.047480583190918,1.7340353727340698,1.3778873682022095,2.5068917274475098,0.2744220495223999,1.7692054510116577,1.4085477590560913,1.6058048009872437,0.34000372886657715,-0.20861181616783142,-1.3632817268371582,-0.10618039220571518,1.0411959886550903,0.5077637434005737,0.9067987203598022,-1.3112099170684814,0.18254214525222778,0.24105046689510345,0.6204919219017029,0.10375910997390747,0.6285432577133179,0.31431204080581665,0.9760401844978333,-0.2781588137149811,0.19934077560901642,-0.15087510645389557,0.8965647220611572,0.5614306330680847,-0.46123450994491577,-2.0984785556793213,-0.49232280254364014,-0.20792829990386963,0.03751285374164581,0.5144201517105103,-1.736045002937317,-0.2898753583431244,0.038792017847299576,0.17423799633979797,-0.8840970993041992,0.47474685311317444,1.1001049280166626,0.6002458930015564,0.4879421293735504,-0.5255545377731323,-0.500458300113678,0.8915959596633911,1.9738540649414063,-1.1200960874557495,-1.4275811910629272,0.148681640625,0.3566843867301941,0.18333587050437927,0.4917449951171875,-0.8256607055664063,0.00830841064453125,-0.09402329474687576,0.14063262939453125,0.905525267124176,0.29083251953125,0.6445304751396179,0.3166656494140625,0.6073989868164063,-0.05499984696507454,-0.20267486572265625,2.23,2.224,1.129,0.681,3.651,0.839,1.163,1.711,1.138,0.251,1.326,2.894,3.718,2.111,1.261,1.299,1.556,1.432,1.956,2.0,2.05,1.5,1.43,3.44,1.08,1.85,1.73,0.63,0.49,1.14,2.53,2.7,1.53,1.16,1.7,0.99,1.74,1.68,1.4900000095367432,1.2489999532699585,0.7720000147819519,0.5559999942779541,2.2679998874664307,1.1369999647140503,1.2999999523162842,1.3459999561309814,0.5170000195503235,0.8769999742507935,0.6340000033378601,2.746999979019165,2.242000102996826,1.6540000438690186,1.5230000019073486,2.6730000972747803,0.30000001192092896,1.628000020980835,0.699999988079071,1.3819106335189655,0.7407918122200935,0.2750000059604645,-0.6384227979796395,-0.44453109767990445,0.2905545556537687,0.47649885272516185,0.5066898899535387,-1.247951877013435,-0.33458462542824474,-0.13770757391705762,0.21906490484285218,1.1998944498358577,0.8199573021270316,0.6385449567771556,1.2724603778915136,-0.012438329957616758,-0.05485681576051721,-0.3226710328111976,2.766667,2.440248,2.5545069964204297,0.492,4.653167,2.194574,1.642331,3.14297,1.223826,2.358143,1.873783,3.275814,4.683544,2.52692,1.5,2.67572,1.265657,1.917065,3.093135,8.54687,9.597511,10.7805806758686,8.3954829799334,19.39826,7.123507,5.222367,6.872574,9.645261,7.807375,8.20129,17.31029,19.70505,6.336008,6.15375621933034,10.00121,7.832691,8.833699,8.390576,7.81413417002832,4.04901077613941,7.9412817758683,3.54134188751663,9.452176703507634,6.25064322154763,4.87835726508441,5.94643667725823,3.46480128513405,6.29962157750247,5.62219442195901,8.93804623316637,9.11731962390475,3.74140361983136,5.11092718344357,3.83839354342808,4.31128191898672,7.44687717385838,3.53236133492433,4.095,3.6058333333333334,3.4408333333333334,4.013333333333333,5.008333333333334,5.38,2.7583333333333333,2.2883333333333336,2.7916666666666665,2.2675,2.01,1.9733333333333334,1.82,1.7108333333333334,1.5641666666666667,1.4966666666666668,1.4516666666666664,1.4225,1.3983333333333334,1.8466666666666667,4.529166666666667,3.78,3.5841666666666665,3.4333333333333336,4.035,5.150833333333334,5.441666666666666,2.6183333333333336,2.2675,2.8333333333333335,2.3983333333333334,2.2816666666666667,2.2575,1.9391666666666667,1.7425,1.6733333333333331,1.5983333333333334,1.5358333333333334,1.5683333333333334,1.5783333333333334,2.0416666666666665,4.689166666666667,4.574166666666667,6.753333333333334,6.489999999999999,6.110833333333333,6.733333333333333,6.954999999999999,6.302499999999999,5.824166666666667,4.780833333333333,4.179166666666666,3.891666666666667,3.525,3.27,3.125,3.0858333333333334,3.3375,5.4975,4.296666666666667,5.016666666666667,5.930833333333333,6.4991666666666665,4.9991666666666665,4.5225,4.5175,3.705833333333333,3.1566666666666667,2.9683333333333333,2.513333333333333,2.4916666666666667,2.5725000000000002,2.6225,3.1875,2.8983333333333334,2.78,3.43,6.274166666666667,3.5825,3.3375,3.2075,3.9774999999999996,5.003333333333333,5.219166666666667,2.425,2.02,2.7108333333333334,2.2216666666666667,2.0791666666666666,2.0966666666666667,1.7149999999999999,1.5716666666666665,1.5466666666666666,1.5,1.5233333333333334,1.49,1.385,2.0908333333333333,4.8525,3.626666666666667,3.473333333333333,3.3258333333333336,3.9725,4.960833333333333,5.328333333333333,2.9091666666666662,2.4625,3.0400000000000005,2.6058333333333334,2.1808333333333336,2.11,1.7383333333333333,1.6025,1.5258333333333332,1.4783333333333333,1.4475,1.1816666666666666,1.3,1.8375000000000001,4.316666666666666,4.486666666666667,4.201666666666667,3.9875000000000003,4.590833333333333,5.509166666666666,5.699166666666667,3.5700000000000003,3.1625,3.5325,2.9416666666666664,2.57,2.4766666666666666,2.09,1.8783333333333332,1.7441666666666666,1.6341666666666665,1.5433333333333332,1.59,1.5316666666666665,2.2708333333333335,4.910833333333334,5.385833333333333,5.184166666666667,5.1675,5.744166666666666,6.4750000000000005,6.7124999999999995,4.916666666666667,5.21,6.4624999999999995,6.573333333333333,6.2508333333333335,5.826666666666667,5.134166666666666,4.9225,4.506666666666667,4.108333333333333,3.9616666666666664,3.2866666666666666,3.115,3.5133333333333336,5.8691666666666675,4.74,4.319166666666667,4.230833333333334,4.969166666666667,6.0566666666666675,6.3125,3.4633333333333334,3.3508333333333336,4.0275,3.6750000000000003,3.6024999999999996,3.688333333333333,3.015833333333333,2.8041666666666667,2.8241666666666667,2.81,3.060833333333333,2.829166666666667,2.6958333333333333,3.3983333333333334,5.560833333333334,4.63,4.296666666666667,4.176666666666667,4.730833333333333,5.486666666666667,5.982499999999999,3.5400000000000005,2.9275,3.7025,4.141666666666667,4.0025,3.595833333333333,2.714166666666667,2.1883333333333335,1.9000000000000001,1.8091666666666668,1.7233333333333334,1.5133333333333334,1.3383333333333332,1.925,4.888333333333333,3.5050000000000003,3.3341666666666665,2.8683333333333336,2.855,3.0141666666666667,3.2775,3.391666666666667,3.098333333333333,3.2183333333333333,5.904166666666666,2.5025,2.32,2.3041666666666667,2.5875,2.8066666666666666,2.8175000000000003,2.6374999999999997,3.294166666666667,6.048333333333333,3.6133333333333333,3.3033333333333332,3.3383333333333334,4.0216666666666665,4.925833333333333,4.995833333333334,2.5233333333333334,2.6025,2.703333333333333,1.9883333333333333,1.7675,1.6466666666666667,1.5641666666666667,1.3416666666666668,1.3499999999999999,1.3741666666666668,1.2833333333333334,1.2016666666666667,1.2175,1.7116666666666667,3.8216666666666668,6.123333333333334,4.966666666666667,4.816666666666666,4.685,4.4991666666666665,4.484166666666667,4.256666666666667,3.936666666666667,3.525,3.6875,3.8158333333333334,3.775,3.5583333333333336,3.876666666666667,3.8358333333333334,5.011666666666667,3.905,3.625,3.5833333333333335,4.2508333333333335,5.121666666666667,5.343333333333334,2.94,2.5741666666666667,3.0766666666666667,2.5208333333333335,2.3558333333333334,2.313333333333333,1.8666666666666665,1.5241666666666667,1.4716666666666667,1.3216666666666665,1.1766666666666665,1.0975,0.9433333333333334,1.5591666666666668,3.9516666666666667,4.86,4.576666666666667,4.673333333333333,5.201666666666667,6.043333333333333,6.677499999999999,4.743333333333333,4.5175,6.075,6.251666666666666,5.640000000000001,5.0008333333333335,3.9599999999999995,3.285833333333333,2.8074999999999997,2.4808333333333334,2.388333333333333,2.1149999999999998,2.0508333333333333,2.6725,5.359166666666667,5.79,3.984166666666667,3.455833333333333,3.5391666666666666,2.8183333333333334,2.6216666666666666,2.6591666666666667,2.410833333333333,2.236666666666667,2.1491666666666664,2.235,2.1125000000000003,2.0466666666666664,2.0608333333333335,2.5383333333333336,5.328333333333333,3.5841666666666665,3.2116666666666664,3.3841666666666668,4.2175,5.409166666666667,6.3425,5.461666666666667,5.1241666666666665,5.24,4.975833333333333,4.8475,4.388333333333333,3.1158333333333332,2.4325,2.356666666666667,2.185,1.8583333333333334,1.9708333333333332,1.7683333333333333,2.2133333333333334,4.941666666666666,3.720833333333333,3.3641666666666663,3.3375,4.041666666666667,5.170833333333333,5.62,3.029166666666667,2.8058333333333336,3.6966666666666668,3.5908333333333338,3.581666666666667,3.3633333333333333,2.615,2.1233333333333335,1.8875,1.7708333333333333,1.6666666666666667,1.6041666666666667,1.5366666666666668,1.9275,4.535833333333334]
+},
+"mapping":{
+"x":"YEAR",
+"y":"OBS.VALUE",
+"color":"Indicator Type"
+},
+"data_meta":{
+},
+"facet":{
+"name":"wrap",
+"facets":"Country",
+"order":1.0,
+"dir":"h"
+},
+"ggtitle":{
+"text":"Interst rate and inflation rates across the EURO area"
+},
+"kind":"plot",
+"scales":[],
+"layers":[{
+"geom":"line",
+"mapping":{
+},
+"data_meta":{
+},
+"data":{
+}
+}],
+"metainfo_list":[]
+};
+           var plotContainer = document.getElementById("oNZtGD");
+           window.letsPlotCall(function() {{
+               LetsPlot.buildPlotFromProcessedSpecs(plotSpec, -1, -1, plotContainer);
+           }});
+       })();    
+   </script>
+
+
+
+<p>You can see that in most of the larger countries in the EURO area the interest rate ends to be larger than the inflation rate, implying a positive real interest rate. However, during the covid period, real interest rates were significantly negative. You can also see that our dataset is not complete, a number of inflation data are missing.</p>
+
+<h3 id="Estimating-a-regression">Estimating a regression<a class="anchor-link" href="#Estimating-a-regression">&#182;</a></h3><p>When you estimate a regression it is convenient to reorganise your data from long to wide, meaning that the different variables, here inflation and interest rates, are shown as different columns and not as different observations. The Python function to turn a long data frame to a wide one is the <code>pivot</code> function.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">index_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Country Code&#39;</span><span class="p">,</span> <span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;YEAR&#39;</span><span class="p">]</span> <span class="c1"># picks the columns to keep </span>
+<span class="n">col_vars</span> <span class="o">=</span> <span class="s1">&#39;Indicator Type&#39;</span> <span class="c1"># picks the column which is to be turned into new columns (one for each value)</span>
+<span class="n">value_vars</span> <span class="o">=</span> <span class="s1">&#39;OBS.VALUE&#39;</span>    <span class="c1"># picks the column from which to pick the values for the columns</span>
+<span class="n">comb_data_wide</span> <span class="o">=</span> <span class="n">comb_data_long</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="n">index_vars</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">col_vars</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">value_vars</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+</pre></div>
+
+</div>
+<p>Try the above command without the <code>.reset_index()</code>. You will see that it will have combined the <code>index_vars</code> into one variable which is not useful. <code>comb_data_wide</code> now has seperate columns for inflation and interest rates (although different countries still appear in different rows, but that is ok). Now we are in a position to run a regression, say, using the Austrian</p>
+$$int_t = \alpha_0 + \alpha_1 inf_t + epsilon_t$$<p>It is of course important to understand that this is just a descriptive tool and no causal interpretation should be attached to the results. You can learn more about implementing regression in Python from <a href="https://datasquad.github.io/ECLR/Py_Regression/Py_RegressionIntro.html">this page on ECLR</a>. We need the <code>statsmodels</code> package.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span> 
+</pre></div>
+
+</div>
+<p>Should you get the error message "ModuleNotFoundError: No module named 'statsmodels'" then you will first have to install the package. Go to your Terminal and use the command "pip install statsmodels".</p>
+<p>The following code selects the data to use, defines y and x variables and estimates an OLS regression.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sel_country</span> <span class="o">=</span> <span class="n">comb_data_wide</span><span class="p">[</span><span class="s1">&#39;Country Code&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;AUT&quot;</span>  <span class="c1"># indicator variable for obs from Austria</span>
+<span class="n">temp_data</span> <span class="o">=</span> <span class="n">comb_data_wide</span><span class="p">[</span><span class="n">sel_country</span><span class="p">]</span>     <span class="c1"># select the observations fom Austria</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">temp_data</span><span class="p">[</span><span class="s1">&#39;Interest rate&#39;</span><span class="p">]</span>              <span class="c1"># define left hand side variable, explained</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">temp_data</span><span class="p">[</span><span class="s1">&#39;Inflation&#39;</span><span class="p">]</span>                  <span class="c1"># define right hand side variable, explanatory</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>          <span class="c1"># define model and add constant</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>                             <span class="c1"># estimate the model</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>                        <span class="c1"># show regression output</span>
+</pre></div>
+
+</div>
+
+<pre>                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:          Interest rate   R-squared:                       0.035
+Model:                            OLS   Adj. R-squared:                 -0.016
+Method:                 Least Squares   F-statistic:                    0.6943
+Date:                Mon, 03 Feb 2025   Prob (F-statistic):              0.415
+Time:                        08:17:00   Log-Likelihood:                -33.965
+No. Observations:                  21   AIC:                             71.93
+Df Residuals:                      19   BIC:                             74.02
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P&gt;|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          2.4147      0.450      5.368      0.000       1.473       3.356
+Inflation      0.1180      0.142      0.833      0.415      -0.178       0.414
+==============================================================================
+Omnibus:                        2.534   Durbin-Watson:                   0.499
+Prob(Omnibus):                  0.282   Jarque-Bera (JB):                2.088
+Skew:                           0.675   Prob(JB):                        0.352
+Kurtosis:                       2.250   Cond. No.                         5.43
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+</pre>
+
+
+<p>You can see that there is no statistically significant relation between interest rate and inflation in Austria over the 2003 to 2023 sample period.</p>
+<h2 id="Summary">Summary<a class="anchor-link" href="#Summary">&#182;</a></h2><p>In this workthrough you learned how to</p>
+<ul>
+<li>merge two datafiles</li>
+<li>prepare datafiles for merging</li>
+<li>change data formats between wide and long</li>
+<li>adjust data formats to suit the analysis. </li>
+</ul>
+
           
         </div>
         
