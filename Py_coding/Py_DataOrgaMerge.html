@@ -1434,7 +1434,7 @@ memory usage: 150.3+ KB
 
 
 
-<h2 id="Organise-spreadsheets">Organise spreadsheets<a class="anchor-link" href="#Organise-spreadsheets">&#182;</a></h2><p>It is very common that you may want to reorganise spreadsheets as running regressions may require a different data structure than graphing data. It is for this reason that you have to be prepared to re-organise your data alone. On this occasion we also need to reorganise data such that we can merge the two datasets. Here is a schematic view of how the data look like.</p>
+<h2 id="Organise-dataframes">Organise dataframes<a class="anchor-link" href="#Organise-dataframes">&#182;</a></h2><p>It is very common that you may want to reorganise spreadsheets as running regressions may require a different data structure than graphing data. It is for this reason that you have to be prepared to re-organise your data alone. On this occasion we also need to reorganise data such that we can merge the two datasets. Here is a schematic view of how the data look like.</p>
 <p><img src="../images/Py_DataOrg_TabStructures.png" alt="Schematic view of different table structures, inf_data is wide, int_data is long" title="Schematic view of different table structures, inf_data is wide, int_data is long"></p>
 <p><code>inf_data</code> has a so-called wide structure, <code>int_data_annual</code> has a long data structure. Long structures are typically easier to work with. In order to merge these we will have to add another variable to <code>int_data_annual</code> namely a variable called <code>Indicator Type</code> which tells us that the data in the <code>int_data</code> dataframe are interest rates. This is because we are aiming at merging the data into  the following type of structure.</p>
 <table>
@@ -1885,6 +1885,7 @@ Notes:
 <li>change data formats between wide and long</li>
 <li>adjust data formats to suit the analysis. </li>
 </ul>
+<p>This walkthrough is part of the <a href="https://datasquad.github.io/ECLR/">ECLR</a> page.</p>
 
           
         </div>
