@@ -46,7 +46,7 @@ source("Stargazer_HC.R")
 
 ## Load Data
 
-In the last step of Part 1 we saved all data in a well formatted datafile "US Gun_example_v3.csv", [https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/data/US%20Gun_example_v3.csv](which you can download from here) such that you can then load it:
+In the last step of Part 1 we saved all data in a well formatted datafile "US Gun_example_v3.csv", [which you can download from here](https://raw.githubusercontent.com/datasquad/ECLR/refs/heads/gh-pages/data/US%20Gun_example_v3.csv) such that you can then load it:
 
 ```{r, eval = FALSE}
 datadir <- "data/"  # folder in which my data are saved, adjust to your own data location
