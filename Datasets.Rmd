@@ -31,10 +31,11 @@ These are institutions which do offer access to data.
 * [German Open Data Portal](https://www.govdata.de/), portal to various German government open data sources
 * [World Bank](https://data.worldbank.org/) has a range of data amongst others a [Inflation data](https://www.worldbank.org/en/research/brief/inflation-database).
 * [OECD Database](https://www.oecd.org/en/data.html)
+* [International Energy Agency (IEA)](https://www.iea.org/) collects many energy related datasets. Chheck out the "Data" tab to see what is available. To get access you need to register, but that is for free.
 
 ## National Surveys
 
-Many nations run large national surveys. This is a selection. Typically summary data are freely available and access to more detailed data can be available for some of thises after a registration process.
+Many nations run large national surveys. This is a selection. Typically summary data are freely available and access to more detailed data can be available for some of these after a registration process.
 
 * [Understanding Society - UK Household Longitudinal Study](https://www.understandingsociety.ac.uk/)
 * [National Longitudinal survey(USA)](https://www.bls.gov/nls/) 
