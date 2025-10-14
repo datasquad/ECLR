@@ -215,13 +215,16 @@ XXXX(XXXX)
 <br>
 
 # Task 2. Import the Excel data set into R.
-Once the readxl library is activated, we can use its `read_excel()` function to import the **`"natural.xlsx"`** dataset. We then store the imported dataset in an object named `emdat`.
+Once the readxl library is activated, we can use its `read_excel()` function to import the ["natural.xlsx"](https://raw.githubusercontent.com/datasquad/ECLR/refs/heads/gh-pages/data/natural.xlsx) dataset. We then store the imported dataset in an object named `emdat`.
 
-```{r}
+```{r, echo = FALSE}
 emdat <- read_excel("../data/natural.xlsx", guess_max = 15000) 
 # for now ignore what guess_max = 15000 does) 
 ```
-
+```{r, eval = FALSE}
+emdat <- read_excel("natural.xlsx", guess_max = 15000) 
+# for now ignore what guess_max = 15000 does) 
+```
 
 `r hide("What does this line of code actually do")`
 
@@ -621,12 +624,16 @@ It is often said that the effects of climate change do predominantly hit the cou
 
 That dataset is the [EDGAR dataset](https://edgar.jrc.ec.europa.eu/dataset_ghg2024) maintained by the European Union. We are downloading the 2024 version of the dataset, in particular the "EDGAR Total GHG in CO2eq" version. 
 
-![Screenshot of EDGAR webpage](images/EDGARlink.png){width="50%"}
+![Screenshot of EDGAR webpage](../images/EDGARlink.png){width="50%"}
 
-When you download this you will get a zip file and you should extract the contents of the zip file into your working directory. One of the files is an EXCEL file called "EDGAR_AR5_GHG_1970_2023.xlsx". Let us load this file.
+When you download this you will get a zip file and you should extract the contents of the zip file into your working directory. One of the files is an EXCEL file called ["EDGAR_AR5_GHG_1970_2023.xlsx"](https://raw.githubusercontent.com/datasquad/ECLR/refs/heads/gh-pages/data/EDGAR_AR5_GHG_1970_2023.xlsx). Let us load this file.
 
-```{r}
+```{r, echo = FALSE}
 edgardat <- read_excel("../data/EDGAR_AR5_GHG_1970_2023.xlsx") 
+head(edgardat)
+```
+```{r, eval = FALSE}
+edgardat <- read_excel("EDGAR_AR5_GHG_1970_2023.xlsx") 
 head(edgardat)
 ```
 
@@ -638,10 +645,15 @@ Before uploading a datafile into R it is actually important to understand the st
 
 As you look at the file you will see that there are several tabs with data and by default the `read_excel` function imports the first. But that is not the one with the data we want. The sheet that contains the data we want to look at is called "TOTALS BY COUNTRY" (`sheet = "TOTALS BY COUNTRY"`). On that sheet we notice something else. The data sheet only starts in row 10 with the variable names. So when we import this we want to ignore the first 9 rows (`skip = 9`). We need to instruct R to do that. Before you retry the import make sure that you close the spreadsheet.
 
-```{r}
+```{r,echo = FALSE}
 edgardat <- read_excel("../data/EDGAR_AR5_GHG_1970_2023.xlsx", sheet = "TOTALS BY COUNTRY", skip = 9) 
 head(edgardat)
 ```
+```{r,eval = FALSE}
+edgardat <- read_excel("EDGAR_AR5_GHG_1970_2023.xlsx", sheet = "TOTALS BY COUNTRY", skip = 9) 
+head(edgardat)
+```
+
 
 This has worked! Let's have a look at the structure of the `edgardat` object. We have 225 rows of data, one for each country. The real data are saved in columns which have the years in the title. So the structure is like this
 
@@ -700,12 +712,17 @@ edgardat.long %>% filter(Name %in% c("China", "Luxembourg"), Year == "2023") %>%
 
 Unsurprisingly China's emissions are much much larger. When dealing with issues like this we will compare per-capita statistics, i.e. we want to compare CO2 emissions per person living in a country. In order to be able to do that we first have to import population data for the countries we have.
 
-Annual population data are available from various sources. The "WorldBank_population.csv" file contains such data, from the World Bank. Let's import these.
+Annual population data are available from various sources. The ["WorldBank_population.csv"](https://github.com/datasquad/ECLR/raw/refs/heads/gh-pages/data/WorldBank_population.csv) file contains such data, from the World Bank. Let's import these.
 
-```{r}
+```{r, echo=FALSE}
 popdat <- read.csv("../data/WorldBank_population.csv")
 head(popdat)
 ```
+```{r, eval=FALSE}
+popdat <- read.csv("WorldBank_population.csv")
+head(popdat)
+```
+
 
 This is another dataset in wide format (international institutions love data in wide format). Use the same approach as above to turn this dataset into a new object (`popdat.long`) which presents the data in long format
 
