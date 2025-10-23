@@ -57,6 +57,7 @@ Some organisation provide access to a range of datasets collated from different 
 *	[Economic Data Sources collated by UC Davies](http://cameron.econ.ucdavis.edu/e102/data.html)
 * [Economic Data Sources collated by the Economics Network](https://www.economicsnetwork.ac.uk/data_sets)
 * [Datasets for published work](https://ejd.econ.mathematik.uni-ulm.de/)
+* [Center for International Data](https://cid.ucdavis.edu/), excellent worldwide trade statistics and US tariff data
 
 Not really an aggregator source, but a useful tool when looking for data: [Google dataset serach tool](https://datasetsearch.research.google.com/)
 
