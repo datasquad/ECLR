@@ -149,7 +149,7 @@ ggplot(PSID[sel_train,], aes(x = GRADCOLL, y = WAGE)) +
   geom_smooth(method = "lm")
 ```
 
-GRADCOLL does not appear to explain the variation in wages (it appears as statistically insignificant). But the plot above also reveals another aspect of the data. There are only three possible values (0,1 and 5) for the `GRADCOLL` variable. It is defined as as a numeric variable, but really is a categorical variable (see the above table). If we treat it as numeric, as we have done above, we assume that a response of 1 (did receive a college degree is one unit better or worse than a response of 0 (inapplicable question) and a response of 5 (no college degree) is five times as good or bad as a response of 1. That doesn't make sense as the question is really a categorical variable.
+GRADCOLL does not appear to explain the variation in wages (it appears as statistically insignificant). But the plot above also reveals another aspect of the data. There are only three possible values (0,1 and 5) for the `GRADCOLL` variable. It is defined as as a numeric variable, but really is a categorical variable (see the above table). If we treat it as numeric, as we have done above, we assume that a response of 1 (did receive a college degree is one unit better or worse than a response of 0 (inapplicable question) and a response of 5 (no college degree) is five times as good or bad as a response of 1. That doesn't make sense as the `question`GRADCOLL` variable is really a categorical variable.
 
 Let's define the variables as categorical variable (in both datasets!).
 
@@ -176,8 +176,16 @@ So, let's turn the following variables into factors.
 
 ```{r}
 cols <- c("DEGREE","DEGREEW", "FEDUCH", "GRADCOLLW","GRADHS","GRADHSW","MARRIED","MEDUCH","SEX","STATE")
-PSID <- PSID %>% mutate_at(cols, factor)
+PSID <- PSID %>% mutate(across(cols,factor))
 ```
+
+`r hide("How does this line work?")`
+
+Understanding lines of code is a very important skill. In this code you will understand that there is some piping going on and that somehow the dataframe `PSID` is manipulated, but especially the part `mutate(across(cols,factor))` May appear a little murky.
+
+AI is really good at explaining code in plain English. You can copy the line of code and paste it into your favourite LLM and ask it to explain what this line of code in R does and you will get a good explanation.
+
+`r unhide()`
 
 In fact, you also need to carefully think about how to code, say the age of the spouse `AGEW`. To understand this it is useful to look at which values this variable takes.
 
@@ -385,7 +393,7 @@ You can use the help function  `?glmnet` to find information on the function's d
 
 The `glmnet` function automatically minimises the above objective function for a range of valued of $\lambda$. For each value of $\lambda$ the estimated coefficients are different. The larger the $\lambda$ the more large parameter values are penalised and therefore we will get smaller parameter estimates. 
 
-What is the meaning of the `family = "gaussian"` option inthe call to `glmnet`?
+What is the meaning of the `family = "gaussian"` option in the call to `glmnet`?
 
 `r hide("I need a hint")`
 
@@ -420,7 +428,7 @@ coefplot(ridge_lar,intercept=FALSE,sort="magnitude",ylab="Variable",xlab="Coeffi
 rm(ridge25,ridge50,ridge75)
 ```
 
-When you compare the plots make sure you note the different scales on the horizontal axis. Larger $\lambdas$ result in smaller coefficient values. The vertical axis shows the associated variables, but there are too many to read these properly.
+When you compare the plots make sure you note the different scales on the horizontal axis. Larger $\lambda$s result in smaller coefficient values. The vertical axis shows the associated variables, but there are too many to read these properly.
 
 ## Choice of lambda
 
@@ -456,7 +464,7 @@ As you can see from the above plot MSE stays more or less the same even for some
 cvridge$lambda.1se
 ```
 
-Once you have chosen a $\lambda$ you can get the coefficients and predictions from that particular model. Here we look at the first 11 coefficients from the optimal model using both $\lambda_{min}$ and $\lambda_{1se}$. To do that we use the `predict` function using the `type="coeff"` option.
+Once you have chosen a $\lambda$ you can get the coefficients and predictions from that particular model. Here we look at the coefficients from the optimal model using both $\lambda_{min}$ and $\lambda_{1se}$. To do that we use the `predict` function using the `type="coeff"` option.
 
 ```{r}
 # list estimated coefficients with lambda.min
@@ -568,7 +576,7 @@ cv_lasso=cv.glmnet(x[sel_train,],y[sel_train],family="gaussian",nfolds=10,alpha=
 plot(cv_lasso,main="Lasso and CV criterion")
 ```
 
-You see from this plot that the minimum of the MSE criterion (average MSE over the 10 cross-validation folds) is where $log(\lambda)$ is about -1.5 (equivalent to $\lambda = $ `r cv_lasso$lambda.min`). This could be a $\lambda$ value to use. It is, in this literature, however common practice to chose (or at lest consider) a somewhat larger $\lambda$ implying even more regulisation. That is the $\lambda$ value associated to the second dashed line, around $log(\lambda)=0.17$ or $\lambda = $ `r cv_lasso$lambda.1se`.
+You see from this plot that the minimum of the MSE criterion (average MSE over the 10 cross-validation folds) is where $-log(\lambda)$ is about 1.5 (equivalent to $\lambda = $ `r cv_lasso$lambda.min`). This could be a $\lambda$ value to use. It is, in this literature, however common practice to chose (or at lest consider) a somewhat larger $\lambda$ implying even more regulisation. That is the $\lambda$ value associated to the second dashed line, around $-log(\lambda)=-0.17$ or $\lambda = $ `r cv_lasso$lambda.1se`.
 
 Let us  now check what parameters these different levels of regularisation imply:
 
