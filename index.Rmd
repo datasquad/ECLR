@@ -70,6 +70,10 @@ These workthroughs demonstrate coding techniques that are useful in a range of d
 | Law of Large Numbers and Central Limit Theorem | [Workthrough in R](https://datasquad.github.io/ECLR/R_LLN_and_CLT.html) | 
 | Monte-Carlo Simulations | [Workthrough in R](https://datasquad.github.io/ECLR/R_MonteCarloSimulations.html) | 
 
+# Cheatsheets
+
+Cheatsheets are very useful to have at hand when you are doing work. For those that are new to using R and RStudio we have created this [Beginners Cheatsheet](https://raw.githubusercontent.com/datasquad/ECLR/gh-pages/docs/BeginnersCheatsheet_v2.0.pdf). Cheatsheets exist for a range of tasks, e.g. [Data tidying in R](https://rstudio.github.io/cheatsheets/html/tidyr.html), [Plotting with ggplot in R](https://rstudio.github.io/cheatsheets/html/data-visualization.html). A lot of excellent cheatsheets for R are collected by [Posit](https://posit.co/resources/cheatsheets/) the creators of RStudio.
+
 # Examples
 
 In the [Examples section](https://datasquad.github.io/ECLR/examples.html) of this page we collate empirical examples which can be used to help students understand a range of statistical and econometric techniques. This page benefits from a range of empirical examples which have been implemented in a range of books.
@@ -81,3 +85,4 @@ In the [Examples section](https://datasquad.github.io/ECLR/examples.html) of thi
 The examples from these books and others have been amended or re-written such that students can either use them directly or to facilitate adoption by lecturers.
 
 You can find [further resources here](https://datasquad.github.io/ECLR/resources.html).
+ we created
