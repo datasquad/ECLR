@@ -85,4 +85,3 @@ In the [Examples section](https://datasquad.github.io/ECLR/examples.html) of thi
 The examples from these books and others have been amended or re-written such that students can either use them directly or to facilitate adoption by lecturers.
 
 You can find [further resources here](https://datasquad.github.io/ECLR/resources.html).
- we created
