@@ -287,3 +287,7 @@ indirekt$index[indirekt$index==TRUE]
 ```
 
 These are the remaining six variables that were selected in the Double Selection procedure.
+
+## Additional reading
+
+A useful working paper that highlights when the above method offers good evidence and when it does not is [Fitzgerald Sice, Jack and Lattimore, Finnian and Robinson, Tim and Zhu, Anna, Practical Insights Into Applying Double LASSO (May 18, 2023).](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4452778)
