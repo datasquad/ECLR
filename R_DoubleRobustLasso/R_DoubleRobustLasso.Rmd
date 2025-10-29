@@ -243,11 +243,6 @@ Only variables `bmp1l` and `life065` were also included in the expertise driven 
 
 In this section we shall reconstruct the double selection process in the above example. We wish to understand why, the particular selection (`ds.sel`) was made. To understand this we shall estimate 
 
-In order to understand the Double Selection method
-
-This exercise is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
-
-
 \begin{equation}
   \text{Direct: }y_i = \mathbf{x}_i\mathbf{\gamma} + u_i
 \end{equation}
