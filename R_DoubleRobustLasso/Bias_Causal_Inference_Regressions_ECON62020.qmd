@@ -115,7 +115,6 @@ paste("R^2 in d equation =", Regd$r.squared)
 
 Let's see what values of $R^2_y$ and $R^2_d$ we get for these settings of `c1` and `c3`. $R^2_y$ and $R^2_d$ are the $R^2$ from the reduced form regressions of $y$ (or $d$) on the variables in $x$. In the paper they use a sample size of $n = 100$ and $J=200$ variables. This means that we cannot calculate $R^2$ from such a regression. For the simulation below we therefore use $n=1000$.
 
-
 ```{r}
 
 nsim =  50  # don't need many sims ot get an idea
@@ -150,7 +149,7 @@ plot_den_R2 <- ggplot(save_R2, aes(x = R2, colour = type, fill = type)) +
 plot_den_R2
 ```
 
-Varying the `c1` and `c3` parameters in the simulation will change these distributions. However, it appears impossible to achieve $R^2_d = 0.8$ and $R^2_y = 0.2$. 
+Varying the `c1` and `c3` parameters in the simulation will change these distributions. However, it appears impossible to achieve $R^2_d = 0.8$ and $R^2_y = 0.2$.
 
 ## Estimation Strategies
 
@@ -221,9 +220,10 @@ We call this estimator the post-single-LASSO (PSL). Now you can see that the coe
 ```{r}
 lht(pL.reg, "D = 0.5")
 ```
+
 you can see that the $H_0$ is rejected at the 1% level.
 
-Now we employ the post double-LASSO (PDL). This is done with the `rlassoEffect()` function from the `hdm` package. 
+Now we employ the post double-LASSO (PDL). This is done with the `rlassoEffect()` function from the `hdm` package.
 
 ```{r}
 doubleL = rlassoEffect(x = x.sim, y = y.sim, d = d.sim, method = "double selection")

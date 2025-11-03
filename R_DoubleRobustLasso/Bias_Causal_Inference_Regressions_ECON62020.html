@@ -219,11 +219,11 @@ d_i = \mathbf{x}_i\mathbf{\beta}_3 + \beta_4~u_i + \gamma~z_i + \nu_i
 <span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>Regd <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(dsim<span class="sc">~</span>., <span class="fu">data.frame</span>(dsim,xsim)))</span>
 <span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in y equation ="</span>, Regy<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "R^2 in y equation = 0.493088007610152"</code></pre>
+<pre><code>[1] "R^2 in y equation = 0.495566889089995"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in d equation ="</span>, Regd<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "R^2 in d equation = 0.58726403845468"</code></pre>
+<pre><code>[1] "R^2 in d equation = 0.595068098779043"</code></pre>
 </div>
 </div>
 <p>Let’s see what values of <span class="math inline">\(R^2_y\)</span> and <span class="math inline">\(R^2_d\)</span> we get for these settings of <code>c1</code> and <code>c3</code>. <span class="math inline">\(R^2_y\)</span> and <span class="math inline">\(R^2_d\)</span> are the <span class="math inline">\(R^2\)</span> from the reduced form regressions of <span class="math inline">\(y\)</span> (or <span class="math inline">\(d\)</span>) on the variables in <span class="math inline">\(x\)</span>. In the paper they use a sample size of <span class="math inline">\(n = 100\)</span> and <span class="math inline">\(J=200\)</span> variables. This means that we cannot calculate <span class="math inline">\(R^2\)</span> from such a regression. For the simulation below we therefore use <span class="math inline">\(n=1000\)</span>.</p>

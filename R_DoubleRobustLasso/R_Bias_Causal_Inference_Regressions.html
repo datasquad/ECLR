@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bias Simulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="R_Bias_Causal_Inference_Regressions_files/libs/clipboard/clipboard.min.js"></script>
+<script src="R_Bias_Causal_Inference_Regressions_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="R_Bias_Causal_Inference_Regressions_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="R_Bias_Causal_Inference_Regressions_files/libs/quarto-html/popper.min.js"></script>
+<script src="R_Bias_Causal_Inference_Regressions_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="R_Bias_Causal_Inference_Regressions_files/libs/quarto-html/anchor.min.js"></script>
+<link href="R_Bias_Causal_Inference_Regressions_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="R_Bias_Causal_Inference_Regressions_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="R_Bias_Causal_Inference_Regressions_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="R_Bias_Causal_Inference_Regressions_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="R_Bias_Causal_Inference_Regressions_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Bias Simulation</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In this walkthrough we will run through a simulation that has been used in Fitzgerald Sice et al.&nbsp;(2023) which will help us understand when causal inference regressions (like Lasso and Double Robust Lasso) work and when they do not.</p>
+<p>Reading:</p>
+<p>Fitzgerald Sice, Jack and Lattimore, Finnian and Robinson, Tim and Zhu, Anna, Practical Insights Into Applying Double LASSO (May 18, 2023). Available at SSRN:&nbsp;<a href="https://ssrn.com/abstract=4452778" class="uri">https://ssrn.com/abstract=4452778</a>&nbsp;or&nbsp;<a href="https://dx.doi.org/10.2139/ssrn.4452778">http://dx.doi.org/10.2139/ssrn.4452778</a></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(hdm)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AER)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="the-background" class="level2">
+<h2 class="anchored" data-anchor-id="the-background">The Background</h2>
+<p>Consider a model of the following form</p>
+<p><span class="math display">\[\begin{equation}
+  y_i = \delta D_i + \mathbf{x}_i\mathbf{\beta}_1 + \beta_2~u_i+  \epsilon_i
+\end{equation}\]</span></p>
+<p>where the variables represent</p>
+<ul>
+<li>an outcome variable of interest, <span class="math inline">\(y_i\)</span>, for individual <span class="math inline">\(i\)</span></li>
+<li>a treatment variable, <span class="math inline">\(D_i\)</span>, which represents whether individual received some treatment (<span class="math inline">\(D_i=1\)</span>) or not (<span class="math inline">\(D_i=1\)</span>)</li>
+<li>a vector of observable covariates associated to individual <span class="math inline">\(i\)</span>, <span class="math inline">\(\mathbf{x}_i\)</span>, where this includes a constant.</li>
+<li>a vector of unobservable covariates associated to individual <span class="math inline">\(i\)</span>, <span class="math inline">\(\mathbf{u}_i\)</span>.</li>
+</ul>
+<p>In addition to this we consider a third category of variables, instruments <span class="math inline">\(\mathbf{z_i}\)</span>, these are variables that are observable, are excluded from the above model for <span class="math inline">\(y_i\)</span>, but have explanatory power for the treatment variable as per</p>
+<p><span class="math display">\[\begin{equation}
+d_i = \mathbf{x}_i\mathbf{\beta}_3 + \beta_4~u_i + \gamma~z_i + \nu_i
+\end{equation}\]</span></p>
+<p>Below we will simulate data from such a setup and establish how different regression approaches perform, always aiming to obtain a good estimate of the parameter capturing the treatment effect of <span class="math inline">\(D\)</span> on <span class="math inline">\(y\)</span>, here the parameter <span class="math inline">\(\delta\)</span>.</p>
+<p>The estimation methods we will apply are the</p>
+<ul>
+<li>The Post LASSO (forcing <span class="math inline">\(D_i\)</span> to be included in the LASSO process)</li>
+<li>The Post Lasso adding <span class="math inline">\(D_i\)</span> after unconstrained variable selection through LASSO</li>
+<li>The Post Double Selection LASSO</li>
+</ul>
+<p>Inthis workthrough we will not go in detail through the different methods. If you are interested you can work through the workthroughs on <a href="https://datasquad.github.io/ECLR/R_RidgeLasso/R_RidgeLasso.html">Ridge and LASSO</a> and <a href="https://datasquad.github.io/ECLR/R_DoubleRobustLasso/R_DoubleRobustLasso.html">Post Double Selection LASSO</a> on the <a href="https://datasquad.github.io/ECLR/index.html">ECLR webpage</a>.</p>
+</section>
+<section id="simulation-setup" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-setup">Simulation Setup</h2>
+<p>We begin to introduce the data generating process (DGP) that is the basis of the simulation in the Fitzferald Sice paper. Later we shall introduce different setups.</p>
+<section id="no-unobservables---no-instruments" class="level3">
+<h3 class="anchored" data-anchor-id="no-unobservables---no-instruments">No unobservables - No instruments</h3>
+<p>We begin with the situation in which there are no relevant unobservable variables, meaning we set <span class="math inline">\(\beta_2=\gamma=0\)</span> which simplifies the data generating process significantly and none of the included variables are instruments</p>
+<p><span class="math display">\[\begin{eqnarray}
+  y_i &amp;=&amp; \delta D_i + \mathbf{x}_i\mathbf{\beta}_1 + \epsilon_i\\
+  d_i &amp;=&amp; \mathbf{x}_i\mathbf{\beta}_3 + \nu_i
+\end{eqnarray}\]</span></p>
+<p>We write a function for the DGP whcih we will then later reuse inside a loop for the simulation.</p>
+<p>We begin by simulating the error terms coming from standard normal distributions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dgp1 <span class="ot">&lt;-</span> <span class="cf">function</span>(n){</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates Fitzgerald Sice et al</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  DGP from Section 3.1</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   d = x * beta_3 + nu</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   y = delta D + x * beta_1 + epsilon</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    eps <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    nu <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates j = 200 variables of X ~ N(0, Sigma)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    J <span class="ot">=</span> <span class="dv">200</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">=</span> <span class="fu">rep</span>(<span class="dv">0</span>, J)<span class="co"># mean is 0 for all j</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    rho <span class="ot">&lt;-</span> <span class="fl">0.5</span>  <span class="co"># Define the decay factor FOR CORR MATRIX</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    first_row <span class="ot">&lt;-</span> rho<span class="sc">^</span>(<span class="dv">0</span><span class="sc">:</span>(J <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">toeplitz</span>(first_row)   <span class="co"># Generate the covariance matrix using toeplitz</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(n, mu, Sigma)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># parameters</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    c1 <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    c3 <span class="ot">&lt;-</span> <span class="fl">0.8</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    delta <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="fu">seq</span>(<span class="dv">1</span>,J,<span class="dv">1</span>)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(beta0, J, <span class="dv">1</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="ot">&lt;-</span> c1 <span class="sc">*</span> beta0</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    beta3 <span class="ot">&lt;-</span> c3 <span class="sc">*</span> beta0</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate d and y</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> x <span class="sc">%*%</span> beta3 <span class="sc">+</span> nu </span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> delta<span class="sc">*</span>d <span class="sc">+</span> x <span class="sc">%*%</span> beta1 <span class="sc">+</span> eps </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(y,d,x))</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">dgp1</span>(<span class="dv">1000</span>)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>ysim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>dsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>xsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>Regy <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(ysim<span class="sc">~</span>., <span class="fu">data.frame</span>(ysim,xsim)))</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>Regd <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(dsim<span class="sc">~</span>., <span class="fu">data.frame</span>(dsim,xsim)))</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in y equation ="</span>, Regy<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in y equation = 0.521009361070768"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in d equation ="</span>, Regd<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in d equation = 0.591651676262392"</code></pre>
+</div>
+</div>
+<p>Let’s see what values of <span class="math inline">\(R^2_y\)</span> and <span class="math inline">\(R^2_d\)</span> we get for these settings of <code>c1</code> and <code>c3</code>. <span class="math inline">\(R^2_y\)</span> and <span class="math inline">\(R^2_d\)</span> are the <span class="math inline">\(R^2\)</span> from the reduced form regressions of <span class="math inline">\(y\)</span> (or <span class="math inline">\(d\)</span>) on the variables in <span class="math inline">\(x\)</span>. In the paper they use a sample size of <span class="math inline">\(n = 100\)</span> and <span class="math inline">\(J=200\)</span> variables. This means that we cannot calculate <span class="math inline">\(R^2\)</span> from such a regression. For the simulation below we therefore use <span class="math inline">\(n=1000\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">=</span>  <span class="dv">50</span>  <span class="co"># don't need many sims ot get an idea</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>save_R2 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>,<span class="at">nrow =</span> nsim, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nsim){</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">dgp1</span>(<span class="dv">1000</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  ysim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  dsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  xsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  Regy <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(ysim<span class="sc">~</span>., <span class="fu">data.frame</span>(ysim,xsim)))</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  Regd <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(dsim<span class="sc">~</span>., <span class="fu">data.frame</span>(dsim,xsim)))</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  save_R2[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> Regy<span class="sc">$</span>r.squared</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  save_R2[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> Regd<span class="sc">$</span>r.squared</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="co">#print(paste("R^2 in y equation =", Regy$r.squared, ",R^2 in d equation =", Regd$r.squared))</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can plot the distribution for the two reduced form <span class="math inline">\(R^2\)</span>s.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>save_R2 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(save_R2) <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">R2y =</span> V1, <span class="at">R2d =</span> V2) </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#create long dataframe, better for plotting</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>save_R2 <span class="ot">&lt;-</span> save_R2 <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(),<span class="at">names_to =</span> <span class="st">"type"</span>, <span class="at">values_to =</span> <span class="st">"R2"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>plot_den_R2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(save_R2, <span class="fu">aes</span>(<span class="at">x =</span> R2, <span class="at">colour =</span> type, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> .<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of reduced form R2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plot_den_R2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="R_Bias_Causal_Inference_Regressions_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Varying the <code>c1</code> and <code>c3</code> parameters in the simulation will change these distributions. However, it appears impossible to achieve <span class="math inline">\(R^2_d = 0.8\)</span> and <span class="math inline">\(R^2_y = 0.2\)</span>.</p>
+</section>
+</section>
+<section id="estimation-strategies" class="level2">
+<h2 class="anchored" data-anchor-id="estimation-strategies">Estimation Strategies</h2>
+<p>We shall now proceed with implementing the different estimation strategies in this context. We simulate the above process 500 times, each simulation simulating <span class="math inline">\(n=100\)</span> observations. As we are using <span class="math inline">\(J=200\)</span> covariates (<span class="math inline">\(x\)</span>) we cannot run a regression straight but we do have to apply reduction techniques.</p>
+<ul>
+<li>The Post LASSO (forcing <span class="math inline">\(D_i\)</span> to be included in the LASSO process), fPSL</li>
+<li>The Post Lasso adding <span class="math inline">\(D_i\)</span> after unconstrained variable selection through LASSO, PSL</li>
+<li>The Post Double Selection LASSO, PDL</li>
+</ul>
+<p>Let’s first simulate one process and apply the methods.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">dgp1</span>(<span class="dv">100</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>y.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(y.sim) <span class="ot">&lt;-</span> <span class="st">"Y"</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>d.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(d.sim) <span class="ot">&lt;-</span> <span class="st">"D"</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>x.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(x.sim) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>dx.sim <span class="ot">&lt;-</span> <span class="fu">cbind</span>(d.sim,x.sim)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dx.sim) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"D"</span>,<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="fpsl" class="level3">
+<h3 class="anchored" data-anchor-id="fpsl">fPSL</h3>
+<p>Let’s start with the simple post LASSO regression where <code>D</code> is part of the variables for selection.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cv_lasso<span class="ot">=</span><span class="fu">cv.glmnet</span>(dx.sim,y.sim,<span class="at">family=</span><span class="st">"gaussian"</span>,<span class="at">nfolds=</span><span class="dv">10</span>,<span class="at">alpha=</span><span class="dv">1</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>lasso.coef.lambda<span class="fl">.1</span>se <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">coef</span>(cv_lasso, <span class="at">s =</span> <span class="st">"lambda.1se"</span>))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Now need to pick the selected variables</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>sel_vars <span class="ot">&lt;-</span> <span class="fu">rownames</span>(lasso.coef.lambda<span class="fl">.1</span>se)[lasso.coef.lambda<span class="fl">.1</span>se <span class="sc">&gt;</span> <span class="fl">0.0</span>]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(sel_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "(Intercept)" "D"           "X1"         </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now run post LASSO regression</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sel_vars <span class="ot">&lt;-</span> sel_vars[sel_vars <span class="sc">!=</span> <span class="st">"(Intercept)"</span>] <span class="co"># removes the intercept</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>pL.data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Y =</span> y.sim,  dx.sim[, <span class="fu">colnames</span>(dx.sim) <span class="sc">%in%</span> sel_vars])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>pL.reg <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y<span class="sc">~</span>., <span class="at">data =</span> pL.data)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pL.reg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Y ~ ., data = pL.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.3692 -0.6011 -0.0492  0.5867  2.4501 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.11582    0.09113   1.271  0.20677    
+D            0.52495    0.09128   5.751 1.03e-07 ***
+X1           0.29978    0.10863   2.760  0.00692 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.9109 on 97 degrees of freedom
+Multiple R-squared:  0.5553,    Adjusted R-squared:  0.5461 
+F-statistic: 60.56 on 2 and 97 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>You can see here that the coefficient to <code>D</code> is very small (compared to the true <span class="math inline">\(\alpha =0.5\)</span>).</p>
+<p>In the way we implemented this above it is actually possible that the <code>D</code> variable gets selected out. We certainly do not want that as we know that we want to make inference on that variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>penalty_factors <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">ncol</span>(dx.sim))  <span class="co"># default: penalise all</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>penalty_factors[<span class="fu">colnames</span>(dx.sim) <span class="sc">==</span> <span class="st">"D"</span>] <span class="ot">&lt;-</span> <span class="dv">0</span>  <span class="co"># do not penalise "D"</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>cv_lasso_fPSL<span class="ot">=</span><span class="fu">cv.glmnet</span>(dx.sim,y.sim,<span class="at">family=</span><span class="st">"gaussian"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nfolds=</span><span class="dv">10</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">alpha=</span><span class="dv">1</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">penalty.factor =</span> penalty_factors)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>lasso.coef.lambda<span class="fl">.1</span>se <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">coef</span>(cv_lasso_fPSL, <span class="at">s =</span> <span class="st">"lambda.1se"</span>))</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Now need to pick the selected variables</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>sel_vars <span class="ot">&lt;-</span> <span class="fu">rownames</span>(lasso.coef.lambda<span class="fl">.1</span>se)[lasso.coef.lambda<span class="fl">.1</span>se <span class="sc">!=</span> <span class="fl">0.0</span>]</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(sel_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "(Intercept)" "D"          </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now run post LASSO regression</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>sel_vars <span class="ot">&lt;-</span> sel_vars[sel_vars <span class="sc">!=</span> <span class="st">"(Intercept)"</span>] <span class="co"># removes the intercept</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>pL.data.fPSL <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Y =</span> y.sim,  dx.sim[, (<span class="fu">colnames</span>(dx.sim) <span class="sc">%in%</span> sel_vars), <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>pL.reg.fPSL <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y<span class="sc">~</span>., <span class="at">data =</span> pL.data.fPSL)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pL.reg.fPSL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Y ~ ., data = pL.data.fPSL)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.19434 -0.58528 -0.00686  0.52578  2.17197 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.12280    0.09412   1.305    0.195    
+D            0.69987    0.06787  10.312   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.9412 on 98 degrees of freedom
+Multiple R-squared:  0.5204,    Adjusted R-squared:  0.5155 
+F-statistic: 106.3 on 1 and 98 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>We call this estimator the forced post-single-LASSO (fPSL). Now you can see that the coefficient on <code>D</code> is larger than 0.5. You can also notice that none of the variables in <code>x.sim</code> were selected by the LASSO. We can also test the hypothesis <span class="math inline">\(H_0: \alpha = 0.5\)</span> which we know is correct as we simulated the data and set <span class="math inline">\(\alpha = 0.5\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lht</span>(pL.reg, <span class="st">"D = 0.5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Linear hypothesis test:
+D = 0.5
+
+Model 1: restricted model
+Model 2: Y ~ D + X1
+
+  Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+1     98 80.552                           
+2     97 80.490  1  0.061994 0.0747 0.7852</code></pre>
+</div>
+</div>
+<p>you can see that the <span class="math inline">\(H_0\)</span> is rejected at the 1% level.</p>
+<p>This fPSL estimator has been used as the benchmark model in the seminal Belloni et al.&nbsp;(2014) paper that introduced the Post Double LASSO estimator (PDL, see below).</p>
+<p>To make life easier below we will wrap this procedure into a function we call <code>fPSL</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>fPSL <span class="ot">&lt;-</span> <span class="cf">function</span>(y, dx){</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  penalty_factors <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">ncol</span>(dx))  <span class="co"># default: penalise all</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  penalty_factors[<span class="fu">colnames</span>(dx) <span class="sc">==</span> <span class="st">"D"</span>] <span class="ot">&lt;-</span> <span class="dv">0</span>  <span class="co"># do not penalise "D"</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  cv_lasso_fPSL<span class="ot">=</span><span class="fu">cv.glmnet</span>(dx,y,<span class="at">family=</span><span class="st">"gaussian"</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">nfolds=</span><span class="dv">10</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">alpha=</span><span class="dv">1</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">penalty.factor =</span> penalty_factors)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  lasso.coef.lambda<span class="fl">.1</span>se <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">coef</span>(cv_lasso_fPSL, <span class="at">s =</span> <span class="st">"lambda.1se"</span>))</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Now need to pick the selected variables</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  sel_vars <span class="ot">&lt;-</span> <span class="fu">rownames</span>(lasso.coef.lambda<span class="fl">.1</span>se)[lasso.coef.lambda<span class="fl">.1</span>se <span class="sc">!=</span> <span class="fl">0.0</span>]</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Now run post LASSO regression</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  sel_vars <span class="ot">&lt;-</span> sel_vars[sel_vars <span class="sc">!=</span> <span class="st">"(Intercept)"</span>] <span class="co"># removes the intercept</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  pL.data.fPSL <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Y =</span> y,  dx[, (<span class="fu">colnames</span>(dx) <span class="sc">%in%</span> sel_vars), <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  pL.reg.fPSL <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y<span class="sc">~</span>., <span class="at">data =</span> pL.data.fPSL)</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(pL.reg.fPSL)  </span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In later simulations we shall call this function using <code>fPSL(y.sim,dx.sim)</code>.</p>
+</section>
+<section id="psl" class="level3">
+<h3 class="anchored" data-anchor-id="psl">PSL</h3>
+<p>In the Fitzgerald Sice et al.&nbsp;(2023) paper the authors propose to use an alternative benchmark estimator relying on a simple LASSO procedure. While the estimator is not describes in full detail their discussion suggests that a single LASSO estimation is used (without including <span class="math inline">\(D_i\)</span>) but then to include <span class="math inline">\(D_i\)</span> into the post regression.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>cv_lasso_PSL<span class="ot">=</span><span class="fu">cv.glmnet</span>(x.sim,y.sim,<span class="at">family=</span><span class="st">"gaussian"</span>,</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nfolds=</span><span class="dv">10</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">alpha=</span><span class="dv">1</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>lasso.coef.lambda<span class="fl">.1</span>se <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">coef</span>(cv_lasso_PSL, <span class="at">s =</span> <span class="st">"lambda.1se"</span>))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Now need to pick the selected variables</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>sel_vars <span class="ot">&lt;-</span> <span class="fu">rownames</span>(lasso.coef.lambda<span class="fl">.1</span>se)[lasso.coef.lambda<span class="fl">.1</span>se <span class="sc">!=</span> <span class="fl">0.0</span>]</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(sel_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "(Intercept)" "X1"         </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now run post LASSO regression</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>sel_vars <span class="ot">&lt;-</span> sel_vars[sel_vars <span class="sc">!=</span> <span class="st">"(Intercept)"</span>] <span class="co"># removes the intercept</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>pL.data.PSL <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Y =</span> y.sim,  </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">D =</span> d.sim,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                          x.sim[, (<span class="fu">colnames</span>(x.sim) <span class="sc">%in%</span> sel_vars), <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>pL.reg.PSL <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y<span class="sc">~</span>., <span class="at">data =</span> pL.data.PSL)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pL.reg.PSL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Y ~ ., data = pL.data.PSL)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.3692 -0.6011 -0.0492  0.5867  2.4501 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.11582    0.09113   1.271  0.20677    
+D            0.52495    0.09128   5.751 1.03e-07 ***
+X1           0.29978    0.10863   2.760  0.00692 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.9109 on 97 degrees of freedom
+Multiple R-squared:  0.5553,    Adjusted R-squared:  0.5461 
+F-statistic: 60.56 on 2 and 97 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Here you can see that the the coefficient to <code>D</code> is fairly close to the true value of 0.5. The method did ensure that the variable <code>X</code> was included as the <code>D</code> variable was not “present” when running the LASSO.</p>
+<p>As for the <code>fPSL</code> we shall write a function for this estimator, the <code>PSL</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>PSL <span class="ot">&lt;-</span> <span class="cf">function</span>(y, d, x){</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  cv_lasso_PSL<span class="ot">=</span><span class="fu">cv.glmnet</span>(x,y,<span class="at">family=</span><span class="st">"gaussian"</span>,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nfolds=</span><span class="dv">10</span>,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">alpha=</span><span class="dv">1</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  lasso.coef.lambda<span class="fl">.1</span>se <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">coef</span>(cv_lasso_PSL, <span class="at">s =</span> <span class="st">"lambda.1se"</span>))</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Now need to pick the selected variables</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  sel_vars <span class="ot">&lt;-</span> <span class="fu">rownames</span>(lasso.coef.lambda<span class="fl">.1</span>se)[lasso.coef.lambda<span class="fl">.1</span>se <span class="sc">!=</span> <span class="fl">0.0</span>]</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Now run post LASSO regression</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  sel_vars <span class="ot">&lt;-</span> sel_vars[sel_vars <span class="sc">!=</span> <span class="st">"(Intercept)"</span>] <span class="co"># removes the intercept</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  pL.data.PSL <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Y =</span> y,  </span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">D =</span> d,</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>                            x[, (<span class="fu">colnames</span>(x) <span class="sc">%in%</span> sel_vars), <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  pL.reg.PSL <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y<span class="sc">~</span>., <span class="at">data =</span> pL.data.PSL)</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(pL.reg.PSL)</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now call the estimator with <code>PSL(y.sim, d.sim, x.sim)</code>.</p>
+</section>
+<section id="pdl" class="level3">
+<h3 class="anchored" data-anchor-id="pdl">PDL</h3>
+<p>Now we employ the post double-LASSO (PDL). This is done with the <code>rlassoEffect()</code> function from the <code>hdm</code> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>doubleL <span class="ot">=</span> <span class="fu">rlassoEffect</span>(<span class="at">x =</span> x.sim, <span class="at">y =</span> y.sim, <span class="at">d =</span> d.sim, <span class="at">method =</span> <span class="st">"double selection"</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(doubleL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Estimates and significance testing of the effect of target variables"
+  Estimate. Std. Error t value Pr(&gt;|t|)    
+D    0.5042     0.0753   6.695 2.15e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>The estimate to <code>D</code> here is actually close to the correct value of <span class="math inline">\(\alpha = 0.5\)</span>.</p>
+</section>
+</section>
+<section id="simulation" class="level2">
+<h2 class="anchored" data-anchor-id="simulation">Simulation</h2>
+<p>The question now is whether that is just chance or systematically so. To investigate this we run a simulation where we simulate the process 500 rimes. Every time we shall estimate the coefficient <span class="math inline">\(\alpha\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp1 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>,<span class="at">nrow =</span> nsim, <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nsim){</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">dgp1</span>(<span class="dv">100</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  y.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(y.sim) <span class="ot">&lt;-</span> <span class="st">"Y"</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  d.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(d.sim) <span class="ot">&lt;-</span> <span class="st">"D"</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  x.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(x.sim) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(x.sim))</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  dx.sim <span class="ot">&lt;-</span> <span class="fu">cbind</span>(d.sim,x.sim)</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(dx.sim) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"D"</span>,<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(x.sim)))</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fPSL estimator</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  pL.reg.fPSL <span class="ot">&lt;-</span> <span class="fu">fPSL</span>(y.sim,dx.sim)</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp1[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> pL.reg.fPSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PSL estimator</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>  pL.reg.PSL <span class="ot">&lt;-</span> <span class="fu">PSL</span>(y.sim, d.sim, x.sim)</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp1[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> pL.reg.PSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PDL estimator</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>  doubleL <span class="ot">=</span> <span class="fu">rlassoEffect</span>(<span class="at">x =</span> x.sim, <span class="at">y =</span> y.sim, <span class="at">d =</span> d.sim, <span class="at">method =</span> <span class="st">"double selection"</span>)</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp1[i,<span class="dv">3</span>] <span class="ot">&lt;-</span> doubleL<span class="sc">$</span>coefficient[<span class="st">"D"</span>]</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can plot the distribution for the two different estimates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp1 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(save_alphahat.dgp1) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rename</span>(<span class="at">fPSL =</span> V1, </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PSL =</span> V2,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PDL =</span> V3) </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">#create long dataframe, better for plotting</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp1 <span class="ot">&lt;-</span> save_alphahat.dgp1 <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(),<span class="at">names_to =</span> <span class="st">"type"</span>, <span class="at">values_to =</span> <span class="st">"alphahat"</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(save_alphahat.dgp1, <span class="fu">aes</span>(<span class="at">x =</span> alphahat, <span class="at">colour =</span> type, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> .<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>)) <span class="sc">+</span>  </span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of alphahat"</span>)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="R_Bias_Causal_Inference_Regressions_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>You can see from here that we get a bias in the fPSL estimator but none in the PSL and PDL estimators (the vertical line represents the true coefficient <span class="math inline">\(\alpha = 0.5\)</span>). This mirrors the results from the Fitzgerald Sice paper, indicating that the PDL offers significant advantages to the fPSL but not to the PSL estimator.</p>
+</section>
+<section id="imperfect-confounder-overlap-1" class="level2">
+<h2 class="anchored" data-anchor-id="imperfect-confounder-overlap-1">Imperfect confounder overlap 1</h2>
+<p>From the DGP used in the previous simulation to advantage of the PDL is not apparent. Here we tweak the DGP in one particular way. In the previous dgp it was the same variables in <code>X</code> that were relevant for <code>y</code> and for <code>d</code>. In <code>dgp2</code> we ensure that the first variable, which is the most important covariate in <code>X</code> for <code>Y</code>, is not relevant for <code>D</code>. At the same time we increase <code>c3</code> to ensure that approximately the same amount of variation in <code>D</code> can be explained.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>dgp2 <span class="ot">&lt;-</span> <span class="cf">function</span>(n){</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates Fitzgerald Sice et al</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  DGP from Section 3.1</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   d = x * beta_3 + nu</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   y = delta D + x * beta_1 + epsilon</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    eps <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    nu <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates j = 200 variables of X ~ N(0, Sigma)</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    J <span class="ot">=</span> <span class="dv">200</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">=</span> <span class="fu">rep</span>(<span class="dv">0</span>, J)<span class="co"># mean is 0 for all j</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    rho <span class="ot">&lt;-</span> <span class="fl">0.5</span>  <span class="co"># Define the decay factor FOR CORR MATRIX</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    first_row <span class="ot">&lt;-</span> rho<span class="sc">^</span>(<span class="dv">0</span><span class="sc">:</span>(J <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">toeplitz</span>(first_row)   <span class="co"># Generate the covariance matrix using toeplitz</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(n, mu, Sigma)</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># parameters</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    c1 <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    c3 <span class="ot">&lt;-</span> <span class="fl">2.4</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    delta <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="fu">seq</span>(<span class="dv">1</span>,J,<span class="dv">1</span>)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(beta0, J, <span class="dv">1</span>)</span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="ot">&lt;-</span> c1 <span class="sc">*</span> beta0</span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>    beta3 <span class="ot">&lt;-</span> c3 <span class="sc">*</span> beta0</span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>    beta3[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">0</span>  <span class="co"># set first coefficient to 0</span></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate d and y</span></span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> x <span class="sc">%*%</span> beta3 <span class="sc">+</span> nu </span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> delta<span class="sc">*</span>d <span class="sc">+</span> x <span class="sc">%*%</span> beta1 <span class="sc">+</span> eps </span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(y,d,x))</span>
+<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">dgp2</span>(<span class="dv">1000</span>)</span>
+<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>ysim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a>dsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb31-37"><a href="#cb31-37" aria-hidden="true" tabindex="-1"></a>xsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb31-38"><a href="#cb31-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-39"><a href="#cb31-39" aria-hidden="true" tabindex="-1"></a>Regy <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(ysim<span class="sc">~</span>., <span class="fu">data.frame</span>(ysim,xsim)))</span>
+<span id="cb31-40"><a href="#cb31-40" aria-hidden="true" tabindex="-1"></a>Regd <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(dsim<span class="sc">~</span>., <span class="fu">data.frame</span>(dsim,xsim)))</span>
+<span id="cb31-41"><a href="#cb31-41" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in y equation ="</span>, Regy<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in y equation = 0.437915617484827"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in d equation ="</span>, Regd<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in d equation = 0.58711316478842"</code></pre>
+</div>
+</div>
+<p>We can now repeat the simulation</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp2 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>,<span class="at">nrow =</span> nsim, <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nsim){</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">dgp2</span>(<span class="dv">100</span>)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  y.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(y.sim) <span class="ot">&lt;-</span> <span class="st">"Y"</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  d.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(d.sim) <span class="ot">&lt;-</span> <span class="st">"D"</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  x.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(x.sim) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(x.sim))</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  dx.sim <span class="ot">&lt;-</span> <span class="fu">cbind</span>(d.sim,x.sim)</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(dx.sim) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"D"</span>,<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(x.sim)))</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fPSL estimator</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>  pL.reg.fPSL <span class="ot">&lt;-</span> <span class="fu">fPSL</span>(y.sim,dx.sim)</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp2[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> pL.reg.fPSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PSL estimator</span></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>  pL.reg.PSL <span class="ot">&lt;-</span> <span class="fu">PSL</span>(y.sim, d.sim, x.sim)</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp2[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> pL.reg.PSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PDL estimator</span></span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>  doubleL <span class="ot">=</span> <span class="fu">rlassoEffect</span>(<span class="at">x =</span> x.sim, <span class="at">y =</span> y.sim, <span class="at">d =</span> d.sim, <span class="at">method =</span> <span class="st">"double selection"</span>)</span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp2[i,<span class="dv">3</span>] <span class="ot">&lt;-</span> doubleL<span class="sc">$</span>coefficient[<span class="st">"D"</span>]</span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can plot the distribution for the two different estimates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp2 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(save_alphahat.dgp2) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rename</span>(<span class="at">fPSL =</span> V1, </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PSL =</span> V2,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PDL =</span> V3) </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="co">#create long dataframe, better for plotting</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp2 <span class="ot">&lt;-</span> save_alphahat.dgp2 <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(),<span class="at">names_to =</span> <span class="st">"type"</span>, <span class="at">values_to =</span> <span class="st">"alphahat"</span>)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(save_alphahat.dgp2, <span class="fu">aes</span>(<span class="at">x =</span> alphahat, <span class="at">colour =</span> type, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> .<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>)) <span class="sc">+</span>  </span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of alphahat"</span>)</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="R_Bias_Causal_Inference_Regressions_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="imperfect-confounder-overlap-2" class="level2">
+<h2 class="anchored" data-anchor-id="imperfect-confounder-overlap-2">Imperfect confounder overlap 2</h2>
+<p>The change in DGP we investigate here is that in <code>dgp3</code> we ensure that the first variable, which is the most important covariate in <code>X</code> for <code>D</code>, is not relevant for <code>Y</code> and therefore unlikely to be picked up by the LASSO for <code>y</code>. However the variable is also correlated to the next variable in <code>X</code>. At the same time we increase <code>c1</code> to ensure that approximately the same amount of variation in <code>D</code> can be explained.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>dgp3 <span class="ot">&lt;-</span> <span class="cf">function</span>(n){</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates Fitzgerald Sice et al</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  DGP from Section 3.1</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   d = x * beta_3 + nu</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   y = delta D + x * beta_1 + epsilon</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    eps <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    nu <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates j = 200 variables of X ~ N(0, Sigma)</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    J <span class="ot">=</span> <span class="dv">200</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">=</span> <span class="fu">rep</span>(<span class="dv">0</span>, J)<span class="co"># mean is 0 for all j</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    rho <span class="ot">&lt;-</span> <span class="fl">0.5</span>  <span class="co"># Define the decay factor FOR CORR MATRIX</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    first_row <span class="ot">&lt;-</span> rho<span class="sc">^</span>(<span class="dv">0</span><span class="sc">:</span>(J <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">toeplitz</span>(first_row)   <span class="co"># Generate the covariance matrix using toeplitz</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(n, mu, Sigma)</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># parameters</span></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>    c1 <span class="ot">&lt;-</span> <span class="fl">0.6</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>    c3 <span class="ot">&lt;-</span> <span class="fl">0.8</span></span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>    delta <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="fu">seq</span>(<span class="dv">1</span>,J,<span class="dv">1</span>)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(beta0, J, <span class="dv">1</span>)</span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="ot">&lt;-</span> c1 <span class="sc">*</span> beta0</span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>    beta3 <span class="ot">&lt;-</span> c3 <span class="sc">*</span> beta0</span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a>    beta1[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">0</span>  <span class="co"># set first coefficient to 0</span></span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate d and y</span></span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> x <span class="sc">%*%</span> beta3 <span class="sc">+</span> nu </span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> delta<span class="sc">*</span>d <span class="sc">+</span> x <span class="sc">%*%</span> beta1 <span class="sc">+</span> eps </span>
+<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(y,d,x))</span>
+<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">dgp3</span>(<span class="dv">1000</span>)</span>
+<span id="cb37-35"><a href="#cb37-35" aria-hidden="true" tabindex="-1"></a>ysim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a>dsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a>xsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a>Regy <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(ysim<span class="sc">~</span>., <span class="fu">data.frame</span>(ysim,xsim)))</span>
+<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a>Regd <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(dsim<span class="sc">~</span>., <span class="fu">data.frame</span>(dsim,xsim)))</span>
+<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in y equation ="</span>, Regy<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in y equation = 0.41187670865023"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in d equation ="</span>, Regd<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in d equation = 0.58323287658988"</code></pre>
+</div>
+</div>
+<p>We can now repeat the simulation</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp3 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>,<span class="at">nrow =</span> nsim, <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nsim){</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">dgp3</span>(<span class="dv">100</span>)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  y.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(y.sim) <span class="ot">&lt;-</span> <span class="st">"Y"</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  d.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(d.sim) <span class="ot">&lt;-</span> <span class="st">"D"</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  x.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(x.sim) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(x.sim))</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>  dx.sim <span class="ot">&lt;-</span> <span class="fu">cbind</span>(d.sim,x.sim)</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(dx.sim) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"D"</span>,<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(x.sim)))</span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fPSL estimator</span></span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>  pL.reg.fPSL <span class="ot">&lt;-</span> <span class="fu">fPSL</span>(y.sim,dx.sim)</span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp3[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> pL.reg.fPSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PSL estimator</span></span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>  pL.reg.PSL <span class="ot">&lt;-</span> <span class="fu">PSL</span>(y.sim, d.sim, x.sim)</span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp3[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> pL.reg.PSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PDL estimator</span></span>
+<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>  doubleL <span class="ot">=</span> <span class="fu">rlassoEffect</span>(<span class="at">x =</span> x.sim, <span class="at">y =</span> y.sim, <span class="at">d =</span> d.sim, <span class="at">method =</span> <span class="st">"double selection"</span>)</span>
+<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp3[i,<span class="dv">3</span>] <span class="ot">&lt;-</span> doubleL<span class="sc">$</span>coefficient[<span class="st">"D"</span>]</span>
+<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can plot the distribution for the two different estimates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp3 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(save_alphahat.dgp3) <span class="sc">%&gt;%</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rename</span>(<span class="at">fPSL =</span> V1, </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PSL =</span> V2,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PDL =</span> V3) </span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co">#create long dataframe, better for plotting</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp3 <span class="ot">&lt;-</span> save_alphahat.dgp3 <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(),<span class="at">names_to =</span> <span class="st">"type"</span>, <span class="at">values_to =</span> <span class="st">"alphahat"</span>)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(save_alphahat.dgp3, <span class="fu">aes</span>(<span class="at">x =</span> alphahat, <span class="at">colour =</span> type, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> .<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of alphahat"</span>)</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="R_Bias_Causal_Inference_Regressions_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="inclusion-of-instruments" class="level2">
+<h2 class="anchored" data-anchor-id="inclusion-of-instruments">Inclusion of instruments</h2>
+<p>This setup illustrates when there are variables in <code>X</code> that are not part of the <code>y</code> equation but do explain variation in the treatment variable <code>D</code>. Such variables are of course instruments and they would allow an instrumental variable estimation approach to recover the causal affect of <code>D</code> on <code>y</code>.</p>
+<p>In the simulation we obtain such a setup as follows. The simulation sets up a set of 200 variables in the matrix <code>X</code>. Only the first few are relevant for explaining <code>y</code> as the base vector <code>beta0</code> is setup as <code>beta0 &lt;- 1/(seq(1,J,1)^2)</code> implying a sequence of values <span class="math inline">\(1, 1/4, 1/9, 1/16, etc.\)</span> The result being that only the first few variables explain variation in <code>y</code>. In <code>dgp1</code> it is the same first few elements in <code>X</code> that explain variation in the treatment variable <code>D</code>. In <code>dgp2</code> and <code>dgp3</code> they were basically the same again, just that we switched some off either for the <code>y</code> or <code>D</code> equation, but fundamentally tehy were still the same.</p>
+<p>In this DGP we turn around the order of variables that explain <code>y</code> and <code>D</code>. <code>y</code> remains explained by the first few variables in <code>X</code> while <code>D</code> is explained by the last few variables in <code>X</code>. We achieve this by reversing the order of <code>beta0</code> when setting <code>beta3</code>. This will ensure that the covariates that explain variationin <code>y</code> are not the same as the elements in <code>X</code> that explain variation in <code>D</code>. As now the variables that are explain in <code>D</code> can be excluded from the <code>y</code> equation, these are essentially instruments. Note that they are also virtually uncorrelated to the other elements in <code>X</code> that are included in the <code>y</code> equation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>dgp3 <span class="ot">&lt;-</span> <span class="cf">function</span>(n){</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates Fitzgerald Sice et al</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  DGP from Section 3.1</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   d = x * beta_3 + nu</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   y = delta D + x * beta_1 + epsilon</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    eps <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    nu <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates j = 200 variables of X ~ N(0, Sigma)</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    J <span class="ot">=</span> <span class="dv">200</span></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">=</span> <span class="fu">rep</span>(<span class="dv">0</span>, J)<span class="co"># mean is 0 for all j</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>    rho <span class="ot">&lt;-</span> <span class="fl">0.5</span>  <span class="co"># Define the decay factor FOR CORR MATRIX</span></span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>    first_row <span class="ot">&lt;-</span> rho<span class="sc">^</span>(<span class="dv">0</span><span class="sc">:</span>(J <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">toeplitz</span>(first_row)   <span class="co"># Generate the covariance matrix using toeplitz</span></span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(n, mu, Sigma)</span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># parameters</span></span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>    c1 <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>    c3 <span class="ot">&lt;-</span> <span class="fl">0.8</span></span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>    delta <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="fu">seq</span>(<span class="dv">1</span>,J,<span class="dv">1</span>)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(beta0, J, <span class="dv">1</span>)</span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="ot">&lt;-</span> c1 <span class="sc">*</span> beta0</span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>    beta3 <span class="ot">&lt;-</span> c3 <span class="sc">*</span> <span class="fu">as.matrix</span>(<span class="fu">rev</span>(beta0), J, <span class="dv">1</span>) <span class="co"># reverse beta0</span></span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate d and y</span></span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> x <span class="sc">%*%</span> beta3 <span class="sc">+</span> nu </span>
+<span id="cb43-30"><a href="#cb43-30" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> delta<span class="sc">*</span>d <span class="sc">+</span> x <span class="sc">%*%</span> beta1 <span class="sc">+</span> eps </span>
+<span id="cb43-31"><a href="#cb43-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(y,d,x))</span>
+<span id="cb43-32"><a href="#cb43-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-33"><a href="#cb43-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-34"><a href="#cb43-34" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">dgp2</span>(<span class="dv">1000</span>)</span>
+<span id="cb43-35"><a href="#cb43-35" aria-hidden="true" tabindex="-1"></a>ysim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb43-36"><a href="#cb43-36" aria-hidden="true" tabindex="-1"></a>dsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb43-37"><a href="#cb43-37" aria-hidden="true" tabindex="-1"></a>xsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb43-38"><a href="#cb43-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-39"><a href="#cb43-39" aria-hidden="true" tabindex="-1"></a>Regy <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(ysim<span class="sc">~</span>., <span class="fu">data.frame</span>(ysim,xsim)))</span>
+<span id="cb43-40"><a href="#cb43-40" aria-hidden="true" tabindex="-1"></a>Regd <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(dsim<span class="sc">~</span>., <span class="fu">data.frame</span>(dsim,xsim)))</span>
+<span id="cb43-41"><a href="#cb43-41" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in y equation ="</span>, Regy<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in y equation = 0.478032593726361"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in d equation ="</span>, Regd<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in d equation = 0.599804740636386"</code></pre>
+</div>
+</div>
+<p>We can now repeat the simulation</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp3 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>,<span class="at">nrow =</span> nsim, <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nsim){</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">dgp3</span>(<span class="dv">100</span>)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  y.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(y.sim) <span class="ot">&lt;-</span> <span class="st">"Y"</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>  d.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(d.sim) <span class="ot">&lt;-</span> <span class="st">"D"</span></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>  x.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(x.sim) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>)</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>  dx.sim <span class="ot">&lt;-</span> <span class="fu">cbind</span>(d.sim,x.sim)</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(dx.sim) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"D"</span>,<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>))</span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fPSL estimator</span></span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>  pL.reg.fPSL <span class="ot">&lt;-</span> <span class="fu">fPSL</span>(y.sim,dx.sim)</span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp3[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> pL.reg.fPSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PSL estimator</span></span>
+<span id="cb47-21"><a href="#cb47-21" aria-hidden="true" tabindex="-1"></a>  pL.reg.PSL <span class="ot">&lt;-</span> <span class="fu">PSL</span>(y.sim, d.sim, x.sim)</span>
+<span id="cb47-22"><a href="#cb47-22" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp3[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> pL.reg.PSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb47-23"><a href="#cb47-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb47-24"><a href="#cb47-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PDL estimator</span></span>
+<span id="cb47-25"><a href="#cb47-25" aria-hidden="true" tabindex="-1"></a>  doubleL <span class="ot">=</span> <span class="fu">rlassoEffect</span>(<span class="at">x =</span> x.sim, <span class="at">y =</span> y.sim, <span class="at">d =</span> d.sim, <span class="at">method =</span> <span class="st">"double selection"</span>)</span>
+<span id="cb47-26"><a href="#cb47-26" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp3[i,<span class="dv">3</span>] <span class="ot">&lt;-</span> doubleL<span class="sc">$</span>coefficient[<span class="st">"D"</span>]</span>
+<span id="cb47-27"><a href="#cb47-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can plot the distribution for the three different estimates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp3 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(save_alphahat.dgp3) <span class="sc">%&gt;%</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rename</span>(<span class="at">fPSL =</span> V1, </span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PSL =</span> V2,</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PDL =</span> V3) </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="co">#create long dataframe, better for plotting</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp3 <span class="ot">&lt;-</span> save_alphahat.dgp3 <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(),<span class="at">names_to =</span> <span class="st">"type"</span>, <span class="at">values_to =</span> <span class="st">"alphahat"</span>)</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(save_alphahat.dgp3, <span class="fu">aes</span>(<span class="at">x =</span> alphahat, <span class="at">colour =</span> type, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> .<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>)) <span class="sc">+</span>  </span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of alphahat"</span>)</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="R_Bias_Causal_Inference_Regressions_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In this case, the Double Lasso will ensure that the instruments are included in the post regression, but their inclusion does not harm the PDL.</p>
+</section>
+<section id="unobserved-confounders" class="level2">
+<h2 class="anchored" data-anchor-id="unobserved-confounders">Unobserved confounders</h2>
+<p>Now we will simulate a situation in which there is an unobserved confounder, i.e.&nbsp;a variable that explains variation, both in <code>D</code> and <code>y</code> but cannot be observed and therefore cannot be included in any empirical regresison models.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>dgp4 <span class="ot">&lt;-</span> <span class="cf">function</span>(n){</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates Fitzgerald Sice et al</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  DGP from Section 3.1</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   d = x * beta_3 + nu</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   y = delta D + x * beta_1 + epsilon</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>    eps <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    nu <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>    u <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)  <span class="co"># unobserved confounder</span></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simulates j = 200 variables of X ~ N(0, Sigma)</span></span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>    J <span class="ot">=</span> <span class="dv">200</span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">=</span> <span class="fu">rep</span>(<span class="dv">0</span>, J)<span class="co"># mean is 0 for all j</span></span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>    rho <span class="ot">&lt;-</span> <span class="fl">0.5</span>  <span class="co"># Define the decay factor FOR CORR MATRIX</span></span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>    first_row <span class="ot">&lt;-</span> rho<span class="sc">^</span>(<span class="dv">0</span><span class="sc">:</span>(J <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">toeplitz</span>(first_row)   <span class="co"># Generate the covariance matrix using toeplitz</span></span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">mvrnorm</span>(n, mu, Sigma)</span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># parameters</span></span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a>    c1 <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
+<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a>    c3 <span class="ot">&lt;-</span> <span class="fl">0.8</span></span>
+<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a>    delta <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="fu">seq</span>(<span class="dv">1</span>,J,<span class="dv">1</span>)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a>    beta0 <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(beta0, J, <span class="dv">1</span>)</span>
+<span id="cb49-25"><a href="#cb49-25" aria-hidden="true" tabindex="-1"></a>    beta1 <span class="ot">&lt;-</span> c1 <span class="sc">*</span> beta0</span>
+<span id="cb49-26"><a href="#cb49-26" aria-hidden="true" tabindex="-1"></a>    beta3 <span class="ot">&lt;-</span> c3 <span class="sc">*</span> beta0</span>
+<span id="cb49-27"><a href="#cb49-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-28"><a href="#cb49-28" aria-hidden="true" tabindex="-1"></a>    gamma1 <span class="ot">=</span> <span class="fl">0.5</span></span>
+<span id="cb49-29"><a href="#cb49-29" aria-hidden="true" tabindex="-1"></a>    gamma3 <span class="ot">=</span> <span class="fl">0.4</span></span>
+<span id="cb49-30"><a href="#cb49-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb49-31"><a href="#cb49-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate d and y</span></span>
+<span id="cb49-32"><a href="#cb49-32" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> x <span class="sc">%*%</span> beta3 <span class="sc">+</span> gamma3<span class="sc">*</span>u <span class="sc">+</span> nu </span>
+<span id="cb49-33"><a href="#cb49-33" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> delta<span class="sc">*</span>d <span class="sc">+</span> x <span class="sc">%*%</span> beta1 <span class="sc">+</span> gamma1<span class="sc">*</span>u <span class="sc">+</span> eps </span>
+<span id="cb49-34"><a href="#cb49-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(y,d,x))</span>
+<span id="cb49-35"><a href="#cb49-35" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb49-36"><a href="#cb49-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-37"><a href="#cb49-37" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">dgp4</span>(<span class="dv">1000</span>)</span>
+<span id="cb49-38"><a href="#cb49-38" aria-hidden="true" tabindex="-1"></a>ysim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb49-39"><a href="#cb49-39" aria-hidden="true" tabindex="-1"></a>dsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb49-40"><a href="#cb49-40" aria-hidden="true" tabindex="-1"></a>xsim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb49-41"><a href="#cb49-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-42"><a href="#cb49-42" aria-hidden="true" tabindex="-1"></a>Regy <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(ysim<span class="sc">~</span>., <span class="fu">data.frame</span>(ysim,xsim)))</span>
+<span id="cb49-43"><a href="#cb49-43" aria-hidden="true" tabindex="-1"></a>Regd <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">lm</span>(dsim<span class="sc">~</span>., <span class="fu">data.frame</span>(dsim,xsim)))</span>
+<span id="cb49-44"><a href="#cb49-44" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in y equation ="</span>, Regy<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in y equation = 0.423316158782026"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"R^2 in d equation ="</span>, Regd<span class="sc">$</span>r.squared)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R^2 in d equation = 0.555845894021418"</code></pre>
+</div>
+</div>
+<p>We can now repeat the simulation</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp4 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>,<span class="at">nrow =</span> nsim, <span class="at">ncol =</span> <span class="dv">3</span>)</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nsim){</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">dgp4</span>(<span class="dv">100</span>)</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>  y.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">1</span>]])</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(y.sim) <span class="ot">&lt;-</span> <span class="st">"Y"</span></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>  d.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">2</span>]])</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(d.sim) <span class="ot">&lt;-</span> <span class="st">"D"</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>  x.sim <span class="ot">&lt;-</span> <span class="fu">unlist</span>(data[[<span class="dv">3</span>]])</span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(x.sim) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>)</span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>  dx.sim <span class="ot">&lt;-</span> <span class="fu">cbind</span>(d.sim,x.sim)</span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(dx.sim) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"D"</span>,<span class="fu">paste0</span>(<span class="st">"X"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>))</span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fPSL estimator</span></span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>  pL.reg.fPSL <span class="ot">&lt;-</span> <span class="fu">fPSL</span>(y.sim,dx.sim)</span>
+<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp4[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> pL.reg.fPSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PSL estimator</span></span>
+<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a>  pL.reg.PSL <span class="ot">&lt;-</span> <span class="fu">PSL</span>(y.sim, d.sim, x.sim)</span>
+<span id="cb53-22"><a href="#cb53-22" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp4[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> pL.reg.PSL<span class="sc">$</span>coefficients[<span class="st">"D"</span>]</span>
+<span id="cb53-23"><a href="#cb53-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb53-24"><a href="#cb53-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PDL estimator</span></span>
+<span id="cb53-25"><a href="#cb53-25" aria-hidden="true" tabindex="-1"></a>  doubleL <span class="ot">=</span> <span class="fu">rlassoEffect</span>(<span class="at">x =</span> x.sim, <span class="at">y =</span> y.sim, <span class="at">d =</span> d.sim, <span class="at">method =</span> <span class="st">"double selection"</span>)</span>
+<span id="cb53-26"><a href="#cb53-26" aria-hidden="true" tabindex="-1"></a>  save_alphahat.dgp4[i,<span class="dv">3</span>] <span class="ot">&lt;-</span> doubleL<span class="sc">$</span>coefficient[<span class="st">"D"</span>]</span>
+<span id="cb53-27"><a href="#cb53-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can plot the distribution for the three different estimates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp4 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(save_alphahat.dgp4) <span class="sc">%&gt;%</span> </span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rename</span>(<span class="at">fPSL =</span> V1, </span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PSL =</span> V2,</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">PDL =</span> V3) </span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="co">#create long dataframe, better for plotting</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>save_alphahat.dgp4 <span class="ot">&lt;-</span> save_alphahat.dgp4 <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(),<span class="at">names_to =</span> <span class="st">"type"</span>, <span class="at">values_to =</span> <span class="st">"alphahat"</span>)</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(save_alphahat.dgp4, <span class="fu">aes</span>(<span class="at">x =</span> alphahat, <span class="at">colour =</span> type, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> .<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of alphahat"</span>)</span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>plot_den_alphahat.dgp4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="R_Bias_Causal_Inference_Regressions_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It is apparent from tehse histograms that all estimators show a clear bias under these circumstance. But this is not really a surprise, the methods proposed here are designed to improve causal inference when selection driven by observable variables.</p>
+<p>If there are unobserved confounders different research designs are called for.</p>
+</section>
+<section id="reading" class="level2">
+<h2 class="anchored" data-anchor-id="reading">Reading</h2>
+<ul>
+<li>Belloni, A., V. Chernozhukov and C. Hansen (2014), Inference on Treatment Effects After Selection Among High-dimensional Controls, The Review of Economic Studies, 81, 2369-2429.</li>
+<li>Fitzgerald Sice, Jack and Lattimore, Finnian and Robinson, Tim and Zhu, Anna, Practical Insights Into Applying Double LASSO (May 18, 2023). Available at SSRN:&nbsp;<a href="https://ssrn.com/abstract=4452778" class="uri">https://ssrn.com/abstract=4452778</a>&nbsp;or&nbsp;<a href="https://dx.doi.org/10.2139/ssrn.4452778">http://dx.doi.org/10.2139/ssrn.4452778</a></li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
