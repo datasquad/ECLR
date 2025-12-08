@@ -228,7 +228,7 @@ Final Leaf 7 applies to 1,539 customers and amongst these the probability of def
 
 Look at the fifth customer in `data.cc`, which of the final/terminal four branches does that customer belong to?
 
-"The customer belongs to `r mcq(c("Branch 4", answer =  "Branch 5", "Branch 6", "Branch 7))` 
+"The customer belongs to `r mcq(c("Branch 4", answer =  "Branch 5", "Branch 6", "Branch 7"))` 
 
 
 `r hide("How can I get this result?")`
@@ -420,7 +420,7 @@ The function `varImpPlot()` generate plots where variables are displayed in decr
 varImpPlot(rforest.cc.data)                                         
 ```
 
-There are slight differences in ranking of variables across the plots, but they are generally in agreement with one another, and with the tree we fit earlier. Note, there could be negative scores. The actual scores can be obtained by typing the following:
+There are slight differences in ranking of variables across the plots, but they are generally in agreement with one another, and with the tree we fit earlier, in that `PAY_1` is the variable of primary importance. Note, there could be negative scores. The actual scores can be obtained by typing the following:
 
 ```{r}
 importance(rforest.cc.data)            # displays variable importance scores
@@ -438,7 +438,7 @@ table(rf.pred, YYY)
 (YYY + ZZZ)/200                                                 # test accuracy
 ```
 
-```{r, eval = FALSE}
+```{r, echo = FALSE}
 rf.pred <- predict(rforest.cc.data, cc.test, type = "class")  
 table(rf.pred, cc.test.default)
 ```
