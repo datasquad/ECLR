@@ -1,0 +1,246 @@
+---
+title: "Trees and Random Forests"
+author: "S Honkote"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r eval=FALSE, out.width = "40%", fig.align = "center"}
+knitr::include_graphics("Restaurant Decision Dilemma.png")
+```
+
+Suppose you need to eat out tonight. How do you decide where to go? If distance is your top priority, you first rule out all restaurants beyond a certain range. Next, you might consider budget, narrowing the list further. Then, you continue filtering out by the next most important factor until you are left with a single choice. This is essentially how statistical decision trees work.
+
+Given a data set with predictors and outcomes, a tree is constructed by sequentially splitting the predictor space into smaller regions with the goal of minimizing the variation in the outcomes within each region. To make a prediction for a new observation, the method checks which region it falls into, and then predicts a value that is:
+
+* the **average** outcome in that region (for continuous outcomes), or
+* the **most common** outcome in that region (for a categorical or binary outcomes).  
+
+Trees are popular because they are easy to interpret and visualize. Some even argue they resemble human decision-making, which could provide a significant advantage in prediction. However, on their own, trees often have a lower prediction accuracy than other modelling techniques (e.g. OLS). As a result, solutions like *random forests* have arisen, where many trees are grown and their predictions combined for better accuracy. 
+
+In this walkthrough, you will:
+
+* fit a single tree to a data set and test its predictive performance 
+* fit multiple trees using randomly selected predictors (random forests) and compare their performance  
+
+While the main exercises focus on classification problems (categorical or binary outcomes), we will also look briefly at how trees handle regression problems (continuous outcomes).
+
+The examples and code are drawn from Chapter 8, *An Introduction to Statistical Learning, Second Edition* by James et al. (2021). The chapter provides additional explanation and examples of tree-based methods. The book is freely available [here](https://www.statlearning.com/).
+
+We will also assume that you are already familiar with cross-validation - a technique commonly used to choose model hyperparameters. A cross-validation walkthrough is available in ECLR on this [link](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html).   
+
+# Trees
+
+Let's load some necessary packages.
+
+```{r cars}
+library("ISLR2")                                                        # contains the data sets in ISLR, 2nd Ed.
+library("tree")                                                         # for building trees
+```
+
+The data set we are using for this exercise is called 'Carseats' - a simulated data of sales of child car seats in 400 different stores. 
+
+```{r, results='hide', echo=TRUE}
+data(Carseats)                                                         # loads the data
+help(Carseats)                                                         # Opens data documentation
+```
+
+[Q. How many variables does the data set contain? Ans. 11 variables.]
+
+We are going to create a new variable called `High`, which takes a value of 'Yes' if `Sales` exceeds 8. This variable is going to be our response or outcome variable throughout the exercise. 
+
+
+```{r}
+High <- factor(ifelse(Carseats$Sales <= 8, "No", "Yes"))               # creates the dummy 
+Carseats <- data.frame(Carseats, High)                                 # merges it with Carseats
+```
+
+[Q: What type of variable is `High`? [a] Continuous variable ranging from 0 to 10, [b] Binary variable with a `Yes` value indicating sales of child car seats greater than 8, [c] Binary variable with a `Yes` value indicating sales of child car seats greater than 8000]
+
+We place the observations randomly into training and test sets. The training data set will be used to fit a classification tree that models `High`. All variables except sales will be provided as inputs. 
+
+```{r}
+set.seed(6)                                                            # initialises the random sampling 
+train <- sample(1:nrow(Carseats), 200)                                 # draws a sample of size 200 
+Carseats.test <- Carseats[-train, ]                                    # separates out the test set
+tree.carseats <- tree(High ~ . - Sales, Carseats,                      # fits a tree 
+                      subset = train) 
+```
+
+A plot of the fitted tree produces the following:
+
+```{r fig.height=10, fig.width=12}
+plot(tree.carseats)                                                   # builds the tree plot
+text(tree.carseats, pretty = 0)                                       # adds labels to the plot 
+```
+
+In the plot, we are seeing a series of splits from which two branches emerge. *Each split is labelled based on the condition governing the left-hand branch of that split.*
+
+Based on this tree, the most important factor driving high sales is `ShelveLoc` (shelving location). The first split places the stores with bad or medium quality shelving locations for car seats in the left branch, and those with good quality shelving locations in the right branch. After this first split, the algorithm keeps dividing each branch further based on which variable and it's value decrease the deviance in the outcomes within that branch the most. When a branch stops splitting, it ends in a *leaf* or *terminal node*. At each leaf, the plot is indicating the predicted class for that group of observations. 
+
+[Q. What is predicted class of car seats sales in good shelf locations with a price tag of $150? Ans. No *or* low sales.]
+
+In a classification problem, the predicted class is the most common outcome (mode) within the leaf. Whereas in a regression problem, the average of the outcomes in the leaf is the predicted outcome.
+
+You might notice the tree looks quite complicated. That’s because this is an unpruned tree—it hasn’t been simplified yet. In a classification problem, the tree algorithm chooses the best split by calculating the *Gini Index* for each predictor and each possible value. Then it picks the combination that produces the lowest Gini Index. Without a stopping rule, the algorithm will keep splitting as long as doing so reduces this deviance measure. 
+
+The formula for the Gini Index is -
+
+$$ 
+G = \sum_{k=1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})
+$$
+Here, $\hat{p}_{mk}$ is the proportion of training observations in leaf (or region) $m$ that belong to class $k$. A *class* is just a category of the response variable - for example, in our case the classes are 'Yes' and 'No'. Notice that $G$ becomes smaller when the values of $\hat{p}_{mk}$ in a leaf are close to zero or one. Because of this property, the Gini Index is also seen as a measure of *node purity*. In a regression problem, node impurity is measured by the Mean Squared Error (MSE) formula, which you have seen in OLS type problems. 
+
+[Q: Which has the lower Gini Index? [a] A leaf with 5 observations where the responses are {Yes, Yes, Yes, No, Yes}, [b] A leaf with 4 observations where the responses are {Yes, No, No, No}]
+
+The summary() function allows you to view various particulars of the fitted tree.
+
+```{r}
+summary(tree.carseats)
+```
+
+Notice how the algorithm did not end up using all the 10 explanatory variables available in data, in order to fit the tree. 
+
+[Q: Which variables haven't been used in tree construction? Ans. Education, Urban, USA]
+
+The number of terminal nodes tells us the tree's size. The larger it is, the more complex the tree. The residual mean deviance is a measure of how well the tree fits the training data. The lower the value of the deviance, the better the model fits the training data. It's computed by summing up the node impurity of each leaf and dividing it by the model's degrees of freedom, which is defined as the number of observations minus the number of terminal nodes. The misclassification rate is giving us the training error rate - the proportion of training observations in a leaf that are incorrectly predicted by the leaf's majority class. In this case, it's 12.5 percent. 
+
+[True or False problem. Degrees of freedom for the deviance measure are calculated using the number of variables used in tree construction. ]
+
+We should now evaluate the performance of the fitted tree on the test data. The predict() function allows us to do that. To ensure that the predictions are in terms of classes, we need to provide type = "class" as an argument.
+
+```{r}
+tree.pred <- predict(tree.carseats, Carseats.test, 
+                     type = "class")                                # predicting outcomes in test data set
+                                
+High.test <- High[-train]                                           # creates a new list with the actual outcome values in test data
+table(tree.pred , High.test)                                        # Confusion matrix
+```
+
+The table displays how accurately the tree predicted the values of 'High' for the test set observations. The testing accuracy rate is 74 percent.
+
+```{r}
+(94 + 54)/200                                                       # accuracy rate
+```
+
+## Tree pruning
+
+So far, we have not included a penalty for tree complexity. This step should be considered as the algorithm will likely overfit the data, which can lead to poor performance on the test set. Let's set a penalty $\alpha > 0$ for tree size since we know this is a measure of tree complexity. For any $\alpha$, the goal is to find the optimal subtree (from the original large tree) that minimizes the combined measure:
+
+$$ 
+\text{Total error of the Subtree} + \alpha (\text{Size of the Subtree})
+$$
+The larger the $\alpha$ the simpler the tree. 
+
+We will perform cross-validation to find a tree of the appropriate size. The cv.tree() function progressively increases $\alpha$ value and obtains trees of different sizes from the original tree. These subtrees are then validated in the hold-out fold of the data. The error of the sub-trees are averaged and presented in the output summary.  
+
+```{r}
+set.seed(5)                                                       
+cv.carseats <- cv.tree(tree.carseats,                             # cross-validates subsets of the tree 
+     FUN = prune.misclass)                                        
+cv.carseats                                                       # view output
+```
+
+The final output shows the size of each subtree selected from tree.carseats for a given 'k' (the penalty that we denoted by $\alpha$). 'dev' is the number of cross-validation errors, associated with that subtree. 
+
+We plot the error rate as a function of the penalty and tree size.
+```{r}
+# Plotting the error rate as a function of size and k
+par(mfrow = c(1,2))
+plot(cv.carseats$size, cv.carseats$dev, type = "b") 
+plot(cv.carseats$k, cv.carseats$dev, type = "b")
+```
+
+What tree size gives the lowest error? It's one with 7 nodes. What's the optimal size of the penalty? 2.5. 
+
+We can obtain the pruned tree using `prune.misclass`, supplying the  tree-size 7 and the tree-pruning methodology. 
+
+```{r}
+prune.carseats <- prune.tree(tree.carseats, best = 7, method = "misclass")  
+summary(prune.carseats)
+```
+
+We can compare the residual mean deviances of the pruned and unpruned trees (because they are calculated from the same data set). Notice, we that the pruned tree has a larger  deviance and misclassification rate. This is not necessarily a bad thing from a prediction point of view, since a simpler tree prevents overfitting. 
+
+Let's visualise the pruned tree. 
+```{r}
+plot(prune.carseats)
+text(prune.carseats, pretty = 0)
+```
+
+Notice how the branches have fallen off the original tree? Also, `Age` and `Population` are no longer being used in tree construction.  
+
+Does pruning help in achieving better prediction accuracy? We use the same steps we used while evaluating the performance of the unpruned tree to find out.  
+
+```{r}
+tree.pred <- predict(prune.carseats, Carseats.test, type = "class")
+table(tree.pred, High.test)                                   
+(96+53)/200                                                           # test acc
+```
+
+Test accuracy has only increased by 0.5 percent. 
+
+Try and see how test accuracy changes if a different seed number is used during cross-validation. Try values like 1 or 2. Do you get the same prediction accuracy from the pruned tree? 
+
+
+## Random Forests
+
+Trees suffer from high variance. Notice how you can get a very different tree, when fitting one on the test data set. 
+
+```{r}
+tree.carseats <- tree(High ~ . - Sales, Carseats.test)
+summary(tree.carseats)
+```
+
+A different set of variables is selected for tree construction and the tree-size is different. When the variance of a model is high, predictions based on it will be less accurate. A large enough data set will not get rid of the problem of high variance of a tree. Tree pruning will also not necessarily improve accuracy.
+
+Random forests is one solution to the issue of high-variance of trees. It involves building multiple decision trees using bootstrapped training samples. Bootstrapping  implies taking repeated random samples from a single training data set. In addition, splits are carried out only by considering a random subset of predictors. Typically, the number of predictors chosen is the square root of predictors ($\sqrt{p}$). This allows the algorithm to build trees that are different from each other, giving weaker predictors more of a chance to appear in the splits. When the predictions of these trees are averaged, the variance is lower leading to better accuracy in predictions. 
+
+We will use the `randomForest` package in R to apply random forests to the Carseats data. 
+
+```{r}
+library(randomForest)
+set.seed(1)                                            
+rf.carseats <- randomForest(High ~ . - Sales, data = Carseats, subset = train, importance = TRUE)              
+print(rf.carseats)
+```
+
+The summary of the output tells us that the model is trained by creating 500 trees using 3 randomly selected predictors for each split. The Out Of Bag (OOB) error is calculated using the average error in prediction of observations not included in the bootstrapped samples. The method is yielding an OOB accuracy rate of 78.5 percent (1 - OOB error rate).  
+
+While we cannot create a tree-like plot after applying random forests, we can still generate variable importance scores for all of the predictors. In the randomForest() function, we specified importance = TRUE. This calculates two kinds of scores for each predictor: (i) Mean Decrease in Accuracy i.e. the decrease in OOB accuracy when the variable is excluded, and (ii) Mean Decrease in Gini i.e. the total decrease in Gini Index from splitting on the variable. Both are useful measures of variable importance, although the first one would be slightly more important from a prediction standpoint. 
+
+The function varImpPlot() generate plots where variables are displayed in decreasing order of importance. This provides a clear picture of which variables are useful in classification.   
+
+```{r}
+varImpPlot(rf.carseats)                                         
+```
+
+There are slight differences in ranking of variables across the plots, but they are generally in agreement with one another, and with the tree we fit earlier. Note, there can be negative scores. The actual scores can be obtained by typing the following:
+
+```{r}
+importance(rf.carseats)                                          # displays variable importance scores
+```
+
+The last two columns are displaying the importance scores. 
+
+Now we should test how well the model works on test data. The predict() function will cycle the new data points through all the 500 trees of the forest and predict the class of the point using a majority vote. 
+
+You could fill in the blanks in the code snippet below and run the code to calculate the test accuracy rate. 
+
+```{r, eval = FALSE}
+rf.pred <- predict(XXX, Carseats.test, type = "class")         # fill the missing inputs  
+table(rf.pred, YYY)
+(YYY + ZZZ)/200                                                 # test accuracy
+```
+
+The test accuracy should be substantially higher compared to the rate using cost complexity pruning.
+
+Apart from random forests, there are other methods that use a regression or classification tree as a building block - for instance, bagging, boosting, and Bayesian Additive Regression Trees. An introduction to these methods can be found in the ISLR textbook referenced earlier. It will be useful for seeing how these methods differ from random forests in structure and strategy, and how they compare in terms of predictive performance. 
+
+**Additional Resources**
+
+[*Chp. 26 of R for Statistical Learning*](https://daviddalpiaz.github.io/r4sl/trees.html) by David Dalpiaz illustrates the use of rcaret() function in R, which is a better programme compared to tree().
