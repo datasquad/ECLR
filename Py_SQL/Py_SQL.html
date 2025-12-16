@@ -676,7 +676,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <hr>
 <h4 id="Finding-code">Finding code<a class="anchor-link" href="#Finding-code">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
-<h5 id="Websearch">Websearch<a class="anchor-link" href="#Websearch">&#182;</a></h5><p>As we are at the beginning of our SQL learning journey you cannot be expected to know how to get a list of the tables from the database. You could use your favourite serach engine and search for something like "How to use SQL to get all table names in a database sqlite". In my case this led me to the following website <a href="https://www.datacamp.com/tutorial/sqlite-show-tables">that provides quite clear but word instruction on how to do that</a>.</p>
+<h5 id="Websearch">Websearch<a class="anchor-link" href="#Websearch">&#182;</a></h5><p>As we are at the beginning of our SQL learning journey you cannot be expected to know how to get a list of the tables from the database. You could use your favourite search engine and search for something like "How to use SQL to get all table names in a database sqlite". In my case this led me to the following website <a href="https://www.datacamp.com/tutorial/sqlite-show-tables">that provides quite clear but wordy instruction on how to do that</a>.</p>
 <p>This will give the SQL command that needs to be inserted into the <code>pd.read_sql_query</code> function.</p>
 <h5 id="AI">AI<a class="anchor-link" href="#AI">&#182;</a></h5><p>You could also ask your favourite AI engine. But you will have to give the AI enough information. For instance you could ask the following: "I am working in Python and am accessing a SQLite database called "northwind.db". How can I get a list of all tables in the database?"</p>
 <h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
@@ -923,6 +923,21 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 
 <p>First, note that the line break is indicated by "\". It is important that there is no space after the "\".</p>
+<p>If you wish to save the results of this query into a spreadsheet you can do this as follows. First save the query in a DataFrame and then save that using the <code>to_csv</code> method.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">uk_suppliers</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT CompanyName, City FROM Suppliers WHERE Country = &#39;UK&#39; </span><span class="se">\</span>
+<span class="s2">                  ORDER BY CompanyName;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+<span class="n">uk_suppliers</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;uk_suppliers.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+</div>
 <p>When looking at the result it becomes obvious what the above SQL command did.</p>
 <div class="highlight"><pre><span></span><span class="c1"># selects variables CompanyName and City from the Suppliers table</span>
 <span class="n">SELECT</span> <span class="n">CompanyName</span><span class="p">,</span> <span class="n">City</span> <span class="n">FROM</span> <span class="n">Suppliers</span>
@@ -1184,6 +1199,350 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
 <hr>
 
+<h1 id="Grouping-and-Aggregating-Data">Grouping and Aggregating Data<a class="anchor-link" href="#Grouping-and-Aggregating-Data">&#182;</a></h1><p>Often you will find that a database contains information on individual customers or individual transactions. The amount of data can be very large and for an analysis you may not be interested in the individual observations but rather in aggregated information. If so, then it may not be necessary to download the individual observations but it would be possible to aggregate information, for instance to a daily transaction summaries, which can then be downloaded for analysis.</p>
+<h2 id="The-first-task-we-will-undertake-is-to-summarise-the-number-of-orders-(from-the-Orders-table)-that-go-to-different-countries.">The first task we will undertake is to summarise the number of orders (from the <code>Orders</code> table) that go to different countries.<a class="anchor-link" href="#The-first-task-we-will-undertake-is-to-summarise-the-number-of-orders-(from-the-Orders-table)-that-go-to-different-countries.">&#182;</a></h2><h4 id="Understand-the-structure-of-Orders">Understand the structure of <code>Orders</code><a class="anchor-link" href="#Understand-the-structure-of-Orders">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
+<h5 id="Question">Question<a class="anchor-link" href="#Question">&#182;</a></h5><p>Before proceeding with this you will want to check out what variables are included in the <code>Orders</code> table. Attempt to apply the previously introduced <code>PRAGMA table_info(Products);</code> command (recall that this is convenient but specific to SQLite databases) to find the names of the variables.</p>
+<h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5>
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;PRAGMA table_info(Orders);&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cid</th>
+      <th>name</th>
+      <th>type</th>
+      <th>notnull</th>
+      <th>dflt_value</th>
+      <th>pk</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>OrderID</td>
+      <td>INTEGER</td>
+      <td>1</td>
+      <td>None</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>CustomerID</td>
+      <td>TEXT</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>EmployeeID</td>
+      <td>INTEGER</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>OrderDate</td>
+      <td>DATETIME</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>RequiredDate</td>
+      <td>DATETIME</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>5</td>
+      <td>ShippedDate</td>
+      <td>DATETIME</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>6</td>
+      <td>ShipVia</td>
+      <td>INTEGER</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>7</td>
+      <td>Freight</td>
+      <td>NUMERIC</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>8</td>
+      <td>ShipName</td>
+      <td>TEXT</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>9</td>
+      <td>ShipAddress</td>
+      <td>TEXT</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>10</td>
+      <td>ShipCity</td>
+      <td>TEXT</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>11</td>
+      <td>ShipRegion</td>
+      <td>TEXT</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>12</td>
+      <td>ShipPostalCode</td>
+      <td>TEXT</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>13</td>
+      <td>ShipCountry</td>
+      <td>TEXT</td>
+      <td>0</td>
+      <td>None</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<p>From here you learn that the variable we are interested in is called <code>ShipCountry</code></p>
+<h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
+<hr>
+<p>Now that we know the variable name of the country variable we can look at how many orders there are. Let's, for a moment, imagine you had a dataframe in Python called <code>Orders</code> and that had a variable called <code>ShipCountry</code>. How would achieve this in Python?</p>
+<div class="highlight"><pre><span></span><span class="n">Orders</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;ShipCountry&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+</pre></div>
+<p>So there were two elements, we needed to group the data by the <code>ShipCountry</code> variable and then count, which here was achieved by using the <code>size()</code> method which does exactly count the number of observations in each group. Similar tasks have to be achieved when using a SQL query to the database.</p>
+<p>Here is the command used:</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT ShipCountry, COUNT(*) AS n_orders FROM Orders GROUP BY ShipCountry ORDER BY n_orders DESC;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ShipCountry</th>
+      <th>n_orders</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>USA</td>
+      <td>2328</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Germany</td>
+      <td>2193</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>France</td>
+      <td>1778</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Brazil</td>
+      <td>1683</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>UK</td>
+      <td>1280</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Mexico</td>
+      <td>899</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Venezuela</td>
+      <td>707</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Spain</td>
+      <td>691</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Canada</td>
+      <td>547</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Italy</td>
+      <td>538</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Argentina</td>
+      <td>535</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Sweden</td>
+      <td>391</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Austria</td>
+      <td>380</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Finland</td>
+      <td>369</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>Switzerland</td>
+      <td>367</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Portugal</td>
+      <td>357</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Denmark</td>
+      <td>352</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>Belgium</td>
+      <td>338</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>Poland</td>
+      <td>213</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>Ireland</td>
+      <td>172</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>Norway</td>
+      <td>164</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<hr>
+<h4 id="What-does-this-command-do?">What does this command do?<a class="anchor-link" href="#What-does-this-command-do?">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
+<h5 id="Question">Question<a class="anchor-link" href="#Question">&#182;</a></h5><p>We want to disect this command as it helps us understand how SQL works. Can you identify the equivalents to <code>groupby</code> and <code>size()</code>?</p>
+<h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5><p>Here is a detailed breakdown:</p>
+<div class="highlight"><pre><span></span><span class="o">#</span><span class="w"> </span><span class="k">get</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">ShipCountry</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="k">from</span><span class="w"> </span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">ShipCountry</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n_orders</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">Orders</span>
+</pre></div>
+<div class="highlight"><pre><span></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ShipCountry</span><span class="w"> </span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n_orders</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</pre></div>
+<h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
+<hr>
 <h1 id="Reading">Reading<a class="anchor-link" href="#Reading">&#182;</a></h1><ul>
 <li><p>Database used here <code>northwind.db</code> is from <a href="https://github.com/jpwhite3/northwind-SQLite3">JP White's github page</a></p>
 </li>
