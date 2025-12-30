@@ -45,6 +45,7 @@ In the following a few basic data techniques are introduced. Where you need to d
 
 | Topic |  Workthrough in R | Workthrough in Python |
 |:------|:-----|:-----|
+| Working with Databases (SQL) |  | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_SQL/Py_SQL.html)
 | Regression Model Selection | [Workthrough in R](https://datasquad.github.io/ECLR/R_VariableSelection_Credit/R_VariableSelection_Credit.html) | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_DataScience/Py_VariableSelection_Credit.html)
 | Ridge and LASSO Regression | [Workthrough in R](https://datasquad.github.io/ECLR/R_RidgeLasso/R_RidgeLasso.html) | 
 | Post Double Selection LASSO | [Workthrough in R](https://datasquad.github.io/ECLR/R_DoubleRobustLasso/R_DoubleRobustLasso.html), [Simulation evidence](https://datasquad.github.io/ECLR/R_DoubleRobustLasso/R_Bias_Causal_Inference_Regressions.html) | 
