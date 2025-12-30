@@ -491,11 +491,14 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>In this walkthrough you will learn to</p>
 <ul>
 <li>use SQL to access database</li>
-<li>... </li>
+<li>select rows and variables from a single database table</li>
+<li>join data from multiple tables in a database</li>
+<li>aggregate data </li>
+<li>calculate new variables</li>
 </ul>
-<p>You have been studying Python such that you can do simple or very complex dat analysis. Why would you need to know SQL (which stands for Structured Query Language)? These days all large (and some small) businesses keep enourmous amounts of data (think every interaction you as a customer may have with the Amazon webpage). These data are saved in whgat is called databases. Databases are really collections of spreadsheets (with observations in rows and variables in columns). Often the data is organised such that different spreadsheets can potentially be linked as they have common keys. Such databases are called relational databases.</p>
+<p>You have been studying Python such that you can do simple or very complex data analysis. Why would you need to know SQL (which stands for Structured Query Language)? These days all large (and some small) businesses keep enourmous amounts of data (think every interaction you as a customer may have with the Amazon webpage). These data are saved in what are called databases. Databases are really collections of spreadsheets (with observations in rows and variables in columns). Often the data is organised such that different spreadsheets can potentially be linked as they have common keys. Such databases are called relational databases.</p>
 <p>There may be a lot of interesting analysis you could do with some of the data in such a database. However, these databases are often so big that you will have to first extract some suitable subset of the data (perhaps already aggregated to a certain level) such that the dataset's structure and size is suitable for analysis in Python.</p>
-<p>The language used to access and extract data is SQL and it stands at the beginning of many data projects.</p>
+<p>The language used to access and extract data is SQL and it stands at the beginning of many data projects. The result of SQL work is typically not the analysis of your data itself, but rather the particular data on which you then perform the analysis.</p>
 <h1 id="Database-setup">Database setup<a class="anchor-link" href="#Database-setup">&#182;</a></h1><p>Unsurprisingly databases come in different formats. However, the good thing is that communicating with these always happens with variants of the SQL language. For certain applications and database formats you can access databases directly from Python. This is what we will cover here, we assume that a database is stored locally and then we use Python to communicate with that database.</p>
 <p>In commercial organisations, where datbases are accessed by many people independently and simultaneously, this access needs to be controlled by a database server. But here we will abstract from such difficulties. When you work in a particular organisation you will be introduced to any such specifics.</p>
 <p>We use an example database that has been created for teaching purposes called <code>northwind.db</code>. This is built as a SQLlite type database which can just be saved locally on your computer without the need for a server. As such in can then be directly accessed from, say, Python.</p>
@@ -840,7 +843,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 
 <hr>
 <h4 id="What-is-PRAGMA">What is PRAGMA<a class="anchor-link" href="#What-is-PRAGMA">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
-<h5 id="SQLite-specific-solution">SQLite specific solution<a class="anchor-link" href="#SQLite-specific-solution">&#182;</a></h5><p>The above code using the PRAGMA command is a solution to the particular problem at hand using a SQLite specific command the PRAGMA command. It makes certain things much easier than using SQL language that is universal across different database formats. But is if your database is not in the SQLite format, then this will not be available.</p>
+<h5 id="SQLite-specific-solution">SQLite specific solution<a class="anchor-link" href="#SQLite-specific-solution">&#182;</a></h5><p>The above code using the PRAGMA command is a solution to the particular problem at hand using a SQLite specific command the PRAGMA command. It makes certain things much easier than using SQL language that is universal across different database formats. But if your database is not in the SQLite format, then this will not be available.</p>
 <h5 id="A-generic-SQL-solution">A generic SQL solution<a class="anchor-link" href="#A-generic-SQL-solution">&#182;</a></h5><p>If you want to get a list of variables in a table in a way that should be applicable across different database formats you do the following:</p>
 
 
@@ -948,7 +951,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </pre></div>
 <hr>
 <h4 id="Practice-Exercise">Practice Exercise<a class="anchor-link" href="#Practice-Exercise">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
-<h5 id="Task">Task<a class="anchor-link" href="#Task">&#182;</a></h5><p>Find out of which products the company has more than 100 units in stock (<code>UnitsInStock &gt; 100</code>). Create a table with these products and include the following variables into the table: <code>ProductName</code>, <code>QuantityPerUnit</code>, <code>MinOrderAmount</code>, <code>UnitsInStock</code>. But check whether all these variables actually exist in the <code>Products</code> table.</p>
+<h5 id="Task">Task<a class="anchor-link" href="#Task">&#182;</a></h5><p>Using the <code>Products</code> table, find out of which products the company has more than 100 units in stock (<code>UnitsInStock &gt; 100</code>). Create a table with these products and include the following variables into the table: <code>ProductName</code>, <code>QuantityPerUnit</code>, <code>MinOrderAmount</code>, <code>UnitsInStock</code>. But check whether all these variables actually exist in the <code>Products</code> table.</p>
 <h5 id="Solution-Strategy">Solution Strategy<a class="anchor-link" href="#Solution-Strategy">&#182;</a></h5><p>First check which of the above four variables actually do exist. Adjust the earlier <code>PRAGMA</code> command to achieve this.</p>
 <p>Then, you should adjust the above <code>SELECT ... FROM ... WHERE</code> command to the question at hand.</p>
 <h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5><p>First check which variables are available in <code>Products</code>.</p>
@@ -1200,8 +1203,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <hr>
 
 <h1 id="Grouping-and-Aggregating-Data">Grouping and Aggregating Data<a class="anchor-link" href="#Grouping-and-Aggregating-Data">&#182;</a></h1><p>Often you will find that a database contains information on individual customers or individual transactions. The amount of data can be very large and for an analysis you may not be interested in the individual observations but rather in aggregated information. If so, then it may not be necessary to download the individual observations but it would be possible to aggregate information, for instance to a daily transaction summaries, which can then be downloaded for analysis.</p>
-<h2 id="The-first-task-we-will-undertake-is-to-summarise-the-number-of-orders-(from-the-Orders-table)-that-go-to-different-countries.">The first task we will undertake is to summarise the number of orders (from the <code>Orders</code> table) that go to different countries.<a class="anchor-link" href="#The-first-task-we-will-undertake-is-to-summarise-the-number-of-orders-(from-the-Orders-table)-that-go-to-different-countries.">&#182;</a></h2><h4 id="Understand-the-structure-of-Orders">Understand the structure of <code>Orders</code><a class="anchor-link" href="#Understand-the-structure-of-Orders">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
-<h5 id="Question">Question<a class="anchor-link" href="#Question">&#182;</a></h5><p>Before proceeding with this you will want to check out what variables are included in the <code>Orders</code> table. Attempt to apply the previously introduced <code>PRAGMA table_info(Products);</code> command (recall that this is convenient but specific to SQLite databases) to find the names of the variables.</p>
+<p>The first task we will undertake is to summarise the number of orders (from the <code>Orders</code> table) that go to different countries.</p>
+<hr>
+<h4 id="Understand-the-structure-of-Orders">Understand the structure of <code>Orders</code><a class="anchor-link" href="#Understand-the-structure-of-Orders">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
+<h5 id="Question">Question<a class="anchor-link" href="#Question">&#182;</a></h5><p>Before proceeding with this you will want to check out what variables are included in the <code>Orders</code> table and in particular what the variable is called that contains the country information. Attempt to apply the previously introduced <code>PRAGMA table_info(NAME_OF_TABLE);</code> command (recall that this is convenient but specific to SQLite databases) to find the names of the variables.</p>
 <h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5>
 
 
@@ -1378,10 +1383,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>From here you learn that the variable we are interested in is called <code>ShipCountry</code></p>
 <h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
 <hr>
-<p>Now that we know the variable name of the country variable we can look at how many orders there are. Let's, for a moment, imagine you had a dataframe in Python called <code>Orders</code> and that had a variable called <code>ShipCountry</code>. How would achieve this in Python?</p>
+<p>Now that we know the variable name of the country variable we can look at how many orders there are. Let's, for a moment, imagine you had a dataframe in Python called <code>Orders</code> which had a variable called <code>ShipCountry</code>. How would achieve this in Python?</p>
 <div class="highlight"><pre><span></span><span class="n">Orders</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;ShipCountry&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
 </pre></div>
-<p>So there were two elements, we needed to group the data by the <code>ShipCountry</code> variable and then count, which here was achieved by using the <code>size()</code> method which does exactly count the number of observations in each group. Similar tasks have to be achieved when using a SQL query to the database.</p>
+<p>So there were two elements, we needed to group the data by the <code>ShipCountry</code> variable and then count, which here was achieved by using the <code>size()</code> method which counts the number of observations in each group. Similar tasks have to be achieved when using a SQL query to the database.</p>
 <p>Here is the command used:</p>
 
 
@@ -1535,14 +1540,1223 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <h4 id="What-does-this-command-do?">What does this command do?<a class="anchor-link" href="#What-does-this-command-do?">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
 <h5 id="Question">Question<a class="anchor-link" href="#Question">&#182;</a></h5><p>We want to disect this command as it helps us understand how SQL works. Can you identify the equivalents to <code>groupby</code> and <code>size()</code>?</p>
 <h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5><p>Here is a detailed breakdown:</p>
-<div class="highlight"><pre><span></span><span class="o">#</span><span class="w"> </span><span class="k">get</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">ShipCountry</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="k">from</span><span class="w"> </span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">ShipCountry</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n_orders</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">Orders</span>
+<p>Start by retrieving the <code>ShipCountry</code> column from <code>Orders</code> and <code>COUNT</code> the rows</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">ShipCountry</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">n_orders</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">Orders</span>
 </pre></div>
-<div class="highlight"><pre><span></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ShipCountry</span><span class="w"> </span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n_orders</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+<p>You can try and run this command alone and see what happens. Basically you will have selected one variable and then you counted all the rows in the table. At this stage you have counted but not grouped. This is achieved by the following:</p>
+<div class="highlight"><pre><span></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ShipCountry</span>
+</pre></div>
+<p>and finally you can order the result by <code>n_orders</code>:</p>
+<div class="highlight"><pre><span></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n_orders</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </pre></div>
 <h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
 <hr>
+<p>As you can see from the above examples, the outcome of working with databases is usually a table. Usually we use SQL to assemble data which are then presented in a table for further analysis in Python. So working with databases is typically a preliminary step to some data analysis. And the reason for this, in real life, is that often the amount of data contained in databases exceeds what we actually need and hence we reduce the size of the dataset before we start analysing. This reduction will often be in terms of just selecting subsets of data or by aggregating data, both of which we practised above.</p>
+<h1 id="Joining-data">Joining data<a class="anchor-link" href="#Joining-data">&#182;</a></h1><p>Apart from filtering and aggregating data there is a third very common operation you will have to do when working with databases, namely joining databases. In Python you may have merged dataframes and basically <code>joining</code> (in SQL) and <code>merging</code> (in Python) are the same conceptual tasks.</p>
+<p>Let's join information from the <code>Orders</code>, <code>Order Details</code> and the <code>Customers</code> tables in order to find which customers are most valuable to the Northwind company. Above we already looked at the variables in the <code>Orders</code> table. Let us now look at the variables in <code>Order Details</code> as the information in <code>Orders</code> didn't actually contain any details, like product values. These can be calculated from the data in <code>Order Details</code> as that table contains <code>UnitPrice</code>, <code>Quantity</code> and <code>Discount</code> on the basis of which we can calculate an order value.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;PRAGMA table_info(&#39;Order Details&#39;);&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cid</th>
+      <th>name</th>
+      <th>type</th>
+      <th>notnull</th>
+      <th>dflt_value</th>
+      <th>pk</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>OrderID</td>
+      <td>INTEGER</td>
+      <td>1</td>
+      <td>None</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>ProductID</td>
+      <td>INTEGER</td>
+      <td>1</td>
+      <td>None</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>UnitPrice</td>
+      <td>NUMERIC</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>Quantity</td>
+      <td>INTEGER</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>Discount</td>
+      <td>REAL</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<p>The following image demonstrates how these three tables can be linked. The variables <code>CustomerID</code> and <code>OrderID</code>, both of which occur in multiple tables allow us to link the data.</p>
+<p><img src="../images/Northwind_CValue.png" alt="Links between tables in Northwind.db"></p>
+
+<p>The initial plan is to create a new table which contains <code>CustomerID</code>, <code>CustomerName</code>, <code>Country</code>, <code>Order ID</code>, <code>UnitPrice</code> and <code>Quantity</code>. We expect to create a table with as many rows as the the <code>Order</code> table.</p>
+<p>Let's begin by creating a table that adds the customer name and country to the information in <code>Orders</code>.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT o.OrderID, c.CompanyName ,c.Country FROM Orders o</span><span class="se">\</span>
+<span class="s2">    JOIN Customers c ON o.CustomerID = c.CustomerID;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OrderID</th>
+      <th>CompanyName</th>
+      <th>Country</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>10248</td>
+      <td>Vins et alcools Chevalier</td>
+      <td>France</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10249</td>
+      <td>Toms Spezialitäten</td>
+      <td>Germany</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10250</td>
+      <td>Hanari Carnes</td>
+      <td>Brazil</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10251</td>
+      <td>Victuailles en stock</td>
+      <td>France</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10252</td>
+      <td>Suprêmes délices</td>
+      <td>Belgium</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>16277</th>
+      <td>26525</td>
+      <td>White Clover Markets</td>
+      <td>USA</td>
+    </tr>
+    <tr>
+      <th>16278</th>
+      <td>26526</td>
+      <td>Wolski  Zajazd</td>
+      <td>Poland</td>
+    </tr>
+    <tr>
+      <th>16279</th>
+      <td>26527</td>
+      <td>Gourmet Lanchonetes</td>
+      <td>Brazil</td>
+    </tr>
+    <tr>
+      <th>16280</th>
+      <td>26528</td>
+      <td>Blondesddsl père et fils</td>
+      <td>France</td>
+    </tr>
+    <tr>
+      <th>16281</th>
+      <td>26529</td>
+      <td>Du monde entier</td>
+      <td>France</td>
+    </tr>
+  </tbody>
+</table>
+<p>16282 rows × 3 columns</p>
+</div>
+
+
+
+<hr>
+<h4 id="What-does-this-command-do?">What does this command do?<a class="anchor-link" href="#What-does-this-command-do?">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
+<h5 id="Question">Question<a class="anchor-link" href="#Question">&#182;</a></h5><p>We want to understand how to join/merge datasets in SQL. What are the important elements of this command?</p>
+<h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5><p>Here is a detailed breakdown:</p>
+<p>We start by selecting columns, in particular the <code>OrderID</code> info from the <code>Orders</code> table and the <code>CompanyName</code> and <code>Country</code> columns from the <code>Customers</code> table.</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">OrderID</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">CompanyName</span><span class="w"> </span><span class="p">,</span><span class="k">c</span><span class="p">.</span><span class="n">Country</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">Orders</span><span class="w"> </span><span class="n">o</span>
+</pre></div>
+<p>The variable from the <code>Orders</code> table was prefixed with <code>o.</code> and the ones from the <code>Customers</code> table with <code>c.</code> The prefix <code>o.</code> was defined in the <code>FROM Orders o</code> part where we basically gave the <code>Orders</code> table the <code>o.</code> name. The next part will tell SQL where the <code>c.</code> variables are coming from:</p>
+<div class="highlight"><pre><span></span><span class="k">JOIN</span><span class="w"> </span><span class="n">Customers</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">o</span><span class="p">.</span><span class="n">CustomerID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">CustomerID</span>
+</pre></div>
+<p>Here we specify that the the <code>c.</code> variables are being joined in from the <code>Customers</code> table. The crucial piece of information here follows the <code>ON</code> command. Here we say which variables from the <code>Orders</code> and <code>Customers</code> tables should be used to link the data. We know that this should be the <code>CustomerID</code> variable which exists in both tables (<code>o.CustomerID = c.CustomerID</code>).</p>
+<p>Here that linking variable has the same name in both tables but they could have different names and you could still link them.Don't forget that a SQL command always concludes with a <code>;</code>.</p>
+<p>As a result we got a table we get a table with 16,282 orders.</p>
+<h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
+<hr>
+
+<hr>
+<h4 id="Challenge">Challenge<a class="anchor-link" href="#Challenge">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
+<h5 id="Task">Task<a class="anchor-link" href="#Task">&#182;</a></h5><p>Amend the above joining to also join in the <code>UnitPrice</code> and <code>Quantity</code> from the <code>Order Details</code> table?</p>
+<h5 id="Search-Strategy">Search Strategy<a class="anchor-link" href="#Search-Strategy">&#182;</a></h5><p>There are three ways you could work this out.</p>
+<ol>
+<li><strong>Trial and Error</strong>. if you have a hunch of how it may work then just give it a go. You cannot break the computer!</li>
+<li><strong>Use a search engine</strong>. For instance you could enter a search term like "SQL joining data from three tables SQLite". This then pointed me to a <a href="https://stackoverflow.com/questions/11321354/join-3-tables-in-sqlite-database">Stackoverflow page</a> which basically had the right solution.</li>
+<li>Use a <strong>LLM to find the solution</strong>. You need to describe to the LLM what your problem is. In particular you will want to give the LLM enough information to fully describe the complexity of your problem. <a href="https://chatgpt.com/share/695269e5-8200-8010-aa46-7c4054415b43">Here is a chat with ChatGPT</a> in which you can see how to ask.</li>
+</ol>
+<h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5><p>Here is the solution.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT o.OrderID, c.CompanyName ,c.Country, od.UnitPrice, od.Quantity </span><span class="se">\</span>
+<span class="s2">    FROM Orders o</span><span class="se">\</span>
+<span class="s2">    JOIN Customers c ON o.CustomerID = c.CustomerID</span><span class="se">\</span>
+<span class="s2">    JOIN &#39;Order Details&#39; od ON o.OrderID = od.OrderID;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OrderID</th>
+      <th>CompanyName</th>
+      <th>Country</th>
+      <th>UnitPrice</th>
+      <th>Quantity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>10248</td>
+      <td>Vins et alcools Chevalier</td>
+      <td>France</td>
+      <td>14.00</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10248</td>
+      <td>Vins et alcools Chevalier</td>
+      <td>France</td>
+      <td>9.80</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10248</td>
+      <td>Vins et alcools Chevalier</td>
+      <td>France</td>
+      <td>34.80</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10249</td>
+      <td>Toms Spezialitäten</td>
+      <td>Germany</td>
+      <td>18.60</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10249</td>
+      <td>Toms Spezialitäten</td>
+      <td>Germany</td>
+      <td>42.40</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>609278</th>
+      <td>26529</td>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>31.00</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <th>609279</th>
+      <td>26529</td>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>12.00</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>609280</th>
+      <td>26529</td>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>31.23</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>609281</th>
+      <td>26529</td>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>43.90</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <th>609282</th>
+      <td>26529</td>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>39.00</td>
+      <td>26</td>
+    </tr>
+  </tbody>
+</table>
+<p>609283 rows × 5 columns</p>
+</div>
+
+
+
+<p>As you can see, joining in data from a third file was not a problem as we merely had to add another <code>JOIN</code>ing instruction.</p>
+<p>The result is a table with 609,238 rows of data. We now have more rows as one order may have orders for multiple products. For instance the forst order 10248 now has three rows as three different products were included in that order. Each row now represents an order for a particular product.</p>
+<h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
+<hr>
+
+<h1 id="Calculating-a-new-variable">Calculating a new variable<a class="anchor-link" href="#Calculating-a-new-variable">&#182;</a></h1><p>So far you have learned how to select variables and rows from databases, how to aggregate and how to join data. We continue the previous example in which we joined the data from the <code>Orders</code>, <code>Customers</code> and <code>Order Details</code> tables. One of the pieces of information we did get was the <code>UnitPrice</code> and <code>Quantity</code> variables. We can use that to also calculate the <code>OrderValue</code> which we can then use to find the customers who order most from Northwind.</p>
+<p>After calculating the <code>OrderValue</code> in each row we can then aggregate by <code>CustomerID</code> to get that information.</p>
+<p>To achieve this, you could either save the table we retrieved above and do the calculation in Python, or you can do the calculation as you retrieve the information. Here, as this is a walkthrough to get exposed to SQL, we will do the latter.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT c.CompanyName ,c.Country, od.UnitPrice * od.Quantity AS OrderValue </span><span class="se">\</span>
+<span class="s2">    FROM Orders o</span><span class="se">\</span>
+<span class="s2">    JOIN Customers c ON o.CustomerID = c.CustomerID</span><span class="se">\</span>
+<span class="s2">    JOIN &#39;Order Details&#39; od ON o.OrderID = od.OrderID;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CompanyName</th>
+      <th>Country</th>
+      <th>OrderValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Vins et alcools Chevalier</td>
+      <td>France</td>
+      <td>168.00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Vins et alcools Chevalier</td>
+      <td>France</td>
+      <td>98.00</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Vins et alcools Chevalier</td>
+      <td>France</td>
+      <td>174.00</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Toms Spezialitäten</td>
+      <td>Germany</td>
+      <td>167.40</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Toms Spezialitäten</td>
+      <td>Germany</td>
+      <td>1696.00</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>609278</th>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>806.00</td>
+    </tr>
+    <tr>
+      <th>609279</th>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>216.00</td>
+    </tr>
+    <tr>
+      <th>609280</th>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>93.69</td>
+    </tr>
+    <tr>
+      <th>609281</th>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>1053.60</td>
+    </tr>
+    <tr>
+      <th>609282</th>
+      <td>Du monde entier</td>
+      <td>France</td>
+      <td>1014.00</td>
+    </tr>
+  </tbody>
+</table>
+<p>609283 rows × 3 columns</p>
+</div>
+
+
+
+<hr>
+<h4 id="Why-100.80000000000001-and-not-100.8?">Why 100.80000000000001 and not 100.8?<a class="anchor-link" href="#Why-100.80000000000001-and-not-100.8?">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
+<h5 id="Question">Question<a class="anchor-link" href="#Question">&#182;</a></h5><p>If you look at the 9th row (indexed 8) and the <code>OrderValue</code> you will find the result 16.8*6 = 100.80000000000001. Why is that?</p>
+<ul>
+<li>There is no problem, that is the correct result.</li>
+<li>This is a bug of my computer</li>
+<li>Some numbers cannot be precisely represented as binary numbers (which is what computers do) and when they are used tiny errors like the above can result.</li>
+<li>The calculation was done by a LLM and it just gets things wrong. </li>
+</ul>
+<h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5><p><strong>Some numbers cannot be precisely represented as binary numbers (which is what computers do) and when they are used tiny errors like the above can result.</strong></p>
+<p>As we know that we are dealing with money values we can savely round the result to two decimal places. We will do this in the next step.</p>
+<h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
+<hr>
+
+<p>As you can see from the above command we decided to actually keep fewer variables (only <code>CompanyName</code>, <code>Country</code> and <code>OrderValue</code>) in the resulting table. The calculation was done from <code>od.UnitPrice * od.Quantity AS OrderValue</code>.</p>
+<hr>
+<h4 id="Now-aggregate-by-firm">Now aggregate by firm<a class="anchor-link" href="#Now-aggregate-by-firm">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.tabset</span></p>
+<h5 id="Task">Task<a class="anchor-link" href="#Task">&#182;</a></h5><p>Next we wish to aggregate <code>OrderValues</code> by <code>CompanyName</code> to find the most important customers. From an earlier exercise you will know that we will have to use a <code>GROUP BY</code> and then an <code>ORDER BY</code> command inside SQL to achieve this. We will also have to say what we wish to do inside each group, i.e. sum the <code>OrderValue</code> variable.</p>
+<h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5>
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT c.CompanyName ,c.Country, </span><span class="se">\</span>
+<span class="s2">        SUM(ROUND(od.UnitPrice * od.Quantity,2)) AS OrderValue </span><span class="se">\</span>
+<span class="s2">    FROM Orders o</span><span class="se">\</span>
+<span class="s2">    JOIN Customers c ON o.CustomerID = c.CustomerID</span><span class="se">\</span>
+<span class="s2">    JOIN &#39;Order Details&#39; od ON o.OrderID = od.OrderID</span><span class="se">\</span>
+<span class="s2">    GROUP BY o.CustomerID</span><span class="se">\</span>
+<span class="s2">    ORDER BY OrderValue DESC;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CompanyName</th>
+      <th>Country</th>
+      <th>OrderValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>B's Beverages</td>
+      <td>UK</td>
+      <td>6154115.34</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Hungry Coyote Import Store</td>
+      <td>USA</td>
+      <td>5698023.67</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Rancho grande</td>
+      <td>Argentina</td>
+      <td>5559110.08</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Gourmet Lanchonetes</td>
+      <td>Brazil</td>
+      <td>5552597.90</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Ana Trujillo Emparedados y helados</td>
+      <td>Mexico</td>
+      <td>5534356.65</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>88</th>
+      <td>Reggiani Caseifici</td>
+      <td>Italy</td>
+      <td>4223749.03</td>
+    </tr>
+    <tr>
+      <th>89</th>
+      <td>Lehmanns Marktstand</td>
+      <td>Germany</td>
+      <td>4186165.06</td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <td>Furia Bacalhau e Frutos do Mar</td>
+      <td>Portugal</td>
+      <td>4099371.92</td>
+    </tr>
+    <tr>
+      <th>91</th>
+      <td>Océano Atlántico Ltda.</td>
+      <td>Argentina</td>
+      <td>4059079.05</td>
+    </tr>
+    <tr>
+      <th>92</th>
+      <td>Alfreds Futterkiste</td>
+      <td>Germany</td>
+      <td>3965788.15</td>
+    </tr>
+  </tbody>
+</table>
+<p>93 rows × 3 columns</p>
+</div>
+
+
+
+<p>This applies what we learned about <code>GROUP BY</code> and <code>ORDER BY</code> previously. Also note that we now included a rounding function into our calculations.</p>
+<h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
+<hr>
+<h2 id="Challenge-Task">Challenge Task<a class="anchor-link" href="#Challenge-Task">&#182;</a></h2><p><span class='pj-token' style='display: none;'>.tabset</span></p>
+<h5 id="Question">Question<a class="anchor-link" href="#Question">&#182;</a></h5><p>It is the end of the year and you wish to find the employee who sold orders with the highest value. As part of some follow on analysis you also wish to calculate the average discount each employee offered for their respective orders.</p>
+<p>Hence you want a table with the following columns: <code>EmployeeID</code>, <code>LastName</code>, <code>FirstName</code>, <code>OrderValue</code>, <code>AvgDiscount</code>.</p>
+<h5 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h5><p>The following achieves the task and ranks the employees by their cumulative <code>OrderValue</code>.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT e.EmployeeID, e.LastName, e.FirstName,</span><span class="se">\</span>
+<span class="s2">        SUM(ROUND(od.UnitPrice * od.Quantity,2)) AS OrderValue,</span><span class="se">\</span>
+<span class="s2">        AVG(ROUND(od.Discount,2)) AS AvgDiscount </span><span class="se">\</span>
+<span class="s2">    FROM Orders o</span><span class="se">\</span>
+<span class="s2">    JOIN Employees e ON o.EmployeeID = e.EmployeeID</span><span class="se">\</span>
+<span class="s2">    JOIN &#39;Order Details&#39; od ON o.OrderID = od.OrderID</span><span class="se">\</span>
+<span class="s2">    GROUP BY e.EmployeeID</span><span class="se">\</span>
+<span class="s2">    ORDER BY OrderValue DESC;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>EmployeeID</th>
+      <th>LastName</th>
+      <th>FirstName</th>
+      <th>OrderValue</th>
+      <th>AvgDiscount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>4</td>
+      <td>Peacock</td>
+      <td>Margaret</td>
+      <td>51505691.80</td>
+      <td>0.000369</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5</td>
+      <td>Buchanan</td>
+      <td>Steven</td>
+      <td>51393234.57</td>
+      <td>0.000112</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Leverling</td>
+      <td>Janet</td>
+      <td>50455812.22</td>
+      <td>0.000234</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>Davolio</td>
+      <td>Nancy</td>
+      <td>49669459.34</td>
+      <td>0.000251</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7</td>
+      <td>King</td>
+      <td>Robert</td>
+      <td>49668627.06</td>
+      <td>0.000192</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>8</td>
+      <td>Callahan</td>
+      <td>Laura</td>
+      <td>49287575.56</td>
+      <td>0.000217</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>6</td>
+      <td>Suyama</td>
+      <td>Michael</td>
+      <td>49144251.53</td>
+      <td>0.000138</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>9</td>
+      <td>Dodsworth</td>
+      <td>Anne</td>
+      <td>49025334.37</td>
+      <td>0.000110</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2</td>
+      <td>Fuller</td>
+      <td>Andrew</td>
+      <td>48325312.27</td>
+      <td>0.000159</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<h4 id="-"> <a class="anchor-link" href="#-">&#182;</a></h4><p><span class='pj-token' style='display: none;'>.unlisted|O_O|.unnumbered</span></p>
+<hr>
+<h1 id="Views">Views<a class="anchor-link" href="#Views">&#182;</a></h1><p>What we did above is to "query" data. For this reason, the above actions are sometimes called queries. Often you will need identical type of queries repeatedly, say at the end of each day you may want to produce a sales report. It will not be efficient to retype the query again and again. For this reason you can safe pre-defined queries in a database. These are called "Views".</p>
+<p>The Northwind practice database has a bunch of these views stored. You can find which views are saved as follows:</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT name FROM sqlite_master WHERE type=&#39;view&#39;;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Alphabetical list of products</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Current Product List</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Customer and Suppliers by City</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Invoices</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Orders Qry</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Order Subtotals</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Product Sales for 1997</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Products Above Average Price</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Products by Category</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Quarterly Orders</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Sales Totals by Amount</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Summary of Sales by Quarter</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Summary of Sales by Year</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Category Sales for 1997</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>Order Details Extended</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Sales by Category</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>ProductDetails_V</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<h2 id="Retrieving-a-view">Retrieving a view<a class="anchor-link" href="#Retrieving-a-view">&#182;</a></h2><p>Retrieving a view is very straightforward and basically works like retrieving particular variables from a table. Let's say we want to see the "Customer and Suppliers by City" view. We do this as follows:</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM &#39;Customer and Suppliers by City&#39;;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>City</th>
+      <th>CompanyName</th>
+      <th>ContactName</th>
+      <th>Relationship</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>None</td>
+      <td>IT</td>
+      <td>Val2</td>
+      <td>Customers</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>None</td>
+      <td>IT</td>
+      <td>Valon Hoti</td>
+      <td>Customers</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Aachen</td>
+      <td>Drachenblut Delikatessen</td>
+      <td>Sven Ottlieb</td>
+      <td>Customers</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Albuquerque</td>
+      <td>Rattlesnake Canyon Grocery</td>
+      <td>Paula Wilson</td>
+      <td>Customers</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Anchorage</td>
+      <td>Old World Delicatessen</td>
+      <td>Rene Phillips</td>
+      <td>Customers</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>117</th>
+      <td>Versailles</td>
+      <td>La corne d'abondance</td>
+      <td>Daniel Tonini</td>
+      <td>Customers</td>
+    </tr>
+    <tr>
+      <th>118</th>
+      <td>Walla Walla</td>
+      <td>Lazy K Kountry Store</td>
+      <td>John Steel</td>
+      <td>Customers</td>
+    </tr>
+    <tr>
+      <th>119</th>
+      <td>Warszawa</td>
+      <td>Wolski  Zajazd</td>
+      <td>Zbyszek Piestrzeniewicz</td>
+      <td>Customers</td>
+    </tr>
+    <tr>
+      <th>120</th>
+      <td>Zaandam</td>
+      <td>Zaanse Snoepfabriek</td>
+      <td>Dirk Luchte</td>
+      <td>Suppliers</td>
+    </tr>
+    <tr>
+      <th>121</th>
+      <td>Århus</td>
+      <td>Vaffeljernet</td>
+      <td>Palle Ibsen</td>
+      <td>Customers</td>
+    </tr>
+  </tbody>
+</table>
+<p>122 rows × 4 columns</p>
+</div>
+
+
+
+<p>The only difference here is that we called not a particular variable but rather all variables of the view, which is why we called <code>SELECT *</code>, meaning select every column.</p>
+<p>Also note that, as the view has spaces in its name we have to call it <code>'Customer and Suppliers by City'</code>. Alternatively you could have called it <code>[Customer and Suppliers by City]</code>. But you do have to put the name into one of these two forms. Try what happens if you don't. You should get an error message. It is worth having a look at the error message and interpreting it. At the very end you will find something like <code>"and": syntax error</code>. This is the software telling you that it tried to find a function or object called "and", which, of course, it couldn't.</p>
+<h2 id="Investigate-a-view">Investigate a view<a class="anchor-link" href="#Investigate-a-view">&#182;</a></h2><p>The view we looked at here is pretty self-explanatory. However, sometimes it will be important to understand what a particular view actually does. The following command allows you to check out the SQL code behind a view.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT sql FROM sqlite_master WHERE type=&#39;view&#39; </span><span class="se">\</span>
+<span class="s2">    AND name=&#39;Customer and Suppliers by City&#39;;&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sql</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>CREATE VIEW [Customer and Suppliers by City] \...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<h2 id="Creating-a-View">Creating a View<a class="anchor-link" href="#Creating-a-View">&#182;</a></h2><p>Last, if you realise that a particular query you did, say the one in the challenge task above (Employee Sales Ranking), is useful and you are likely to want to call it again, you will want to save that query as a view.</p>
+<p>Recall that the <code>con</code> object is our connection to the database. We now call the <code>execute</code> method of this connection. Inside we have the SQL command that creates a view out of the solution to our earlier challenge query.</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">CREATE VIEW &quot;Employee Sales Ranking&quot; AS</span>
+<span class="s2">SELECT e.EmployeeID, e.LastName, e.FirstName,</span>
+<span class="s2">    SUM(ROUND(od.UnitPrice * od.Quantity, 2)) AS OrderValue,</span>
+<span class="s2">    AVG(ROUND(od.Discount, 2)) AS AvgDiscount</span>
+<span class="s2">FROM Orders o</span>
+<span class="s2">JOIN Employees e ON o.EmployeeID = e.EmployeeID</span>
+<span class="s2">JOIN &quot;Order Details&quot; od ON o.OrderID = od.OrderID</span>
+<span class="s2">GROUP BY e.EmployeeID</span>
+<span class="s2">ORDER BY OrderValue DESC;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+
+<pre>&lt;sqlite3.Cursor at 0x199784a3bc0&gt;</pre>
+
+
+
+<p>This has now been saved as one of the views in the database and you can now call the employee ranking as follows:</p>
+
+
+
+
+
+
+
+<div class="pj-input pj-fold fold-show">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_sql_query</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM [Employee Sales Ranking];&quot;</span><span class="p">,</span> <span class="n">con</span><span class="p">)</span>
+</pre></div>
+
+</div>
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>EmployeeID</th>
+      <th>LastName</th>
+      <th>FirstName</th>
+      <th>OrderValue</th>
+      <th>AvgDiscount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>4</td>
+      <td>Peacock</td>
+      <td>Margaret</td>
+      <td>51505691.80</td>
+      <td>0.000369</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5</td>
+      <td>Buchanan</td>
+      <td>Steven</td>
+      <td>51393234.57</td>
+      <td>0.000112</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Leverling</td>
+      <td>Janet</td>
+      <td>50455812.22</td>
+      <td>0.000234</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>Davolio</td>
+      <td>Nancy</td>
+      <td>49669459.34</td>
+      <td>0.000251</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7</td>
+      <td>King</td>
+      <td>Robert</td>
+      <td>49668627.06</td>
+      <td>0.000192</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>8</td>
+      <td>Callahan</td>
+      <td>Laura</td>
+      <td>49287575.56</td>
+      <td>0.000217</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>6</td>
+      <td>Suyama</td>
+      <td>Michael</td>
+      <td>49144251.53</td>
+      <td>0.000138</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>9</td>
+      <td>Dodsworth</td>
+      <td>Anne</td>
+      <td>49025334.37</td>
+      <td>0.000110</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2</td>
+      <td>Fuller</td>
+      <td>Andrew</td>
+      <td>48325312.27</td>
+      <td>0.000159</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+<h1 id="Summary">Summary<a class="anchor-link" href="#Summary">&#182;</a></h1><p>In this walkthrough you have learned how to access data from a database (in particular a SQLite database). Furthermore you have selected, joined and aggregated data from these databases. If you saved the resulting table as a python dataframe as demonstrated earlier you could then apply any type of statistical methods to these data.</p>
+<p>The activity of retrieving particular data from a database is commonly called a query. If you have queries that you are likely to want to call up repeatedly it is best to save this as a view. In the above you learned to find out which views are already saved in the database and how to turn a query into a view.</p>
+<p>Of course it may be that the database you need to access is not of the SQLite type but of another type. While the way you connect to the database may be somewhat different, the core SQL commands will remain the same. A great place to get guidance on how to then access the data is the <a href="https://realpython.com/learning-paths/database-access-in-python/">Real Python intro to SQL</a> website.</p>
 <h1 id="Reading">Reading<a class="anchor-link" href="#Reading">&#182;</a></h1><ul>
 <li><p>Database used here <code>northwind.db</code> is from <a href="https://github.com/jpwhite3/northwind-SQLite3">JP White's github page</a></p>
 </li>
