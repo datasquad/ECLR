@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Here we list a few places from which you can access data.
 
-## International and national staitical institutions
+## International and national statistical institutions
 
 These are institutions which do offer access to data.
 
@@ -50,11 +50,12 @@ Many nations run large national surveys. This is a selection. Typically summary 
 
 Some organisation provide access to a range of datasets collated from different sources:
 
+* [Harvard Dataverse](https://dataverse.harvard.edu/), a place where researches deposit datasets used in empirical work
 * [Consumer Data Research Center](https://data.cdrc.ac.uk/), e.g. Election Data, Residence-Workplace and travel mode data from Census, Council Tax Maps, Index of Multiple Deprivation, Population density
 * [The UK Data Service](https://www.ukdataservice.ac.uk/), Census data, International macrodata, Qualitative/mixed methods and UK surveys
 *	[Our World in Data](https://ourworldindata.org/), Data Stories with good links to data
 * [Data Commons](https://datacommons.org/), a website to facilitate the identification of datasets relevant to your question
-*	[Statista](https://www-statista-com.manchester.idm.oclc.org/)} is a website that collates data from a range of different sources and countries. With your university login you may have access to this database.
+*	[Statista](https://www-statista-com.manchester.idm.oclc.org/) is a website that collates data from a range of different sources and countries. With your university login you may have access to this database.
 *	[Economic Data Sources collated by UC Davies](http://cameron.econ.ucdavis.edu/e102/data.html)
 * [Economic Data Sources collated by the Economics Network](https://www.economicsnetwork.ac.uk/data_sets)
 * [Datasets for published work](https://ejd.econ.mathematik.uni-ulm.de/)
@@ -113,7 +114,7 @@ Here are links to some specific datasets
 
 # Datasets used on ECLR
 
-Here we provide information on the datasets used on the ECLR page
+Here we provide information on some of the datasets used on the ECLR page. Others are explained in the workthroughs they are used in.
 
 
 ## mroz dataset ([mroz.csv](https://github.com/datasquad/ECLR/blob/gh-pages/data/Mroz.csv) )
