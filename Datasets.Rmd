@@ -83,7 +83,7 @@ Here are links to some specific datasets
 * [Department of Environment and Rural Affairs (DEFRA)](https://uk-air.defra.gov.uk/data/), from here you can get data on air quality in the UK for different locations
 * [Summary data on Road Casualty Data in Scotland by council](https://statistics.gov.scot/resource?uri=http%3A%2F%2Fstatistics.gov.scot%2Fdata%2Froad-safety)
 * [Department for Transport](https://roadtraffic.dft.gov.uk/downloads), Road traffic data in the UK.
-* [Department for Transport](https://www.gov.uk/government/collections/road-accidents-and-safety-statistics), Road accident data. On the basis of these data you can get summaries by different locations and time. 
+* [Department for Transport](https://www.gov.uk/government/collections/road-accidents-and-safety-statistics), Road accident data. On the basis of these data you can get summaries by different locations and time. An R package was build by [Robin Loveace](https://www.robinlovelace.net/post/stats19-v4/) which allows users to access 45 years of UK accident data directly from R.
 * [Pedestriansafety.org](http://www.pedestriansafety.org.uk/stats.php)
 *	[Land Registry](https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads), UK House Price data
 * [Google Mobility Data](https://www.google.com/covid19/mobility/index.html?hl=en), During the Covid period (2020 to 2022) Google published a mobility index which measured national and regional activities in certain areas (like recreational activities, or shopping areas).
