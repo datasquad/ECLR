@@ -7,8 +7,7 @@ output:
 ---
 
 
-
-The following examples are implemented on this page
+The following worked examples are implemented on this page
 
 | Topic | Authors |Concepts | Link |
 |:------|:-----|:-----|:--------|
@@ -19,3 +18,10 @@ The following examples are implemented on this page
 | FRED-MD and Factor models | McCracken and Ng (2016), Bai and Ng (2019) | Data preparation, Factor Model | [R-Workthrough](https://datasquad.github.io/ECLR/Ex/FRED_MD.html) | 
 | Firearm Laws and Homicide Deaths | Siegel et al | Data Collection, Diff-in-Diff | R-Workthrough: [Data collection and Prep](https://datasquad.github.io/ECLR/Ex/GunPolicyDataMgmt.html), [Diff-in-Diff analysis](https://datasquad.github.io/ECLR/Ex/GunPolicyDiD.html)
 | HAR Models for realized volatility | various, eg. Corsi | Data Handling, Estimating and forecasting from HAR models | [R-Workthrough](https://datasquad.github.io/ECLR/Ex/HAR.html)
+
+
+The following are commented readings. Interesting papers which are being used to illustrate the econometric aaplication of some methodology. There are no replication data available for these.
+
+| Topic | Authors | Concepts | Link |
+|:------|:-----|:-----|:--------|
+| Effectiveness of caseworker meetings | [Homrighausen, P. and M. Oberfichtner (2026)](https://www.sciencedirect.com/science/article/pii/S001429212500265X) | IV estimation, randomised control trial | to come |
