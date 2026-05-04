@@ -68,6 +68,7 @@ These workthroughs demonstrate coding techniques that are useful in a range of d
 | Topic | Workthrough in R | Workthrough in Python |
 |:------|:-----|:-----|
 | Creating Maps | [Workthrough in R](https://datasquad.github.io/ECLR/R_Mapping/R_Mapping.html) | 
+| Working with SQL | | [Workthrough in Py](https://datasquad.github.io/ECLR/Py_SQL/Py_SQL.html)
 | Law of Large Numbers and Central Limit Theorem | [Workthrough in R](https://datasquad.github.io/ECLR/R_LLN_and_CLT.html) | 
 | Monte-Carlo Simulations | [Workthrough in R](https://datasquad.github.io/ECLR/R_MonteCarloSimulations.html) | 
 
