@@ -24,4 +24,4 @@ The following are commented readings. Interesting papers which are being used to
 
 | Topic | Authors | Concepts | Link |
 |:------|:-----|:-----|:--------|
-| Effectiveness of caseworker meetings | [Homrighausen, P. and M. Oberfichtner (2026)](https://www.sciencedirect.com/science/article/pii/S001429212500265X) | IV estimation, randomised control trial | [Discussion](https://datasquad.github.io/ECLR/Ex/Caseworkers.html) |
+| Effectiveness of caseworker meetings | [Homrighausen, P. and M. Oberfichtner (2026)](https://www.sciencedirect.com/science/article/pii/S001429212500265X) | IV estimation, randomised control trial | to come |

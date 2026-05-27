@@ -18,6 +18,7 @@ library(webexercises)
 #style_widgets(incorrect = "goldenrod", correct = "purple", highlight = "firebrick")
 ```
 
+This walkthrough is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
 
 ## Overview
 
@@ -477,13 +478,7 @@ They conclude that there is the possibility that caseworker meetings may prove m
 
 Interpreting their results in the context of previous findings that caseworker meetings with unemployed are very effective (as opposed to still employed jobseekers covered in this paper), they conclude that interventions that move such meetings to be preventative is not cost efficient.
 
-
-## Further things to think about
-
-* effect heterogeneity
-* external validity
-* pre-registration
-
+This walkthrough is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
 
 
 
