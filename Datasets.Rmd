@@ -97,6 +97,7 @@ Here are links to some specific datasets
 * [UTD19](https://utd19.ethz.ch/), traffic data for a range of cities (mainly in Europe).
 * [OECD database of hate crimes](https://hatecrime.osce.org/)
 * [US Center for Disease Control](https://www.cdc.gov/), Data on all sorts of diseases.
+* [Data on state level U.S. healthcare](https://statehealthcompare.shadac.org/), University of Minnesota run database of all information relating to U.S. healthcare
 * [F.B.I Crime Data Explorer](https://cde.ucr.cjis.gov/), U.S. Crime data at different levels of aggregation.
 * [US Household Surveys](https://usa.ipums.org/usa/), Yearly Big US household survey 2006-onwards
 * [US Consumer expenditure survey](https://www.bls.gov/cex/)
