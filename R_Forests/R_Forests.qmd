@@ -1,5 +1,6 @@
 ---
 title: "Trees and Random Forests"
+author: "Sukanya Honkote and Ralf Becker"
 format: 
   html:
     css: [webex.css]
@@ -15,7 +16,115 @@ library(webexercises)
 
 This walk-through is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
 
-# Introduction
+## Introduction
+
+Here, we are going to cover decision trees (or "trees") and random forests. 
+
+A tree works by creating splits within the predictor space such that outcome values within each sub-region are progressively more similar. Visually, these splits form a tree‑like structure: each split creates a new branch, and the final branches—where no further splitting is useful—are called leaves. The leaves will bear a value that is:
+
+-   the **most common** outcome in that branch (for a categorical or binary outcomes), or
+-   the **average** outcome in that branch (for continuous outcomes)
+
+Predictions for new observations are made on the basis of this tree. 
+
+A single tree tends to overfit the data it's fed, resulting in incorrect predictions when tested on new data. In random forests, many trees are created from the same data and the average of their predictions is assigned to a new observation. This can be a powerful way to increase prediction accuracy. 
+
+Note: For this walkthrough, we are assuming that you are already familiar with cross-validation - a technique commonly used to choose model hyperparameters. A cross-validation walkthrough is available in ECLR on this [link](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html).
+
+## The Data
+
+We will look at an application to Bank Telemarketing Data (available [here](https://archive.ics.uci.edu/dataset/222/bank+marketing)), which is a popular dataset for testing ML algorithms. Download the file on that website. In the downloaded zip folder go to the bank folder and download 'bank.csv'. There you will also find 'bank-names.txt' which is the data documentation with additional information on the data and the variables.
+
+It's a real-world data set of a phone-based marketing campaign by a Portuguese banking institution. The aim of the campaign was to get clients to subscribe to a term deposit. 
+
+The data set contains four Comma Separated Values files (".csv"). We named it 'banks.csv', which has 10% of the observations in the original data and fewer input variables. Using this smaller file makes it easier to run machine‑learning methods that require more computing power. We recommend that you engage with this walkthrough using the reduced dataset in 'banks.csv'. The full dataset is also available from the downloaded zip file.
+
+Look at the data documentation to answer the following question.
+
+Which of the following statements is **not** correct?
+
+```{r, echo = FALSE}
+opts_p <- c(
+   "The reduced dataset contains a randomly selected sample of 10% of the original dataset.",
+   answer = "All (potential) customers in the dataset were only contacted once",
+   "None of the variables has missing values.",
+   "The balance variable is expressed in euros.",
+   "When the variable 'marital' indicates divorced it could also mean that the contact was widowed."
+)
+```
+
+`r longmcq(opts_p)`
+
+
+## Setup and Data Upload
+
+Let's load some necessary packages.
+
+```{r cars, warning= FALSE, message=FALSE}
+library(readxl)                                                     # to read the data
+library(tidyverse)                                                    
+library(dplyr)
+library(magrittr)                                                   # the last three packages help with data transformation
+library(tree)                                                       # for building trees
+library(randomForest)                                               # for random forests
+```
+
+Let’s load the bank telemarketing data.
+
+```{r}
+bank <- read.table("../data/bank.csv", 
+  header = TRUE,
+  sep = ";", 
+  na.strings = c("", " ")) 
+
+str(bank)
+```
+
+The data consists of 17 variables and 4521 observations. The outcome of interest is the one simply called 'y'. 'y = no' indicates the client did not subscribe to the term deposit.
+
+The variable descriptions are pasted from bank-names.txt, which is provided along with the data:
+
+   1) age (numeric)
+   2) job : type of job (categorical: "admin.","unknown","unemployed","management","housemaid","entrepreneur","student",
+                                       "blue-collar","self-employed","retired","technician","services") 
+   3) marital : marital status (categorical: "married","divorced","single"; note: "divorced" means divorced or widowed)
+   4) education (categorical: "unknown","secondary","primary","tertiary")
+   5) default: has credit in default? (binary: "yes","no")
+   6) balance: average yearly balance, in euros (numeric) 
+   7) housing: has housing loan? (binary: "yes","no")
+   8) loan: has personal loan? (binary: "yes","no")
+   # related with the last contact of the current campaign:
+   9) contact: contact communication type (categorical: "unknown","telephone","cellular") 
+  10) day: last contact day of the month (numeric)
+  11) month: last contact month of year (categorical: "jan", "feb", "mar", ..., "nov", "dec")
+  12) duration: last contact duration, in seconds (numeric)
+   # other attributes:
+  13) campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)
+  14) pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric, -1 means client was not previously contacted)
+  15) previous: number of contacts performed before this campaign and for this client (numeric)
+  16) poutcome: outcome of the previous marketing campaign (categorical: "unknown","other","failure","success")
+  17) y: has the client subscribed a term deposit? (binary: "yes","no")
+
+Notice, all the factor variables have been loaded as character variables. In order to proceed with the exercise, we will need to convert them to factor variables.
+
+```{r}
+bank %<>% mutate(across(where(is.character),as_factor))               # converts characters into factor variables in one go
+str(bank)                                                             # check if characters have been converted into factors
+```
+
+Have a look at summary statistics to understand the data better. 
+
+```{r}
+summary(bank)
+```
+
+
+## Reading
+
+A general overview of these techniques is available from Hattie et al (2003), Introduction to Statistical earning, with Applications in R, Section 8, available from [the book's website](https://www.statlearning.com/).
+
+
+# OLD
 
 Suppose you need to eat out tonight. How do you decide where to go? If distance is your top priority, you first rule out all restaurants beyond a certain range. Next, you might consider budget, narrowing the list further to only the restaurants where you can have a mean for less than £20. Then, you continue filtering out by the next most important factor until you are left with a single choice. This is essentially how statistical decision trees work.
 
