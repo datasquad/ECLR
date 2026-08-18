@@ -3,6 +3,7 @@ title: "Trees and Random Forests"
 author: "Sukanya Honkote and Ralf Becker"
 format: 
   html:
+    toc: true
     css: [webex.css]
     include-after-body: [webex.js]
     embed-resources: true 
@@ -18,20 +19,24 @@ This walk-through is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
 
 ## Introduction
 
-Here, we are going to cover decision trees (or "trees") and random forests. 
+Here, we are going to cover decision trees (or "trees") and random forests.
 
-A tree works by creating splits within the predictor space such that outcome values within each sub-region are progressively more similar. Visually, these splits form a tree‑like structure: each split creates a new branch, and the final branches—where no further splitting is useful—are called leaves. The leaves will bear a value that is:
+Consider a variable which you wish to predict ($y$, dependent variable) and a whole set of variables ($x$s, explanatory variables) you wish to use in order to predict the value for $y$. If you end up on this page we assume that you are familiar with regression models which basically use a liner relationship to achieve this task.
 
--   the **most common** outcome in that branch (for a categorical or binary outcomes), or
--   the **average** outcome in that branch (for continuous outcomes)
+A tree works by creating splits within the predictor space such that outcome values within each sub-region are progressively more similar. This can create very nonlinear relationships between the $x$ variables and $y$. 
+
+Visually, these splits can be represented in a tree‑like structure: each split creates a new branch, and the final branches—where no further splitting is useful—are called leaves. As you will see below you will have to imagine wonky and asymmetric trees. The leaves will bear a value that is:
+
+-   the **most common** outcome in that branch (for a categorical or binary outcomes - often then called a **classification tree**), or
+-   the **average** outcome in that branch (for continuous outcomes, **regression tree**)
 
 Predictions for new observations are made on the basis of this tree. 
 
-A single tree tends to overfit the data it's fed, resulting in incorrect predictions when tested on new data. In random forests, many trees are created from the same data and the average of their predictions is assigned to a new observation. This can be a powerful way to increase prediction accuracy. 
+A single tree tends to overfit the data it's fed, resulting in incorrect predictions when tested on new data. This is a very common issue for any nonlinear models (e.g. neural networks) and when you use these methods you need to be aware of this and guard against this effect. Bagging and random forests are methods to deal with this particular problem. They will be discussed towards the end of this walkthrough. 
 
 Note: For this walkthrough, we are assuming that you are already familiar with cross-validation - a technique commonly used to choose model hyperparameters. A cross-validation walkthrough is available in ECLR on this [link](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html).
 
-## The Data
+## The Problem and the Data
 
 We will look at an application to Bank Telemarketing Data (available [here](https://archive.ics.uci.edu/dataset/222/bank+marketing)), which is a popular dataset for testing ML algorithms. Download the file on that website. In the downloaded zip folder go to the bank folder and download 'bank.csv'. There you will also find 'bank-names.txt' which is the data documentation with additional information on the data and the variables.
 
@@ -41,6 +46,9 @@ The data set contains four Comma Separated Values files (".csv"). We named it 'b
 
 Look at the data documentation to answer the following question.
 
+::: {.callout-note}
+### Exercise
+
 Which of the following statements is **not** correct?
 
 ```{r, echo = FALSE}
@@ -49,24 +57,24 @@ opts_p <- c(
    answer = "All (potential) customers in the dataset were only contacted once",
    "None of the variables has missing values.",
    "The balance variable is expressed in euros.",
-   "When the variable 'marital' indicates divorced it could also mean that the contact was widowed."
+   "When the variable 'marital' indicates divorced it could also mean that the contact was widowed.",
+   "The data come from May 2008 to November 2010."
 )
 ```
 
 `r longmcq(opts_p)`
-
+:::
 
 ## Setup and Data Upload
 
 Let's load some necessary packages.
 
-```{r cars, warning= FALSE, message=FALSE}
-library(readxl)                                                     # to read the data
-library(tidyverse)                                                    
-library(dplyr)
-library(magrittr)                                                   # the last three packages help with data transformation
-library(tree)                                                       # for building trees
-library(randomForest)                                               # for random forests
+```{r, warning= FALSE, message=FALSE}
+# for all things data handling
+library(tidyverse)                              
+# for building trees and random forests
+library(tree)                                                      
+library(randomForest)                                              
 ```
 
 Let’s load the bank telemarketing data.
@@ -80,278 +88,269 @@ bank <- read.table("../data/bank.csv",
 str(bank)
 ```
 
-The data consists of 17 variables and 4521 observations. The outcome of interest is the one simply called 'y'. 'y = no' indicates the client did not subscribe to the term deposit.
+`r hide("Adjust file path")`
 
-The variable descriptions are pasted from bank-names.txt, which is provided along with the data:
+In the above command the file is loaded from "../data/bank.csv". This means that, from the current working directory we went back up one level ("..") then we went into the folder "/data" and in that folder we had saved "/bank.csv".
 
-   1) age (numeric)
-   2) job : type of job (categorical: "admin.","unknown","unemployed","management","housemaid","entrepreneur","student",
-                                       "blue-collar","self-employed","retired","technician","services") 
-   3) marital : marital status (categorical: "married","divorced","single"; note: "divorced" means divorced or widowed)
-   4) education (categorical: "unknown","secondary","primary","tertiary")
-   5) default: has credit in default? (binary: "yes","no")
-   6) balance: average yearly balance, in euros (numeric) 
-   7) housing: has housing loan? (binary: "yes","no")
-   8) loan: has personal loan? (binary: "yes","no")
-   # related with the last contact of the current campaign:
-   9) contact: contact communication type (categorical: "unknown","telephone","cellular") 
-  10) day: last contact day of the month (numeric)
-  11) month: last contact month of year (categorical: "jan", "feb", "mar", ..., "nov", "dec")
-  12) duration: last contact duration, in seconds (numeric)
-   # other attributes:
-  13) campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)
-  14) pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric, -1 means client was not previously contacted)
-  15) previous: number of contacts performed before this campaign and for this client (numeric)
-  16) poutcome: outcome of the previous marketing campaign (categorical: "unknown","other","failure","success")
-  17) y: has the client subscribed a term deposit? (binary: "yes","no")
+It is unlikely that this is your file structure. You set your working directory with `setwd()` and if you saved the data file straight in that folder you merely have to call "bank.csv".
+
+As usual it is super important to know where your files live on your computer.
+
+`r unhide()`
+
+The data consists of 17 variables and 4521 observations. The outcome of interest is the one simply called `y`. `y = no` indicates the client did not subscribe to the term deposit, `y = no` indicates that a client did.
+
+The variable descriptions are available from the data [documentation](https://raw.githubusercontent.com/datasquad/ECLR/refs/heads/gh-pages/R_Forests/bank-names.txt). Many variable names are self-explanatory. Here we merely copy some of the definitions:
+
+* `job` : type of job (categorical: "admin.", "unknown", "unemployed", "management", "housemaid", "entrepreneur" ,"student", "blue-collar", "self-employed", "retired", "technician", "services") 
+* `education` (categorical: "unknown","secondary","primary","tertiary")
+* `balance`: average yearly balance, in euros (numeric) 
+* `poutcome`: outcome of the previous marketing campaign (categorical: "unknown", "other", "failure", "success")
+* `pdays`, number of days that passed by after the client was last contacted from a previous campaign
 
 Notice, all the factor variables have been loaded as character variables. In order to proceed with the exercise, we will need to convert them to factor variables.
 
 ```{r}
-bank %<>% mutate(across(where(is.character),as_factor))               # converts characters into factor variables in one go
-str(bank)                                                             # check if characters have been converted into factors
+# converts characters into factor variables in one go
+bank <- bank %>%  mutate(across(where(is.character),as_factor))
+
+# check if characters have been converted into factors
+str(bank)                                                             
 ```
 
 Have a look at summary statistics to understand the data better. 
 
 ```{r}
-summary(bank)
+summary(bank[c("age", "job", "marital")])
 ```
+::: {.callout-note}
+### Exercise
 
+Calculate the summary statistics for `balance`, `housing` and `loan` and answer the following questions.
 
-## Reading
+The average `balance` is `r fitb(1423, tol = 0.5)`.
 
-A general overview of these techniques is available from Hattie et al (2003), Introduction to Statistical earning, with Applications in R, Section 8, available from [the book's website](https://www.statlearning.com/).
+The number of individuals with a housing loan is `r fitb(2559)`.
 
+The number of individuals without a personal loan is `r fitb(3830)`.
 
-# OLD
-
-Suppose you need to eat out tonight. How do you decide where to go? If distance is your top priority, you first rule out all restaurants beyond a certain range. Next, you might consider budget, narrowing the list further to only the restaurants where you can have a mean for less than £20. Then, you continue filtering out by the next most important factor until you are left with a single choice. This is essentially how statistical decision trees work.
-
-> RB: I see what you have in mind here, I am having trouble with the "reducing to one restaurant" part. As trees are for predicting I think it would be useful to use prediction in the Analogy.
-Say, " Let's imagine you are waking up and are attempting to predict the amount of traffic and therefore how long itr will take you to drive your car from your home to work. You have many years of experience of making this trip, and being a nerdy accountant recorded all your trip times along with the date, the day of the week and the weather. First you consider the day of the week. You know that traffic on weekdays is much worse than on weekends. As it is a weekday the only consider past weekdays to be informative. You also note that it is July and noticed that traffic during the summer months is different to that during other months, so you only consider days that were in July, August and September and lastly you note that it  is raining. You therefore filter your spreadsheet to only give you past travel times for rainy weekdays during the summer holidays. You calculate the average travel time on these days to be 34 minutes. You predict that it will take you 34 minutes to get to work.  
-
-Given a data set with predictors and outcomes, a tree is constructed by sequentially splitting the predictor space into smaller regions with the goal of minimizing the variation in the outcomes within each region. To make a prediction for a new observation, the method checks which region it falls into, and then predicts a value that is:
-
-* the **average** outcome in that region (for continuous outcomes), or
-* the **most common** outcome in that region (for a categorical or binary outcomes).  
-
-Trees are popular because they are easy to interpret and visualize which can help to communicate the value of such a model. However, on their own, trees often can suffer from over-fitting and hence can have a lower prediction accuracy than other, simpler modelling techniques. As a result, solutions like *random forests* have arisen, where many trees are created and their predictions combined for better accuracy. 
-In this walkthrough, you will:
-
-* fit a single tree to a data set and test its predictive performance 
-* fit multiple trees using randomly selected predictors (random forests) and compare their performance to a single tree
-
-While the main exercises focus on classification problems (categorical or binary outcomes), we will also look briefly at how trees handle regression problems (continuous outcomes).
-
-The example we use here is an application to a dataset which is commonly used in Machine Learning training. The dataset provides information on people who have a credit card. We do have some demographic information, but also the spending, the balance and the repayments for the credit card in the previous 6 months (April to September 2005). The outcome variable we wish to predict is whether a customer will default on their credit card payments in October 2005. 
-
-The dataset is available from [UC Irvine Machine Learning repository](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients) from where you can download a "xls" file called "default of credit card clients.xls" which you should download into your folder so that you can load it.
-
-We will also assume that you are already familiar with cross-validation - a technique commonly used to choose model hyperparameters. A cross-validation walkthrough is available in ECLR on this [link](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html).   
-
-
-# Setup and Data Upload
-
-Let's load some necessary packages.
+`r hide("Solution")`
 
 ```{r}
-library(ISLR2)  # contains the data sets in ISLR, 2nd Ed.
-library(tree)   # for building trees
-library(randomForest) # for random forests
-library(readxl)
-library(tidyverse)
+summary(bank[c("balance", "housing", "loan")])
 ```
-
-Let's load the dataset with information on 30,000 customers.
-
-```{r}
-data.cc <- read_excel("../data/default of credit card clients.xls", skip = 1)
-names(data.cc) <- make.names(names(data.cc)) # removes spaces from names
-head(data.cc)
-```
-
-Each row in the data represents information on one customer. To obtain details on the variables you should read the information provided on [the dataset's download page](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients). 
-
-```{r}
-str(data.cc)
-```
-
-For simplicity we shall change the name of the outcome variable from `default.payment.next.month` to `default`. We also rename `PAY_0` to `PAY_1` (explanation below) and delete the `ID` variable.
-
-```{r}
-data.cc <- data.cc %>% rename(default = default.payment.next.month,
-                              PAY_1 = PAY_0) %>% 
-                      select(-ID)
-```
-
-How many variables does the data set contain?  `r fitb(25)`
-
-Look at some summary statistics, especially for the `AGE` variable.
-
-`r hide("I need a hint")`
-
-You could for instance use the `summary` function, e.g. `summary(data.cc)` for all variables or `summary(data.cc$AGE)` for only the `Sales` variable.
 
 `r unhide()`
+:::
 
-What is the median value for Age?  `r fitb(34)`
+::: {.callout-note}
+### Exercise
 
-# Descriptive Analysis
+There are missing values in the data. `r torf(FALSE)` 
 
-Before thinking about predicting the `default` variable it is important to understand the data.
+`r hide("Explanation")`
 
-Let us look at a particular observation.
+If there were any true missing values in the data, their count within each variable would appear at the bottom of the variable's summary statistics. Notice, however, that **unknown** is a commonly occurring value for some of the factor variables. These values were coded as **unknown** rather than **NA**, perhaps because many statistical programming commands would fail if the data contained true missing values.
 
-```{r}
-data.cc[34,]
-```
-
-To understand the data it is good to understand what the numerical values for the demographic variables stand for.
-
-|variable | values|
-|:------|------:|
-|SEX | 1 = male; 2 = female|
-|EDUCATION | 1 = graduate school; 2 = university; 3 = high school; 4 = others|
-|MARRIAGE | 1 = married; 2 = single; 3 = others|
-
-The other variables that are being used are
-
-|variable | values|
-|:------|------:|
-|LIMIT_BAL | Amount of the given credit (New Taiwan dollar)|
-|PAY_1 to _6 | repayment status from Sept 2005 back to April 2006. -2: No consumption that month, -1: Paid in full and on time, 0: made minimum payment, 1–9: Number of months payment delayed|
-|BILL_AMT1 to _AMT6 | Amount of bill statement (NT dollar) from Sept to April|
-|PAY_AMT1 to _AMT6 | Amount of payment (NT dollar) from Sept to April|
-
-Let's look at the distribution of outcomes for `PAY_1`.
-
-```{r}
-table(data.cc$PAY_1)
-```
-
-You can see that the majority of customers (in Sept 2005) either had nothing to pay or did deliver at least the minimum repayments. 
-
-Next we shall see whether this distribution is very different for the different genders.
-
-```{r, echo = FALSE}
-table(data.cc$SEX, data.cc$PAY_1)
-```
-
-How many women did not spend anything on their credit card in Sept 2005 (`PAY_1 == -2`)?  `r fitb(1888)`
-
-`r hide("How can I figure this out?")`
-
-You want a bivariate version of the above (`table(data.cc$PAY_1)`). Thr what happens if you use `table(variable1, variable2)`. You could also filter data to only keep observations for women (`SEX == 2`) and `PAY_1 == -2` and then see how many you are left with. But the first is better.
+The data documentation also mentions that there are no missing values.
 
 `r unhide()`
+:::
 
-Which of the following statements is correct?
+Let's look at the outcome variable more closely. 
+
+```{r}
+prop.table(table(bank$y))
+```
+
+Only slightly more than a tenth of clients subscribed to term deposits during the telemarketing campaign. Such imbalance is quite common in real-world data. However, this results in machine-learning models becoming very good at predicting the majority class (`y = no`), while struggling to learn patterns related to the minority class (`y = yes`). There are specialised techniques for addressing this issue, but to keep the exercise straightforward, we will not apply them here.
+
+
+### Handling 'unknown' values
+
+It is worth considering if something can be done about unknown values in the data. If they are left as is, and a tree split is performed along this value, it can decrease interpretability of the tree. 
+
+Consider the variable `poutcome` (indicating whether the client had signed up to a previous campaign they were contacted for), which has more than 80% of "unknown". From the data documentation document and the description of `pdays`, `pdays = -1` means the client was not previously contacted. The following check shows that all the unknown cases in `poutcome` were the ones previously not contacted.
+
+```{r}
+# tells us the value of poutcome if pdays = -1 
+summary(bank$poutcome[bank$pdays == -1])       
+
+# tells us the value of pdays if poutcome = unknown 
+summary(bank$pdays[bank$poutcome == "unknown"])
+```
+
+Therefore, for the variable `poutcome` the value "unknown" isn't really an unknown value, it just indicates that this variable is not applicable to these clients.
+
+We can replace `poutcome = unknown` with a more representative value. Let's call this new value `No previous contact` and recode the variable.
+
+```{r}
+levels(bank$poutcome)[levels(bank$poutcome)=="unknown"] <- "no previous contact"
+summary(bank$poutcome)
+```
+
+Examine the summary stats of the `education` and `contact` variables. 
+
+```{r}
+summary(bank[c("education", "contact")])
+```
+They also have a considerable share of unknowns. In other datasets you will have significant numbers of missing values. In these cases it is important to carefully think about how to deal with these. Consider the following possible ways to deal with these. 
+
+a. Replace unknowns with the mode of each variable. 
+b. Check if the unknowns are correlated with any other client characteristics available in the data 
+c. Leave it as it is for now, and come back to it later. 
+d. Drop `contact` from the dataset as it has a large share of unknown, and keep `education` as is. 
+
+Let's consider each option, one-by-one. 
+
+a. is simple to execute and may work if unknowns are not correlated with other characteristics. 
+b. can provide a more informed manner of going about replacing unknown values,
+c. is the simplest to start with. However, if the variables with lots of unknown values are important in prediction, then dealing with it becomes important for interpretability. 
+d. may **not** be a good move to start with, in case, the variables are useful in prediction. 
+
+We will for now stick with c.
+
+
+## Estimating the tree
+
+To fit a tree to the data and evaluate it for its accuracy in prediction, we place the observations randomly into training and test sets. The training set will be used to fit a classification tree that models `y`. All other variables will be provided as inputs (or features or explanatory variables).
+
+```{r}
+# initialises the random sampling 
+set.seed(6)                                                            
+train_id <- sample(1:nrow(bank),round(nrow(bank)/2,0))                        
+train_data <- bank[train_id, ]
+test_data <- bank[-train_id, ]
+```
+
+::: {.callout-note}
+### Exercise
+
+In the above code you will find the line `set.seed(6)`. What role does it play and why is it important?
 
 ```{r, echo = FALSE}
 opts_p <- c(
-   "There seem to be no obvious differences in spending and repayment patterns between men and women",
-   answer = "Women in the sample, more often than men, either spend nothing on the credit card or pay everything back immediately.",
-   "Men in the sample, more often than men, either spend nothing on the credit card or pay everything back immediately."
+   "The line is not important and the following code will run even without it.",
+   "The line is important as it ensures that all outputs are rounded to 6 decimal places.",
+   answer = "The code would run even without the line, but the line ensures that results remain the same in repeated code runs.",
+   "Including this line ensures that Meta plants 6 oak tree seedlings."
 )
 ```
 
 `r longmcq(opts_p)`
 
-Before we embark on the modelling exercise it is important to understand the properties of the outcome variable. We know that it is a binary variable (`default == 1`) is equivalent to default and 0 to no default.
+`r hide("Explanation")`
+Perhaps you already realised that the `sample` function randomly samples row numbers, on this occasion sampling `r round(nrow(bank)/2,0)` numbers from 1 to `r nrow(bank)`.
 
-```{r}
-prop.table(table(data.cc$default))
-```
+You may also know that computers do not use real random numbers. Setting the random seed ensures that you do draw the same random numbers which means that when you run the code repeadedly you always get the same "random" selection and subsequent results remain unchanged.
 
-This means that more than a 5th of all customers default in October 2005.
+In case that was not obvious to you, which is totally understandable, you could ask the question to your favourite LLM, like ChatGPT or Copilot. Copy the code snippet ans ask something like "I am using some R code to estimate a regression tree. Here are some lines of code to prepare the data. What role does set.seed(6) play?"
 
-Before proceeding to built a regression tree we need to convert the numerical variable `default` into a factor variable. 
-
-`r hide("Why is that needed?")`
-
-Before using a new function like the `tree` function below. YOu should have a look at the functions help function (`?tree`). When you do that here you will be able to read under the "FORMULA" entry that "The left-hand-side (response) should be either a numerical vector when a regression tree will be fitted or a factor, when a classification tree is produced. " 
-
-Here we wish to estimate a classification tree as our outcome variable is discrete and therefore the outcome variable needs to be of factor type.
+LLM are usually very good in explaining code.
 
 `r unhide()`
 
+
+When `sample()` draws random row numbers it could happen that the same row is selected more than once. `r torf(FALSE)`
+
+`r hide("Hint")`
+
+Go to the Console in RStudio and type `?sample` to call up the help information for the `sample` function.   
+
+`r hide("Explanation")`
+The key question here is whether `sample` draws random numbers with or without replacement. I.e. if row 57 was drawn once, could it be that it is drawn again. 
+The help function starts with 
+
+`sample(x, size, replace = FALSE, prob = NULL)`
+
+which indicates that the default for the `replace` option in that function is `FALSE` meaning that it would not replace, i.e. row 57 could not be drawn twice. And that is exactly as we want it to be as we want to split the sample.
+
+`r unhide()`
+
+`r unhide()`
+
+:::
+
+Now we can estimate (`fit`) the tree using the training data (`train_data`).
+
 ```{r}
-data.cc$default <- as.factor(data.cc$default)
-```
-
-# Estimating the Tree
-
-Now we can start the estimation process.
-
-## Splitting into training/estimation and testing set
-
-We place the observations randomly into training and test sets. The training data set will be used to fit a classification tree that models `default`. All variables except sales will be provided as inputs. 
-
-```{r}
-set.seed(6)                                                            # initialises the random sampling, split 50-50
-train <- sample(1:nrow(data.cc), nrow(data.cc)/2)                 
-cc.train <- data.cc[train, ]
-cc.test <- data.cc[-train, ]
-
-```
-
-## Estimation
-
-```{r}
-tree.cc.data <- tree(default ~ ., cc.train) 
+# fits a tree to the training data
+tree.bank <- tree(y ~ ., train_data)                                        
 ```
 
 A plot of the fitted tree produces the following:
 
 ```{r fig.height=10, fig.width=12}
-plot(tree.cc.data)                                                   # builds the tree plot
-text(tree.cc.data, pretty = 0)                                       # adds labels to the plot 
+plot(tree.bank)                                                   
+text(tree.bank, pretty = 0) 
 ```
 
-In the plot, we are seeing three splits from which four branches emerge. *Each split is labelled based on the condition governing the left-hand branch of that split.*
+We can see which variables have been split and at what value.The splits are *internal nodes*, which can result in a branch or leaf. *Each internal node is labelled based on the condition governing the left-hand of the split.* For e.g. at the top-most split, the left-hand branch contains all the observations where `duration < 219.5` (approx. 3.5  minutes). The right-hand branch contains all the observations where `duration >= 219.5`. The region where the predictor space is not split any further is a leaf or a *terminal node*. The leaf carries the value of the outcome predicted for that region. In a classification problem, each leaf is assigned the majority class within that leaf, here either "yes" or "no" as these are the only two possible outcomes. 
 
-At the end of the branch you can see the outcome category predicted. Here only the right most branch predicts a default (when `PAY_1>1.5` i.e. in Sept 2005 the customer had at least a 2 month payment delay). The three variables which are used in the splits are `PAY_1`, `PAY_2`, i.e. the qualitative measure of payment history, and `PAY_AMT3`, the amount repaid in July 2005. If a customer had a payment delay in September of more than 1 month they would be classified in the right hand side branch.
 
-It can be instructive to see the default probabilities for the branches. These are saved in `tree.cc.data$frame$yprob`
 
-```{r}
-tree.cc.data$frame$yprob
+::: {.callout-note}
+### Exercise
+
+Test your understanding. If call-`duration` was between 4-10 minutes and `poutcome = success`, what was the most likely outcome if a call was placed in July? 
+
+`r mcq(c(answer = "y = yes","y = no"))`
+
+
+`r hide("Solution")`
+
+The answer is `y = yes`. 
+
+```{r echo=FALSE, fig.align = "center"}
+knitr::include_graphics("../images/tree_solution.jpeg")
 ```
-
-There are other pieces of information about the estimated tree you can get from the `frame` object in your estimated tree. For instance `n` will give you the number of observations
-
-```{r}
-tree.cc.data$frame$n
-```
-
-As you can see there are 7 rows of outcome probabilities and 7 observation numbers, but there are only 4 terminal nodes. It is important to understand how these are numbered.
-
-![CAP](../images/tree_labels.png){#fig-LABEL fig-alt="ALT"}
-
-The nodes or leafs labeled in red (with their corresponding row numbers) are the final nodes, the nodes labeled in blue are "intermediate" nodes or branches that subsequently have been split.
-
-For instance node 1 represents the entire dataspace before the first split happens. This is applied to all observations in the training set (15,000) and you can see that the default probability here (22%) is basically the same as the default probability we saw in the entire dataset.
-
-Final Leaf 7 applies to 1,539 customers and amongst these the probability of default is almost 71% (and therefore, as that is > 50% default is predicted). Leaf 4 applies to 3,376 customers in the training set and here the default probability is 21%. The branch with the lowest default probability is Leaf 5 where customers repaid more than 677 NT$ in July.
-
-Look at the fifth customer in `data.cc`, which of the final/terminal four branches does that customer belong to?
-
-"The customer belongs to `r mcq(c("Branch 4", answer =  "Branch 5", "Branch 6", "Branch 7"))` 
-
-
-`r hide("How can I get this result?")`
-
-You need to find the observations for the relevant variables ("PAY_1", "PAY_2", "PAY_AMT3") for the 5th customer.
 
 `r unhide()`
+
+:::
+
+
+Some of the splits yield branches having the same predicted outcome. For example, the first two terminal nodes from the left of the plot (internal node of `pdays < 68.5`) have the same classification of `no`. Why does the tree algorithm perform the split in that case? The algorithm may still perform the split to increase *node purity* i.e. the share of observations belonging to a single class in the branch/leaf increases.
+
+You may wonder why the algorithm did not consider producing more final nodes. The algorithm stops producing more nodes when either the nodes become too small or if the improvement of the data fit becomes too small. These stopping criteria are controlled by the options in the `tree.control` function. The `mincut` (default setting = 5) and `minsize` (=10) options control the minimum node size and `mindev` (=0.01) the required improvement.
+
+
+The `summary ()` function will give some useful tree statistics.
+
+```{r}
+summary(tree.bank) 
+```
+
+Only 7 of the 16 available predictors are used in tree construction. The size of the tree, which is a measure of tree complexity is 13 (number of terminal nodes). The residual mean deviance measures how well the tree fits the data. It is the deviance divided by the degrees of freedom i.e. number of observations minus the tree-size. Misclassification error is similar to deviance, measuring the proportion of observations that are incorrectly classified—i.e., those whose actual outcome differs from the majority class of the leaf they belong to. In this case, it’s 9.69 percent. 
+
+It can be instructive to see the subscription probabilities for the branches/leaves. These are saved in `tree.bank$frame`.
+
+```{r}
+tree.bank$frame$yprob
+```
+
+The random forest algorithm aims to maximise node purity, and so the the classification probabilities will tend towards 0 or 1. Note, there are 13 terminal nodes and 12 internal nodes giving rise to 25 outcome probabilities.
+
+There are other pieces of information about the estimated tree you can get from the frame object in your estimated tree. For instance `n` gives the number of observations at each node. 
+
+```{r}
+tree.bank$frame$n 
+```
+
+To understand which nodes these are referring too, see how they are numbered. 
+
+```{r echo=FALSE, fig.align = "center"}
+knitr::include_graphics("../images/Tree_bank_nodes.png")
+```
+
+For instance, node 1 represents the entire predictor space before the first split occurs, therefore it contains 2260 observations. The numbering can be verified by typing `tree.bank$frame`. 
 
 
 `r hide("How did the tree function decide to split?")`
 
 This is not the place where we will spend time on explaining the details of the algorithm that is implemented. You can refer to James et al. (2021, Chapter 8) for a detailed explanation. 
 
-But it is instructive to look at the above probabilities. The function basically attempts to find a bunch of terminal branches in which the probabilities are as extreme as possible. For instance, take the intermediate branch 3 in which there was a probability of default of 14%. This was split into the terminal leaf 4 and 5, as these offered quite different default probabilities, 21% and 11% respectively. The split at `PAY_ATM3 < 677` was the split that delivered the clearest division.
+But it is instructive to look at the above probabilities. The function basically attempts to find a bunch of terminal branches in which the probabilities are as extreme as possible. For instance, take the intermediate branch 22 (which contains 33 observation) in which there was a probability of `y=yes` of 82% and `y=no` of 18%. This was split into the terminal leafs 23 and 24 with 10 and 23 observations respectively. Associated to these were probabilities of `y=yes` of 100% and 40%. Clearly this split created a terminal leaf 24 which very strongly predicts `y=yes`.
 
 The measure used to evaluate how separated the probabilities are is the Gini Index. The formula for the Gini Index is -
 
@@ -359,123 +358,105 @@ $$
 G = \sum_{k=1}^K \hat{p}_{mk}(1 - \hat{p}_{mk})
 $$
 
-Here, $\hat{p}_{mk}$ is the proportion of training observations in leaf (or region) $m$ that belong to class $k$. A *class* is just a category of the response variable - for example, in our case the classes are 'default' or "1" and 'No default' or "0". Notice that $G$ becomes smaller when the values of $\hat{p}_{mk}$ in a leaf are close to zero or one. Because of this property, the Gini Index is also seen as a measure of *node purity*. In a regression problem, node impurity is measured by the Mean Squared Error (MSE) formula, which you have seen in OLS type problems. 
+Here, $\hat{p}_{mk}$ is the proportion of training observations in leaf (or region) $m$ that belong to class $k$. A *class* is just a category of the response variable - for example, in our case the classes are 'yes' or "1" and 'no' or "0". Notice that $G$ becomes smaller when the values of $\hat{p}_{mk}$ in a leaf are close to zero or one. Because of this property, the Gini Index is also seen as a measure of *node purity*. In a regression problem, node impurity is measured by the Mean Squared Error (MSE) formula, which you have seen in OLS type problems. 
 
 `r unhide()`
 
-A summary off the estimated tree can be seen from the `summary` function.
-
-```{r}
-summary(tree.cc.data)
-```
-
-The number of terminal nodes tells us the tree's size. The larger it is, the more complex the tree. The residual mean deviance is a measure of how well the tree fits the training data. The lower the value of the deviance, the better the model fits the training data. The misclassification rate is giving us the training error rate - the proportion of training observations in a leaf that are incorrectly predicted by the leaf's majority class. In this case, it's 17.8 percent. 
-
-You may wonder why the algorithm did not consider producing more final nodes. The algorithm stops producing more nodes when either the nodes become too small or if the improvement of the data fit becomes too small. These stopping criteria are controlled by the options in the `tree.control` function. The `mincut` (default setting = 5) and `minsize` (=10) options control the minimum node size and `mindev`(=0.01) the required improvement. Below we will reduce the required improvement in fit by reducing `mindev` to 0.002.
-
-```{r}
-ctrl <- tree.control(nobs = nrow(cc.train), 
-                     mindev = 0.002,  # minimum deviance reduction
-                     mincut = 5,      # min obs in each child
-                     minsize = 10)    # min obs in a node to be split
-
-```
-
-Then, when you estimate the tree, feed `ctrl` into the `tree` procedure.
-
-```{r fig.height=10, fig.width=12}
-tree.cc.data.v2 <- tree(default ~ ., cc.train, control = ctrl) 
-plot(tree.cc.data.v2) 
-text(tree.cc.data.v2, pretty = 0)                                      
-```
 
 ## Evaluation
 
-We should now evaluate the performance of the fitted tree on the test data. The predict() function allows us to do that. To ensure that the predictions are in terms of classes, we need to provide type = "class" as an argument.
+We evaluate the performance of the fitted tree on the test data (`test_data`) using the `predict()` function. To ensure that the predictions are in terms of classes, we need to provide `type = “class”` as an argument.
 
 ```{r}
-cc.tree.pred <- predict(tree.cc.data, cc.test, 
-                     type = "class")      # predicting outcomes in test data set
-cc.test.default <- cc.test$default        # list with actual outcomes in test data
-table(cc.tree.pred , cc.test.default)     # Confusion matrix
+# predicting outcomes in test data set
+b.tree.pred <- predict(tree.bank, test_data, type = "class")         
+
+# list with actual outcomes in test data
+test_data.y <- test_data$y  
+
+# Confusion matrix
+table(b.tree.pred , test_data.y)                                       
 ```
 
-The table displays how accurately the tree predicted the values of `default` for the test set observations. Altogether ((11169+1091)/15000 = 82%) of observations are predicted correctly. However, only about a third of defaults (33%) are correctly predicted. This is an improvement on the unconditional probability of default of 22%.
-
-When producing the same confusion matrix with `tree.cc.data.v2` how does the predictive performance change?
-
-```{r, echo = FALSE}
-# use sample() to randomise the order
-opts_ci <- sample(c(
-  answer = "it does not change at all, v2 was no improvement on the original tree",
-  "v2 predicts better overall, but mainly because it improves predicting non-defaults",
-  "v2 predicts better overall, but mainly because it improves predicting defaults",
-  "the original predicts better overall, but mainly because it improves predicting non-defaults",
-  "the original predicts better overall, but mainly because it improves predicting defaults"
-))
-```
-
-`r longmcq(opts_ci)`
-
-## Pruning
+The table displays how accurately the tree predicted the values of subscription for the test set observations. Model **accuracy** is (1860+140)/2261 = 0.8846 i.e. the share of observations that are predicted correctly. The **sensitivity** of the model, given by the share of positive outcomes that are correctly predicted: 140/257 = 0.54. This is an improvement on the unconditional probability of subscribing (11.68%).
 
 
-## Tree pruning
+## Tree Pruning
 
-So far, we have not included a penalty for tree complexity. This step should be considered as the algorithm will likely overfit the data, which can lead to poor performance on the test set. Let's set a penalty $\alpha > 0$ for tree size since we know this is a measure of tree complexity. For any $\alpha$, the goal is to find the optimal subtree (from the original large tree) that minimizes the combined measure:
+So far there was no penalty for tree complexity. This step should be considered as the tree algorithm will likely overfit the data, which can lead to poor performance on the test set. We set a penalty $\alpha > 0$ for tree size. For any $\alpha$, the goal is to find the optimal subtree (from the original large tree) that minimizes the combined measure:
 
 $$ 
 \text{Total error of the Subtree} + \alpha (\text{Size of the Subtree})
-$$
+$$ 
 
-The larger the $\alpha$ the simpler the tree. 
+The larger the $\alpha$ the simpler the tree.
 
-We will perform cross-validation to find a tree of the appropriate size. The cv.tree() function progressively increases $\alpha$ value and obtains trees of different sizes from the original tree. These subtrees are then validated in the hold-out fold of the data. The error of the sub-trees are averaged and presented in the output summary.  
+To find the appropriate $\alpha$, we use cross-validation. The `cv.tree()` function progressively increases $\alpha$ value and obtains trees of different sizes from the original tree. These subtrees are then validated in the hold-out fold of the data. The error of the subtrees are averaged across all the folds and stored by the algorithm.
 
 ```{r}
-set.seed(5)                                                       
-cv.cc <- cv.tree(tree.cc.data.v2,                             # cross-validates subsets of the tree 
-     FUN = prune.misclass)                                        
-cv.cc                                                       # view output
+set.seed(17)                                                       
+cv.bank <- cv.tree(tree.bank, FUN = prune.misclass)                                      
+cv.bank                                                 
 ```
 
-The final output shows the size of each subtree selected from `tree.cc.data.v2` for a given `k` (the penalty that we denoted by $\alpha$). `dev` is the number of cross-validation errors, associated with that subtree. 
+The summary output shows the size of each subtree drawn from `tree.bank` for a given `k` (the penalty that we denoted by $\alpha$). `dev` is the number of cross-validation errors, associated with that subtree.
 
 We plot the error rate as a function of the penalty and tree size.
 
 ```{r}
 # Plotting the error rate as a function of size and k
 par(mfrow = c(1,2))
-plot(cv.cc$size, cv.cc$dev, type = "b") 
-plot(cv.cc$k, cv.cc$dev, type = "b")
+plot(cv.bank$size, cv.bank$dev, type = "b") 
+plot(cv.bank$k, cv.bank$dev, type = "b")
 ```
 
-What tree size gives the lowest error? It's one with 7 nodes. What's the optimal size of the penalty? 2.5. 
+The tree size giving the lowest error is one with 4 or 7 nodes. The corresponding penalties are 5 and 2, respectively.
 
-We can obtain the pruned tree using `prune.misclass`, supplying the  tree-size 2 and the tree-pruning methodology. 
+Let's visualise the pruned tree. We first prune the large tree by providing the optimal tree-size and then ask R to plot it. 
 
 ```{r}
-prune.cc <- prune.tree(tree.cc.data.v2, best = 2, method = "misclass")  
-summary(prune.cc)
+tree.b.prune <- prune.tree(tree.bank, best = 4, method = "misclass")  
+plot(tree.b.prune)
+text(tree.b.prune, pretty = 0)
 ```
 
-We can compare the residual mean deviances of the pruned and unpruned trees (because they are calculated from the same data set). Notice that the pruned tree has a larger  deviance and misclassification rate. This is not necessarily a bad thing from a prediction point of view, since a simpler tree prevents overfitting. 
+Notice how the branches have fallen off the original tree? And, only `duration` and `poutcome` remain.
 
-Let's visualise the pruned tree. 
+Let's check if pruning helps in achieving better prediction accuracy. We use the same steps we used when evaluating the performance of the unpruned tree (`tree.bank`) to find out. Complete the code below by replacing `XXXX` with the correct information. Look at the previous call of `predict()` for guidance.
 
-```{r}
-plot(prune.cc)
-text(prune.cc, pretty = 0)
+```{r, eval = FALSE}
+# fill in the correct input     
+b.tree.prune.pred <- predict(XXXX, XXXX, type = "class")       
+table(Predicted = b.tree.prune.pred , Actual = XXXX)                  
 ```
 
-Does pruning help in achieving better prediction accuracy? We use the same steps we used when evaluating the performance of the unpruned tree (`tree.cc.data.v2`) to find out.  
+You got it right if you get the table below.
 
-```{r}
-cc.tree.prune.pred <- predict(prune.cc, cc.test, type = "class")
-table(cc.tree.prune.pred , cc.test.default)     # Confusion matrix                                  
+```{r, echo = FALSE}
+b.tree.prune.pred <- predict(tree.b.prune, test_data, type = "class")
+table(Predicted = b.tree.prune.pred , Actual = test_data.y)                  
 ```
 
-Test accuracy has remained unchanged. From here we can learn that only the first split at `PAY_1<1.5` contributes to predicting default. 
+
+`r hide("Hint")`
+
+Usually looking at the help for a particular function (here `?predict`) is a really good way to figure out how to use the function. In the case of `predict` this does not work well as `predict` is a very powerful function which works for very different types (or classes) of estimated models. And for every type it may work slightly differently. This is why the help information is slightly too general.
+
+Which of the following queries to a LLM are likely to yield good and useful information?
+
+1. Query 1
+  "How do I use predict?"
+2. Query 2
+  "I am working in R and am estimating regression trees. Now I want to evaluate this estimated tree on a test dataset. How can I use the `predict` function?"
+3. Query 3
+  "I am working in R and am estimating regression trees. I have estimated a regression tree called `tree.b.prune` for binary outcomes using a training dataset (`train_data`). Now I want to evaluate this estimated tree on a test dataset (`test_data`). Both datasets have identical variables. The outcome variable is called `y`. How can I use the `predict` function?"
+
+`r mcq(c("Query 1", "Query 2", answer = "Query 3"))`
+
+`r unhide()`
+
+Model accuracy increases by a small fraction (approx. 0.0035), while the sensitivity declines. Ideally, we would want a method that increases both.
+
 
 `r hide("Does pruning always deliver the same result?")`
 
@@ -483,82 +464,168 @@ As the pruning step makes use of cross validation which randomises data into fol
 
 `r unhide()`
 
-When pruning the original tree (`tree.cc.data`, rather than the `tree.cc.data.v2` above) how is the result different?
+## Bagging 
 
-```{r, echo = FALSE}
-# use sample() to randomise the order
-opts_ci <- sample(c(
-  answer = "we end up with the same pruned tree",
-  "the pruned tree, when starting from the original (tree.cc.data), only has one terminal node",
-  "the pruned tree, when starting from the original (tree.cc.data), retains three terminal nodes",
-  "the pruned tree, when starting from the original (tree.cc.data), retains all four terminal nodes"
-))
-```
-
-`r longmcq(opts_ci)`
-
-
-# Random Forests
-
-Trees suffer from high variance. Notice how you can get a very different tree, when fitting one on the test data set. 
+Trees suffer from high variance. You would get a different tree with each random subset of the data. You can see this by fitting a tree to the test data:
 
 ```{r}
-tree.cc.test <- tree(default ~ . , cc.test)
-summary(tree.cc.test)
+tree.bt.test <- tree(y ~ ., test_data)
+summary(tree.bt.test)
 ```
 
-When comparing this to `tree.cc.data` it becomes apparent that the third split is different and happens on a different variable `BILL_AMT1` instead of `PAY_AMT3`. The size of the tree happens to be the same but it could have been different sa well. When the variance of a model is high, predictions based on it are likely to be less accurate. A large enough data set will not get rid of the problem of high variance of a tree. Tree pruning will also not necessarily improve accuracy.
+Compared to `tree.bank`, the tree size is smaller and fewer variables are used in tree construction. This is a symptom of high variance in the model. When  variance of a model is high, predictions based on it will be less accurate. A large enough data set will not get rid of the problem of high variance of a tree. Tree pruning will also not necessarily improve accuracy.
 
-Random forests is one solution to the issue of high-variance of trees. It involves building multiple decision trees using bootstrapped training samples. Bootstrapping  implies taking repeated random samples from a single training data set. In addition, splits are carried out only by considering a random subset of predictors. Typically, the number of predictors chosen is the square root of predictors ($\sqrt{p}$). This allows the algorithm to build trees that are different from each other, giving weaker predictors more of a chance to appear in the splits. When the predictions of these trees are averaged, the variance is lower leading to better accuracy in predictions. 
+Without further action we should always keep in mind that, had we split the data differently, we should expect a quite different model to be chosen and hence quite different forecasts. That is what we mean by variance.
 
-We will use the `randomForest` package in R to apply random forests to the Carseats data. 
+There are a few easily implemented methods to reduce this variance. The first is called **bagging** and uses the technique of bootstrapping. It takes the data supplied, here `test_data` and creates random versions of the data (by randomly drawing samples of observations). Then we calculate a tree for each of these versions and the prediction is averaged. As we are looking at a classification tree (with two possible outcomes here) the averaged prediction is merely the modal prediction, i.e. the prediction that most often occurs for a particular observation.
+
+The method can be implemented with the `RandomForest()` function (which will be re-used for the next section). We apply the function as follows:
+
+* specify the data (`data = train_data`)
+* specify the model (`y ~ .`), here dependent variable is `y` and all other variables in the data set can be used (`~.`)
+* set the number of variables to be used as tree splits are considered to be equal to the number of explan variables. The need for this will be obvious when we consider the Random Forest method next.
 
 ```{r}
-set.seed(1)                                            
-rforest.cc.data <- randomForest(default ~ . , data = data.cc, subset = train, importance = TRUE)              
-print(rforest.cc.data)
+# set p equal to number of explan vars (cols in data -1)
+p = dim(test_data)[2]-1
+
+# set seed to ensure re-peated applications give same result
+set.seed(131)                                            
+bag.bt <- randomForest(y ~ ., data = train_data, mtry = p)              
+bag.pred <- predict(bag.bt, test_data, type = "class")         
+table(Predicted = bag.pred, Actual = test_data.y)
 ```
 
-The summary of the output tells us that the model is trained by creating 500 trees using 4 randomly selected predictors for each split. The Out Of Bag (OOB) error is calculated using the average error in prediction of observations not included in the bootstrapped samples. The method is yielding an OOB accuracy rate of 81.7 percent (1 - OOB error rate).  
+Model accuracy is $(1915+105)/2261 =0.8934$ which is a slight improvement on the accuracy compared to the base tree. The sensitivity $105/257 = 0.4086$ however has dropped significantly from 0.54. Such a result, sensitivty not improving through the averaging applied in the bagging algorithm, is more likely to happen when the outcomes are unbalanced (here only 11% `yes` in the sample).
 
-While we cannot create a tree-like plot after applying random forests, we can still generate variable importance scores for all of the predictors. In the `randomForest()` function, we specified `importance = TRUE`. This calculates two kinds of scores for each predictor: (i) Mean Decrease in Accuracy i.e. the decrease in OOB accuracy when the variable is excluded, and (ii) Mean Decrease in Gini i.e. the total decrease in Gini Index from splitting on the variable. Both are useful measures of variable importance, although the first one would be slightly more important from a prediction standpoint. 
+::: {.callout-caution}
+### Details of the algorithm
 
-The function `varImpPlot()` generate plots where variables are displayed in decreasing order of importance. This provides a clear picture of which variables are useful in classification.   
+There are different functions/packages you could use to implement bagging. Here we used `RandomForest` but other packages you could use are the `ipred` and `caret` packages. And implementation details may vary. Some of the standard parameters that you may be interested in are
+
+* how many random samples are created, `nrand`
+* are samples drawn with or without replacement, i.e. could the same observation occur more than once in a random sample (yes if `replacement = TRUE`)
+* how big are the samples drawn (`sampsize`, relative to the sample size of the data, `n`)
+
+Call the help function `?randomForest` to check what the default parameters for `randomForest()` are as we implement it above for our classification problem.
+
+$nrand =$ `r fitb(500)`
+
+$replacement =$ `r mcq(c(answer = "TRUE","FALSE"))`
+
+$sampsize = $ `r mcq(c("0.5 * n","0.632 * n",answer = "n", "1.314*n"))`
+
+`r hide("Explanation")`
+
+When you call the help function you will get this.
+
+```{r echo=FALSE, fig.align = "center"}
+knitr::include_graphics("../images/randomForest_HELP.png")
+```
+
+The highlilighted sections give the answers to the above questions. You could change these parameters. For instance if you wanted to create fewer random samples you could call `randomForest(y ~ ., data = train_data, mtry = p, ntree = 200)`.
+
+Being able to figure out what choices particular functions make is an important part of being an accomplished empirical economist.
+
+`r unhide()`
+
+:::
+
+## Random Forests
+
+The averaging, as applied in the bagging algorithm, works best in terms of reducing the variance if the individual components we are averaging over are not strongly correlated. In the bagging algorithm we applied the same tree optimisation algorithm to different data samples, but we always used all `p` explanatory variables. As a result it is quite likely that the individual predictions are quite similar as they are likely to be based on the same predictors. The **Random Forest** method applies a simple trick to make this component forecasts less correlated and therefore allow for better variance reduction.
+
+Random forests apply the same basic structure as bagging (i.e. creating multiple data samples and estimating treets for each), but in addition, the splits in trees are carried out only by considering a random subset of predictors at a time instead of always considering all `p` predictors. Typically, the number of predictors considered at any split is the square root of predictors ($\sqrt{p}$). This allows the algorithm to build trees that are different from each other. Weaker predictors are given more of a chance to appear in the splits. This will reduce the correlation between trees and therefore strengthen the variance reduction. 
+
+We will use the `randomForest` package in R to apply random forests to the data. Setting `importance = TRUE` prompts the function to calculate importance measures for each predictor. Note that this call is basically the same as previously for bagging, just that we drop the `mtry = p` option which means that we are now operating with the default value for `mtry` which (according to the help function) is `mtry = sqrt(p)`.
 
 ```{r}
-varImpPlot(rforest.cc.data)                                         
+set.seed(131)                                            
+rf.bt <- randomForest(y ~ ., data = train_data, importance = TRUE)              
+print(rf.bt)
 ```
 
-There are slight differences in ranking of variables across the plots, but they are generally in agreement with one another, and with the tree we fit earlier, in that `PAY_1` is the variable of primary importance. Note, there could be negative scores. The actual scores can be obtained by typing the following:
+The summary of the output tells us that the model is trained by creating 500 trees using 4 randomly selected predictors for each split. The Out Of Bag (OOB) error is the average error in prediction of training observations not included in the bootstrapped samples. Averaging the predictions of 500 trees is generally considered adequate for stabilising the OOB error rate.
+
+We cannot create a tree-like plot after applying random forests as the predictions are based on 500 different trees. But we can generate variable importance scores for all of the predictors. The function `varImpPlot()` generate plots where variables are displayed in decreasing order of importance. This provides a clear picture of which variables are useful in classification.
+
 
 ```{r}
-importance(rforest.cc.data)            # displays variable importance scores
+varImpPlot(rf.bt)                                         
 ```
 
-The last two columns are displaying the importance scores with higher numbers meaning that variabls are more important. It is apparent from the above that `PAY_1` is the most impotant variable.
+Two kinds of scores are being generated: (i) Mean Decrease in Accuracy i.e. the decrease in OOB accuracy when the variable is excluded, and (ii) Mean Decrease in Gini i.e. the total decrease in Gini Index from splitting on the variable.(Gini Index is explained in the earlier explainer 'How did the tree function decide to split?')
 
-Now we should test how well the model works on test data. The predict() function will cycle the new data points through all the 500 trees of the forest and predict the class of the point using a majority vote. 
+There are slight differences in ranking of variables across the plots, but they are generally in agreement with one another, and with the tree we fit earlier, in that `duration` is the variable of primary importance. 
 
-Complete the following code to calculate the confusion matrix you get when applyong the  could fill in the blanks in the code snippet below and run the code to calculate the new confusion matrix. 
+The actual scores can be obtained by typing the following:
+
+```{r}
+# displays variable importance scores
+importance(rf.bt)                                          
+```
+
+The last two columns are displaying the importance scores with higher numbers meaning that variables are more important. Note, there could be negative scores.
+
+Now we should test how well the model works on test data. The `predict()` function will cycle the new data points through all the 500 trees of the forest and predict the class of the point using a majority vote. 
+
+Complete the following code to display the prediction evaluation.
 
 ```{r, eval = FALSE}
-rf.pred <- predict(XXX, Carseats.test, type = "class")         # fill the missing inputs  
-table(rf.pred, YYY)
-(YYY + ZZZ)/200                                                 # test accuracy
+# fill the missing inputs  
+rf.pred <- predict(XXX, XXXX, type = "class")                   
+table(Predicted = ZZZ, Actual = YYY)
 ```
 
 ```{r, echo = FALSE}
-rf.pred <- predict(rforest.cc.data, cc.test, type = "class")  
-table(rf.pred, cc.test.default)
+rf.pred <- predict(rf.bt, test_data, type = "class")                   
+table(Predicted = rf.pred, Actual = test_data.y)
 ```
 
-While more of the default cases have been predicted (1211 compared to 1091), this model also made more incorrect default predictions (660 compared to 500). Whether that is better of worse really depends on the cost caused by making an incorrect prediction.
+The test accuracy increases more significantly this time (approx. 1%), however sensitivity decreases even further. This can happen while applying random forests if the outcome is very imbalanced and the model depends on only a few of the predictors.
 
-Apart from random forests, there are other methods that use a regression or classification tree as a building block - for instance, bagging, boosting, and Bayesian Additive Regression Trees. An introduction to these methods can be found in the ISLR textbook (James et al., 2021). It will be useful for seeing how these methods differ from random forests in structure and strategy, and how they compare in terms of predictive performance. 
+## Further extensions
 
-# Reading
+To further improve the effectiveness of the random forests method we can consider dropping less important predictors.
 
-James et al. (2021) *An Introduction to Statistical Learning, Second Edition*,  Chapter 8. The book is freely available [here](https://www.statlearning.com/). The chapter provides additional explanation and examples of tree-based methods. 
+Using the variable importance plots above we can identify the least important variables. Here, the four least important variables - education, campaign, loan and default are dropped as an example. This way more relevant variables are being used in the random tree construction.
+
+```{r}
+set.seed(131)                                            
+rf.bt2 <- randomForest(y ~ . - loan - default - campaign - education, data = train_data, importance = TRUE)  
+rf.pred2 <- predict(rf.bt2, test_data, type = "class")                   
+table(Predicted = rf.pred2, Actual = test_data.y)  
+```
+
+Based on the confusion matrix, we get only a slight improvement in accuracy and sensitivity, compared to `rf.pred`. But importantly note that, while the model predicts 96.5% of all "no"s correctly ($=1933/(1993+71)$) it only predicts 36.6% of all "yes"s correctly ($94/(163+94)$). However, 36.6% is still a substantial improvement from an unconditional prediction of 11%.
+
+## Final thoughts
+
+In this example the dependent variable (the variable we wanted to forecast) is a binary variable. We therefore applied classification trees. We therefore had to use the ` type = "class"` option when we used the `predict()` function. Some of the details, but not the basic ideas, change when the variable to forecast is continuous. Instead of classification trees we then talk of regression trees.
+
+When being concerned about forecasting you carefully have to think about which explanatory variables should really be used. One of the important variables here was `duration` which is defined as "last contact duration, in seconds (numeric)". Typically this last contact could be a sales call to encourage the client to purchase the term product under consideration. 
+
+This then means that the model estimated here would be useful to predict the purchase probability **after** such a sales call. If, however, you want to build a model that helps your sales force pick high probability clients for their sales calls then the model above would not be useful. A model that does not include values representing the actual sales activity would be needed.
+
+The example we dealt with here had very unbalanced outcomes, as only about 11% of the observations were a "yes". This can cause problems as all the above methods reward trees that get predicting the majority class right, but that may not be the most interesting class.
+
+::: {.callout-tip}
+### How do deal with unbalanced classes?
+
+There are a number of ways to deal with this issue. This walkthrough cannot address these. A good starting point may be that you enlist the help of your friendly LLM (e.g. ChatGPT or Copilot) for advice. A useful query may be:
+
+"I am estimating classification trees for a binary variable (with yes/no) as outcomes. Only about 10% of my outcomes are yes. What implications does this have for the classification tree analysis? Are there techniques that can deal with this? Can you also provide me with some references on this issue, in particular referring to the practical guidance."
+
+As always it is important to ask for the original source material such that you can ensure, by referring to the original material, that the remedies indeed address your problem.
+
+:::
+
+## Reading
+
+* A general overview of these techniques is available from Hattie et al (2003), Introduction to Statistical earning, with Applications in R, Section 8, available from [the book's website](https://www.statlearning.com/).
+* The paper that used this dataset originally: S. Moro, R. Laureano and P. Cortez (2011) Using Data Mining for Bank Direct Marketing: An Application of the CRISP-DM Methodology. In P. Novais et al. (Eds.), Proceedings of the European Simulation and Modelling Conference - ESM'2011, pp. 117-121, Guimarães, Portugal, October, 2011. EUROSIS.
+* A textbook that focuses on predictive modelling is Kuhn, M. and Johnson, K. (2013). Applied Predictive Modeling. Springer. Chapter 16 is dedicated to the issue of class imbalance.
+
 
 This walk-through is part of the [ECLR](https://datasquad.github.io/ECLR/) page.
 
