@@ -25,6 +25,8 @@ Consider a variable which you wish to predict ($y$, dependent variable) and a wh
 
 A tree works by creating splits within the predictor space such that outcome values within each sub-region are progressively more similar. This can create very nonlinear relationships between the $x$ variables and $y$. 
 
+It is important to understand that trees are really prediction tools. It is not a tool, by itself, to discover causal relationships.
+
 Visually, these splits can be represented in a tree‑like structure: each split creates a new branch, and the final branches—where no further splitting is useful—are called leaves. As you will see below you will have to imagine wonky and asymmetric trees. The leaves will bear a value that is:
 
 -   the **most common** outcome in that branch (for a categorical or binary outcomes - often then called a **classification tree**), or
@@ -32,7 +34,9 @@ Visually, these splits can be represented in a tree‑like structure: each split
 
 Predictions for new observations are made on the basis of this tree. 
 
-A single tree tends to overfit the data it's fed, resulting in incorrect predictions when tested on new data. This is a very common issue for any nonlinear models (e.g. neural networks) and when you use these methods you need to be aware of this and guard against this effect. Bagging and random forests are methods to deal with this particular problem. They will be discussed towards the end of this walkthrough. 
+A single tree tends to overfit the data it's fed, resulting in incorrect predictions when tested on new data. This is a very common issue for any nonlinear models (e.g. neural networks) and when you use these methods you need to be aware of this and guard against this effect. 
+
+One strategy to counter this is to evaluate the predictive by splitting the data into an estimation and a test data set. In this way, fitting particular features in the estimation set, something that nonlinear models can easily do, is not rewarded. Bagging and random forests are additional methods to deal with this particular problem. They will be discussed towards the end of this walkthrough. 
 
 Note: For this walkthrough, we are assuming that you are already familiar with cross-validation - a technique commonly used to choose model hyperparameters. A cross-validation walkthrough is available in ECLR on this [link](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html).
 
@@ -98,7 +102,7 @@ As usual it is super important to know where your files live on your computer.
 
 `r unhide()`
 
-The data consists of 17 variables and 4521 observations. The outcome of interest is the one simply called `y`. `y = no` indicates the client did not subscribe to the term deposit, `y = no` indicates that a client did.
+The data consists of 17 variables and 4521 observations. The outcome of interest is the one simply called `y`. `y = no` indicates the client did not subscribe to the term deposit, `y = yes` indicates that a client did.
 
 The variable descriptions are available from the data [documentation](https://raw.githubusercontent.com/datasquad/ECLR/refs/heads/gh-pages/R_Forests/bank-names.txt). Many variable names are self-explanatory. Here we merely copy some of the definitions:
 
@@ -165,6 +169,15 @@ prop.table(table(bank$y))
 
 Only slightly more than a tenth of clients subscribed to term deposits during the telemarketing campaign. Such imbalance is quite common in real-world data. However, this results in machine-learning models becoming very good at predicting the majority class (`y = no`), while struggling to learn patterns related to the minority class (`y = yes`). There are specialised techniques for addressing this issue, but to keep the exercise straightforward, we will not apply them here.
 
+::: {.callout-important}
+### Naive prediction
+
+From the above table for `y` you can see that a naive prediction algorithm would work quite well. We could just always predict "no". In that case we would get about 89% of all predictions right. This is what we will later call "accuracy". So we will want to improve on that. This is useful to keep in mind.
+
+Further, this naive method would never predict a "yes". Perhaps it is your reason to undertake this exercise to predict the rare occasions of "yes". In that case the naive method is really not useful.
+
+:::
+
 
 ### Handling 'unknown' values
 
@@ -213,7 +226,9 @@ We will for now stick with c.
 
 ## Estimating the tree
 
-To fit a tree to the data and evaluate it for its accuracy in prediction, we place the observations randomly into training and test sets. The training set will be used to fit a classification tree that models `y`. All other variables will be provided as inputs (or features or explanatory variables).
+To fit a tree to the data and evaluate it for its accuracy in prediction, we place the observations randomly into training and test sets. The estimation/training set will be used to fit a classification tree that models `y`. The training set is then used to evaluate the quality of the model. 
+
+Variables other than `y` will be provided as inputs (or features or explanatory variables).
 
 ```{r}
 # initialises the random sampling 
@@ -240,9 +255,10 @@ opts_p <- c(
 `r longmcq(opts_p)`
 
 `r hide("Explanation")`
+
 Perhaps you already realised that the `sample` function randomly samples row numbers, on this occasion sampling `r round(nrow(bank)/2,0)` numbers from 1 to `r nrow(bank)`.
 
-You may also know that computers do not use real random numbers. Setting the random seed ensures that you do draw the same random numbers which means that when you run the code repeadedly you always get the same "random" selection and subsequent results remain unchanged.
+You may also know that computers do not use real random numbers. Setting the random seed ensures that you do draw the same random numbers which means that when you run the code repeatedly you always get the same "random" selection and subsequent results remain unchanged.
 
 In case that was not obvious to you, which is totally understandable, you could ask the question to your favourite LLM, like ChatGPT or Copilot. Copy the code snippet ans ask something like "I am using some R code to estimate a regression tree. Here are some lines of code to prepare the data. What role does set.seed(6) play?"
 
@@ -271,7 +287,35 @@ which indicates that the default for the `replace` option in that function is `F
 
 :::
 
-Now we can estimate (`fit`) the tree using the training data (`train_data`).
+### Estimating a toy example
+
+In order to explain the intuition of a tree we will begin by estimating a small tree which only uses two explanatory variables, here `duration` and `month`.
+
+
+```{r}
+# fits a tree to the training data
+tree.bank.toy <- tree(y ~ duration+month, train_data)                                        
+```
+
+A plot of the fitted tree produces the following:
+
+```{r echo=FALSE, fig.align = "center"}
+knitr::include_graphics("../images/tree_toyA.png")
+```
+
+In order to explain what the meaning of this tree is we labelled the leafs or final partitions. We can call these partitions as we can understand these as partitioning the space of the explanatory variables. As we restricted this toy example to two variables we can visualise this in the following partitioning where the latters correspond to the previous image. (Also note that the `month` variable is a factor variable without a natural ordering. In the picture the months have been ordered in a way that faciliatates the graphical representation.)
+
+```{r echo=FALSE, fig.align = "center"}
+knitr::include_graphics("../images/tree_toyB.png")
+```
+
+The tree method divisions up the entire space into areas. In each area we also see the predicyion of "yes" or "no", with only areas C and G having a majority of predictions being "yes". This is not surprising, remembering that only about 11% of observations are "yes".
+
+### Estimating the full tree
+
+By restricting the toy example to two explanatory variables we could still represent the space of the explanatory variables graphically. When we generalise to more explanatory variables the same principle applies, but any attempts to represent the higher dimensional space graphically will not work.
+
+Now we can estimate (`fit`) the full tree using the training data (`train_data`).
 
 ```{r}
 # fits a tree to the training data
@@ -329,7 +373,7 @@ It can be instructive to see the subscription probabilities for the branches/lea
 tree.bank$frame$yprob
 ```
 
-The random forest algorithm aims to maximise node purity, and so the the classification probabilities will tend towards 0 or 1. Note, there are 13 terminal nodes and 12 internal nodes giving rise to 25 outcome probabilities.
+The tree algorithm aims to maximise node purity, and so the the classification probabilities will tend towards 0 or 1. Note, there are 13 terminal nodes and 12 internal nodes giving rise to 25 outcome probabilities.
 
 There are other pieces of information about the estimated tree you can get from the frame object in your estimated tree. For instance `n` gives the number of observations at each node. 
 
@@ -378,7 +422,7 @@ test_data.y <- test_data$y
 table(b.tree.pred , test_data.y)                                       
 ```
 
-The table displays how accurately the tree predicted the values of subscription for the test set observations. Model **accuracy** is (1860+140)/2261 = 0.8846 i.e. the share of observations that are predicted correctly. The **sensitivity** of the model, given by the share of positive outcomes that are correctly predicted: 140/257 = 0.54. This is an improvement on the unconditional probability of subscribing (11.68%).
+The table displays how accurately the tree predicted the values of subscription for the test set observations. Model **accuracy** is (1860+140)/2261 = 0.8846 i.e. the share of observations that are predicted correctly. The **sensitivity** of the model, given by the share of positive outcomes that are correctly predicted: 140/257 = 0.54. This is an improvement on the naive method (always predict "no") which would predict none.
 
 
 ## Tree Pruning
