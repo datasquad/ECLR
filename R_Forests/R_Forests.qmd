@@ -36,7 +36,7 @@ Predictions for new observations are made on the basis of this tree.
 
 A single tree tends to overfit the data it's fed, resulting in incorrect predictions when tested on new data. This is a very common issue for any nonlinear models (e.g. neural networks) and when you use these methods you need to be aware of this and guard against this effect. 
 
-One strategy to counter this is to evaluate the predictive by splitting the data into an estimation and a test data set. In this way, fitting particular features in the estimation set, something that nonlinear models can easily do, is not rewarded. Bagging and random forests are additional methods to deal with this particular problem. They will be discussed towards the end of this walkthrough. 
+One strategy to counter this is to evaluate the predictive performance by splitting the data into an estimation and a test data set. The model is estimated using the estimation data but the predictive performance is evaluated using the data in the test set. In this way, fitting particular features that are unique to the data in the estimation set but do not generalise is not rewarded. Bagging and random forests are additional methods to deal with this particular problem. They will be discussed towards the end of this walkthrough. 
 
 Note: For this walkthrough, we are assuming that you are already familiar with cross-validation - a technique commonly used to choose model hyperparameters. A cross-validation walkthrough is available in ECLR on this [link](https://datasquad.github.io/ECLR/R_CrossValidation/R_CrossValidation.html).
 
@@ -46,7 +46,7 @@ We will look at an application to Bank Telemarketing Data (available [here](http
 
 It's a real-world data set of a phone-based marketing campaign by a Portuguese banking institution. The aim of the campaign was to get clients to subscribe to a term deposit. 
 
-The data set contains four Comma Separated Values files (".csv"). We named it 'banks.csv', which has 10% of the observations in the original data and fewer input variables. Using this smaller file makes it easier to run machine‑learning methods that require more computing power. We recommend that you engage with this walkthrough using the reduced dataset in 'banks.csv'. The full dataset is also available from the downloaded zip file.
+We use the 'banks.csv' file, which has 10% of the observations in the original data (randomly chosen) and fewer input variables. Using this smaller file makes it easier to run machine‑learning methods that require more computing power. We recommend that you engage with this walkthrough using the reduced dataset in 'banks.csv'. The full dataset is also available from the downloaded zip file.
 
 Look at the data documentation to answer the following question.
 
@@ -167,7 +167,7 @@ Let's look at the outcome variable more closely.
 prop.table(table(bank$y))
 ```
 
-Only slightly more than a tenth of clients subscribed to term deposits during the telemarketing campaign. Such imbalance is quite common in real-world data. However, this results in machine-learning models becoming very good at predicting the majority class (`y = no`), while struggling to learn patterns related to the minority class (`y = yes`). There are specialised techniques for addressing this issue, but to keep the exercise straightforward, we will not apply them here.
+Only slightly more than a tenth of clients subscribed to term deposits during the telemarketing campaign. Such imbalance is quite common in real-world data. However, this results in machine-learning models becoming very good at predicting the majority class (`y = no`), while struggling to learn patterns related to the minority class (`y = yes`). There are specialised techniques for addressing this issue, but to keep the exercise straightforward, we will not apply them here. The final discussion will return to this point.
 
 ::: {.callout-important}
 ### Naive prediction
@@ -299,17 +299,18 @@ tree.bank.toy <- tree(y ~ duration+month, train_data)
 
 A plot of the fitted tree produces the following:
 
-```{r echo=FALSE, fig.align = "center"}
+```{r, echo=FALSE, fig.align = "center", out.width = "100%"}
+
 knitr::include_graphics("../images/tree_toyA.png")
 ```
 
-In order to explain what the meaning of this tree is we labelled the leafs or final partitions. We can call these partitions as we can understand these as partitioning the space of the explanatory variables. As we restricted this toy example to two variables we can visualise this in the following partitioning where the latters correspond to the previous image. (Also note that the `month` variable is a factor variable without a natural ordering. In the picture the months have been ordered in a way that faciliatates the graphical representation.)
+In order to explain what the meaning of this tree is we labelled the leafs or final partitions. We can call these partitions as we can understand these as partitioning the space of the explanatory variables. As we restricted this toy example to two variables we can visualise this in the following partitioning where the latter correspond to the previous image. (Also note that the `month` variable is a factor variable without a natural ordering. In the picture the months have been ordered in a way that faciliatates the graphical representation.)
 
-```{r echo=FALSE, fig.align = "center"}
+```{r echo=FALSE, fig.align = "center", out.width = "100%"}
 knitr::include_graphics("../images/tree_toyB.png")
 ```
 
-The tree method divisions up the entire space into areas. In each area we also see the predicyion of "yes" or "no", with only areas C and G having a majority of predictions being "yes". This is not surprising, remembering that only about 11% of observations are "yes".
+The tree method divisions up the entire space into areas. In each area we also see the prediction of "yes" or "no", with only areas C and G having a majority of predictions being "yes". This is not surprising, remembering that only about 11% of observations are "yes".
 
 ### Estimating the full tree
 
@@ -383,7 +384,7 @@ tree.bank$frame$n
 
 To understand which nodes these are referring too, see how they are numbered. 
 
-```{r echo=FALSE, fig.align = "center"}
+```{r echo=FALSE, fig.align = "center", out.width="100%"}
 knitr::include_graphics("../images/Tree_bank_nodes.png")
 ```
 
@@ -540,7 +541,7 @@ bag.pred <- predict(bag.bt, test_data, type = "class")
 table(Predicted = bag.pred, Actual = test_data.y)
 ```
 
-Model accuracy is $(1915+105)/2261 =0.8934$ which is a slight improvement on the accuracy compared to the base tree. The sensitivity $105/257 = 0.4086$ however has dropped significantly from 0.54. Such a result, sensitivty not improving through the averaging applied in the bagging algorithm, is more likely to happen when the outcomes are unbalanced (here only 11% `yes` in the sample).
+Model accuracy is $(1915+105)/2261 =0.8934$ which is a slight improvement on the accuracy compared to the base tree. The sensitivity $105/257 = 0.4086$ however has dropped significantly from 0.54. Such a result, sensitivity not improving through the averaging applied in the bagging algorithm, is more likely to happen when the outcomes are unbalanced (here only 11% `yes` in the sample).
 
 ::: {.callout-caution}
 ### Details of the algorithm
@@ -579,7 +580,7 @@ Being able to figure out what choices particular functions make is an important 
 
 The averaging, as applied in the bagging algorithm, works best in terms of reducing the variance if the individual components we are averaging over are not strongly correlated. In the bagging algorithm we applied the same tree optimisation algorithm to different data samples, but we always used all `p` explanatory variables. As a result it is quite likely that the individual predictions are quite similar as they are likely to be based on the same predictors. The **Random Forest** method applies a simple trick to make this component forecasts less correlated and therefore allow for better variance reduction.
 
-Random forests apply the same basic structure as bagging (i.e. creating multiple data samples and estimating treets for each), but in addition, the splits in trees are carried out only by considering a random subset of predictors at a time instead of always considering all `p` predictors. Typically, the number of predictors considered at any split is the square root of predictors ($\sqrt{p}$). This allows the algorithm to build trees that are different from each other. Weaker predictors are given more of a chance to appear in the splits. This will reduce the correlation between trees and therefore strengthen the variance reduction. 
+Random forests apply the same basic structure as bagging (i.e. creating multiple data samples and estimating trees for each), but in addition, the splits in trees are carried out only by considering a random subset of predictors at a time instead of always considering all `p` predictors. Typically, the number of predictors considered at any split is the square root of predictors ($\sqrt{p}$). This allows the algorithm to build trees that are different from each other. Weaker predictors are given more of a chance to appear in the splits. This will reduce the correlation between trees and therefore strengthen the variance reduction. 
 
 We will use the `randomForest` package in R to apply random forests to the data. Setting `importance = TRUE` prompts the function to calculate importance measures for each predictor. Note that this call is basically the same as previously for bagging, just that we drop the `mtry = p` option which means that we are now operating with the default value for `mtry` which (according to the help function) is `mtry = sqrt(p)`.
 
